@@ -67,8 +67,6 @@ nmm_sanitizer_add_target(nmm)
 enable_testing()
 
 nmm_add_test(frame_state nmm)
-# nmm_add_test(state nmm)
-# nmm_add_test(hmm nmm)
-# nmm_add_test(path nmm)
+nmm_add_test(hmm nmm)
 
 nmm_enable_coverage("${NMM_SOURCES}")
