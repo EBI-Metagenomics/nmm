@@ -15,12 +15,14 @@ void test_codon(void)
     struct imm_abc *abc = imm_abc_create("ACGT");
     struct nmm_codon *codon = nmm_codon_create(abc);
 
-    nmm_codon_set_lprob(codon, 'A', 'T', 'G', log(0.8));
-    nmm_codon_set_lprob(codon, 'A', 'T', 'T', log(0.1));
+    cass_condition(nmm_codon_set_lprob(codon, 'A', 'T', 'G', log(0.8)) == 0);
+    cass_condition(nmm_codon_set_lprob(codon, 'A', 'T', 'T', log(0.1)) == 0);
+    cass_condition(nmm_codon_set_lprob(codon, 'A', 'H', 'T', log(0.1)) == 1);
 
     cass_close(nmm_codon_get_lprob(codon, 'A', 'T', 'G'), log(0.8));
     cass_close(nmm_codon_get_lprob(codon, 'A', 'T', 'T'), log(0.1));
     cass_condition(imm_isninf(nmm_codon_get_lprob(codon, 'T', 'T', 'T')));
+    cass_condition(imm_isnan(nmm_codon_get_lprob(codon, 'H', 'T', 'T')));
 
     nmm_codon_normalize(codon);
 
