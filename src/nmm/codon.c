@@ -2,7 +2,6 @@
 #include "nmm.h"
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
 
 struct nmm_codon
 {
@@ -22,14 +21,6 @@ struct nmm_codon *nmm_codon_create(const struct imm_abc *abc)
     codon->abc = abc;
     codon_set_ninfs(codon);
     return codon;
-}
-
-struct nmm_codon *nmm_codon_clone(const struct nmm_codon *codon)
-{
-    struct nmm_codon *c = malloc(sizeof(struct nmm_codon));
-    c->abc = codon->abc;
-    memcpy(c->emiss_lprobs, codon->emiss_lprobs, sizeof(double) * 4 * 4 * 4);
-    return c;
 }
 
 int nmm_codon_set_lprob(struct nmm_codon *codon, char a, char b, char c, double lprob)

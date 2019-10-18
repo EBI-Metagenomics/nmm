@@ -8,7 +8,7 @@ struct nmm_frame_state
 {
     struct imm_state *interface;
     double *base_lprobs;
-    struct nmm_codon *codon;
+    const struct nmm_codon *codon;
     double epsilon;
     double leps;
     double l1eps;
@@ -46,7 +46,7 @@ struct nmm_frame_state *nmm_frame_state_create(const char *name,
     state->base_lprobs = malloc(sizeof(double) * 4);
     memcpy(state->base_lprobs, base_lprobs, sizeof(double) * 4);
 
-    state->codon = nmm_codon_clone(codon);
+    state->codon = codon;
     state->epsilon = epsilon;
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
@@ -118,9 +118,7 @@ void nmm_frame_state_destroy(struct nmm_frame_state *state)
         state->base_lprobs = NULL;
     }
 
-    nmm_codon_destroy(state->codon);
     state->codon = NULL;
-
     free(state);
 }
 

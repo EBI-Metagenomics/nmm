@@ -41,11 +41,13 @@ set(NMM_PUBLIC_HEADER
 # installed alongside it.
 set(NMM_PRIVATE_HEADERS
     include/nmm/api.h
+    include/nmm/base.h
     include/nmm/codon.h
-    include/nmm/frame.h
+    include/nmm/frame_state.h
 )
 
 set(NMM_SOURCES
+    src/nmm/base.c
     src/nmm/codon.c
     src/nmm/frame_state.c
 )
@@ -66,6 +68,7 @@ nmm_sanitizer_add_target(nmm)
 
 enable_testing()
 
+nmm_add_test(base nmm)
 nmm_add_test(codon nmm)
 nmm_add_test(frame_state nmm)
 nmm_add_test(hmm nmm)
