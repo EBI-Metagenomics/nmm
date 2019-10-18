@@ -71,8 +71,8 @@ static inline double logaddexp3(double a, double b, double c)
     return logaddexp(logaddexp(a, b), c);
 }
 static inline double logsumexp(double *arr, int len) { return imm_logsumexp(arr, len); }
-static inline double ecodon_lprob(const struct nmm_frame_state *state, const char *seq, int a,
-                                  int b, int c)
+static inline double ecodon_lprob(const struct nmm_frame_state *state, const char *seq,
+                                  int a, int b, int c)
 {
     const char codon[3] = {seq[a], seq[b], seq[c]};
     return codon_lprob(state, codon);
@@ -250,7 +250,7 @@ double joint_seq_len5(const struct nmm_frame_state *state, const char *seq)
                   logaddexp(b_lp1 + b_lp4 + c_lp(c023), b_lp2 + b_lp3 + c_lp(c014)),
                   logaddexp(b_lp2 + b_lp4 + c_lp(c013), b_lp3 + b_lp4 + c_lp(c012))};
 
-   return 2 * state->leps + 2 * state->l1eps - log(10) + logsumexp(v, 5);
+    return 2 * state->leps + 2 * state->l1eps - log(10) + logsumexp(v, 5);
 #undef c_lprob
 }
 
@@ -258,23 +258,28 @@ double codon_lprob(const struct nmm_frame_state *state, const char *codon)
 {
     const struct imm_abc *abc = imm_state_get_abc(imm_state_cast_c(state));
     double lprob = -INFINITY;
-    int bases_idx[3 * 4] = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
+    char bases[3 * 4] = {
+        imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1), imm_abc_symbol_id(abc, 2),
+        imm_abc_symbol_id(abc, 3), imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
+        imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3), imm_abc_symbol_id(abc, 0),
+        imm_abc_symbol_id(abc, 1), imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3),
+    };
     int nbases[3] = {4, 4, 4};
 
     for (int i = 0; i < 3; ++i) {
         if (codon[i] != IMM_ANY_SYMBOL) {
-            bases_idx[i * 4] = imm_abc_symbol_idx(abc, codon[i]);
+            bases[i * 4] = codon[i];
             nbases[i] = 1;
         }
     }
 
-    const int *a_idx = bases_idx;
-    const int *b_idx = bases_idx + 4;
-    const int *c_idx = bases_idx + 8;
+    const char *a_id = bases;
+    const char *b_id = bases + 4;
+    const char *c_id = bases + 8;
     for (int a = 0; a < nbases[0]; ++a) {
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
-                double t = nmm_codon_get_lprob(state->codon, a_idx[a], b_idx[b], c_idx[c]);
+                double t = nmm_codon_get_lprob(state->codon, a_id[a], b_id[b], c_id[c]);
                 lprob = logaddexp(lprob, t);
             }
         }

@@ -66,6 +66,7 @@ nmm_sanitizer_add_target(nmm)
 
 enable_testing()
 
+nmm_add_test(codon nmm)
 nmm_add_test(frame_state nmm)
 nmm_add_test(hmm nmm)
 

@@ -1,52 +1,68 @@
-#include "nmm.h"
 #include "imm.h"
+#include "nmm.h"
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 struct nmm_codon
 {
+    const struct imm_abc *abc;
     double emiss_lprobs[4 * 4 * 4];
 };
 
-int codon_check_range(int a, int b, int c);
+void codon_set_ninfs(struct nmm_codon *codon);
 
-struct nmm_codon *nmm_codon_create(void)
+struct nmm_codon *nmm_codon_create(const struct imm_abc *abc)
 {
-    return malloc(sizeof(struct nmm_codon));
+    if (imm_abc_length(abc) != 4) {
+        imm_error("alphabet length is not four");
+        return NULL;
+    }
+    struct nmm_codon *codon = malloc(sizeof(struct nmm_codon));
+    codon->abc = abc;
+    codon_set_ninfs(codon);
+    return codon;
 }
 
 struct nmm_codon *nmm_codon_clone(const struct nmm_codon *codon)
 {
     struct nmm_codon *c = malloc(sizeof(struct nmm_codon));
+    c->abc = codon->abc;
     memcpy(c->emiss_lprobs, codon->emiss_lprobs, sizeof(double) * 4 * 4 * 4);
     return c;
 }
 
-void nmm_codon_set_lprob(struct nmm_codon *codon, int a, int b, int c,
-                                   double lprob)
+int nmm_codon_set_lprob(struct nmm_codon *codon, char a, char b, char c, double lprob)
 {
-    codon_check_range(a, b, c);
+    int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
+                  imm_abc_symbol_idx(codon->abc, c)};
 
-    if (a < 0 || a > 3 || b < 0 || b > 3 || c < 0 || c > 3)
-        imm_error("base index outside the range [0, 3]");
+    if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
+        imm_error("nucleotide not found");
+        return 1;
+    }
 
-    codon->emiss_lprobs[4 * 4 * a + 4 * b + c] = lprob;
+    codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]] = lprob;
+    return 0;
 }
 
-void nmm_codon_set_ninfs(struct nmm_codon *codon)
+void codon_set_ninfs(struct nmm_codon *codon)
 {
     for (int i = 0; i < 4 * 4 * 4; ++i)
         codon->emiss_lprobs[i] = -INFINITY;
 }
 
-double nmm_codon_get_lprob(const struct nmm_codon *codon, int a, int b,
-                                     int c)
+double nmm_codon_get_lprob(const struct nmm_codon *codon, char a, char b, char c)
 {
-    if (codon_check_range(a, b, c))
-        return NAN;
+    int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
+                  imm_abc_symbol_idx(codon->abc, c)};
 
-    return codon->emiss_lprobs[4 * 4 * a + 4 * b + c];
+    if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
+        imm_error("nucleotide not found");
+        return NAN;
+    }
+
+    return codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
 }
 
 int nmm_codon_normalize(struct nmm_codon *codon)
@@ -56,15 +72,9 @@ int nmm_codon_normalize(struct nmm_codon *codon)
 
 void nmm_codon_destroy(struct nmm_codon *codon)
 {
-    if (codon)
-        free(codon);
-}
+    if (!codon)
+        return;
 
-int codon_check_range(int a, int b, int c)
-{
-    if (a < 0 || a > 3 || b < 0 || b > 3 || c < 0 || c > 3) {
-        imm_error("base index outside the range [0, 3]");
-        return -1;
-    }
-    return 0;
+    codon->abc = NULL;
+    free(codon);
 }
