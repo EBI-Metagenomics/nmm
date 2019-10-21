@@ -13,5 +13,6 @@ NMM_API double nmm_codon_get_lprob(const struct nmm_codon *codon, char a, char b
                                    char c);
 NMM_API int nmm_codon_normalize(struct nmm_codon *codon);
 NMM_API void nmm_codon_destroy(struct nmm_codon *codon);
+NMM_API const struct imm_abc *nmm_codon_get_abc(const struct nmm_codon *codon);
 
 #endif

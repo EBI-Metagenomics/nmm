@@ -7,45 +7,37 @@
 struct nmm_frame_state
 {
     struct imm_state *interface;
-    double *base_lprobs;
+    struct nmm_base const *base;
     const struct nmm_codon *codon;
     double epsilon;
     double leps;
     double l1eps;
 };
 
-/* struct imm_normal_state *state = malloc(sizeof(struct imm_normal_state)); */
-
-/* size_t len = (size_t)abc_length(abc); */
-/* state->lprobs = malloc(sizeof(double) * len); */
-/* memcpy(state->lprobs, lprobs, sizeof(double) * len); */
-
-/* struct imm_state_funcs funcs = {normal_state_lprob, normal_state_min_seq, */
-/*                                 normal_state_max_seq}; */
-/* state->interface = imm_state_create(name, abc, funcs, state); */
-/* return state; */
-
 double frame_state_lprob(const struct imm_state *state, const char *seq, int seq_len);
 int frame_state_min_seq(const struct imm_state *state);
 int frame_state_max_seq(const struct imm_state *state);
 
 struct nmm_frame_state *nmm_frame_state_create(const char *name,
-                                               const struct imm_abc *bases,
-                                               const double *base_lprobs,
+                                               const struct nmm_base *base,
                                                const struct nmm_codon *codon,
                                                double epsilon)
 {
     struct nmm_frame_state *state = malloc(sizeof(struct nmm_frame_state));
 
-    if (imm_abc_length(bases) != 4) {
+    if (nmm_base_get_abc(base) != nmm_codon_get_abc(codon)) {
+        free(state);
+        imm_error("alphabets from base and codon are different");
+        return NULL;
+    }
+
+    if (imm_abc_length(nmm_base_get_abc(base)) != 4) {
         free(state);
         imm_error("alphabet length is not four");
         return NULL;
     }
 
-    state->base_lprobs = malloc(sizeof(double) * 4);
-    memcpy(state->base_lprobs, base_lprobs, sizeof(double) * 4);
-
+    state->base = base;
     state->codon = codon;
     state->epsilon = epsilon;
     state->leps = log(epsilon);
@@ -54,7 +46,7 @@ struct nmm_frame_state *nmm_frame_state_create(const char *name,
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
 
-    state->interface = imm_state_create(name, bases, funcs, state);
+    state->interface = imm_state_create(name, nmm_base_get_abc(base), funcs, state);
     return state;
 }
 
@@ -95,12 +87,6 @@ double frame_state_lprob(const struct imm_state *state, const char *seq, int seq
     return -INFINITY;
 }
 
-int nmm_frame_state_normalize(struct nmm_frame_state *state)
-
-{
-    return imm_lognormalize(state->base_lprobs, 4);
-}
-
 int frame_state_min_seq(const struct imm_state *state) { return 1; }
 
 int frame_state_max_seq(const struct imm_state *state) { return 5; }
@@ -113,11 +99,7 @@ void nmm_frame_state_destroy(struct nmm_frame_state *state)
     imm_state_destroy(state->interface);
     state->interface = NULL;
 
-    if (state->base_lprobs) {
-        free(state->base_lprobs);
-        state->base_lprobs = NULL;
-    }
-
+    state->base = NULL;
     state->codon = NULL;
     free(state);
 }
@@ -288,6 +270,5 @@ double codon_lprob(const struct nmm_frame_state *state, const char *codon)
 
 double base_lprob(const struct nmm_frame_state *state, char id)
 {
-    int idx = imm_abc_symbol_idx(imm_state_get_abc(imm_state_cast_c(state)), id);
-    return state->base_lprobs[idx];
+    return nmm_base_get_lprob(state->base, id);
 }

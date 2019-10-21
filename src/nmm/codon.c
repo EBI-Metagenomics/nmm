@@ -69,3 +69,8 @@ void nmm_codon_destroy(struct nmm_codon *codon)
     codon->abc = NULL;
     free(codon);
 }
+
+const struct imm_abc *nmm_codon_get_abc(const struct nmm_codon *codon)
+{
+    return codon->abc;
+}

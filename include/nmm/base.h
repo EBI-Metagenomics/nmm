@@ -11,5 +11,6 @@ NMM_API int nmm_base_set_lprob(struct nmm_base *base, char nucleotide, double lp
 NMM_API double nmm_base_get_lprob(const struct nmm_base *base, char nucleotide);
 NMM_API int nmm_base_normalize(struct nmm_base *base);
 NMM_API void nmm_base_destroy(struct nmm_base *base);
+NMM_API const struct imm_abc *nmm_base_get_abc(const struct nmm_base *base);
 
 #endif

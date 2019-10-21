@@ -58,3 +58,8 @@ void nmm_base_destroy(struct nmm_base *base)
     base->abc = NULL;
     free(base);
 }
+
+const struct imm_abc *nmm_base_get_abc(const struct nmm_base *base)
+{
+    return base->abc;
+}
