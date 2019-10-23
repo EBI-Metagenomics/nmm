@@ -45,12 +45,12 @@ void test_hmm_frame_state_0eps(void)
     imm_path_add(path, imm_state_cast_c(state), 3);
     cass_close(imm_hmm_likelihood(hmm, "ATT", path), -2.3025850930);
     cass_close(imm_hmm_likelihood(hmm, "ATG", path), -0.2231435513142097);
-    cass_condition(imm_isnan(imm_hmm_likelihood(hmm, "AT", path)));
+    cass_cond(imm_isnan(imm_hmm_likelihood(hmm, "AT", path)));
     imm_path_destroy(path);
 
     path = imm_path_create();
     imm_path_add(path, imm_state_cast_c(state), 2);
-    cass_condition(imm_isninf(imm_hmm_likelihood(hmm, "AT", path)));
+    cass_cond(imm_isninf(imm_hmm_likelihood(hmm, "AT", path)));
     imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
@@ -258,7 +258,7 @@ void test_hmm_frame_state_len5(void)
 
     struct imm_path *path = imm_path_create();
     imm_path_add(path, imm_state_cast_c(state), 5);
-    cass_condition(imm_isninf(imm_hmm_likelihood(hmm, "ACGTA", path)));
+    cass_cond(imm_isninf(imm_hmm_likelihood(hmm, "ACGTA", path)));
     imm_path_destroy(path);
 
     path = imm_path_create();
@@ -266,7 +266,7 @@ void test_hmm_frame_state_len5(void)
     cass_close(imm_hmm_likelihood(hmm, "ACTAG", path), -10.11420858385178);
     imm_path_destroy(path);
 
-    cass_condition(imm_isninf(imm_hmm_viterbi(hmm, "ACGTA", imm_state_cast_c(state))));
+    cass_cond(imm_isninf(imm_hmm_viterbi(hmm, "ACGTA", imm_state_cast_c(state))));
     cass_close(imm_hmm_viterbi(hmm, "ACTAG", imm_state_cast_c(state)),
                -10.11420858385178);
 
