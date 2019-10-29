@@ -93,8 +93,15 @@ void test_hmm_frame_state_len1(void)
     cass_close(imm_hmm_likelihood(hmm, "C", path), -7.118476310297789);
     imm_path_destroy(path);
 
-    cass_close(imm_hmm_viterbi(hmm, "A", cast_c(state), NULL), -6.0198640216);
-    cass_close(imm_hmm_viterbi(hmm, "C", cast_c(state), NULL), -7.1184763103);
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "A", cast_c(state), path), -6.0198640216);
+    cass_close(imm_hmm_likelihood(hmm, "A", path), -6.0198640216);
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "C", cast_c(state), path), -7.1184763103);
+    cass_close(imm_hmm_likelihood(hmm, "C", path), -7.1184763103);
+    imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -144,10 +151,25 @@ void test_hmm_frame_state_len2(void)
     cass_close(imm_hmm_likelihood(hmm, "TT", path), -5.326716841069734);
     imm_path_destroy(path);
 
-    cass_close(imm_hmm_viterbi(hmm, "AA", cast_c(state), NULL), -8.910235779525845);
-    cass_close(imm_hmm_viterbi(hmm, "TG", cast_c(state), NULL), -3.2434246977896133);
-    cass_close(imm_hmm_viterbi(hmm, "CC", cast_c(state), NULL), -4.225022885864217);
-    cass_close(imm_hmm_viterbi(hmm, "TT", cast_c(state), NULL), -5.326716841069734);
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "AA", cast_c(state), path), -8.910235779525845);
+    cass_close(imm_hmm_likelihood(hmm, "AA", path), -8.910235779525845);
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "TG", cast_c(state), path), -3.2434246977896133);
+    cass_close(imm_hmm_likelihood(hmm, "TG", path), -3.2434246977896133);
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "CC", cast_c(state), path), -4.225022885864217);
+    cass_close(imm_hmm_likelihood(hmm, "CC", path), -4.225022885864217);
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "TT", cast_c(state), path), -5.326716841069734);
+    cass_close(imm_hmm_likelihood(hmm, "TT", path), -5.326716841069734);
+    imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -187,8 +209,15 @@ void test_hmm_frame_state_len3(void)
     cass_close(imm_hmm_likelihood(hmm, "ATG", path), -0.639793371602465);
     imm_path_destroy(path);
 
-    cass_close(imm_hmm_viterbi(hmm, "ATC", cast_c(state), NULL), -7.012344487235739);
-    cass_close(imm_hmm_viterbi(hmm, "ATG", cast_c(state), NULL), -0.639793371602465);
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "ATC", cast_c(state), path), -7.012344487235739);
+    cass_close(imm_hmm_likelihood(hmm, "ATC", path), -7.012344487235739);
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "ATG", cast_c(state), path), -0.639793371602465);
+    cass_close(imm_hmm_likelihood(hmm, "ATG", path), -0.639793371602465);
+    imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -223,7 +252,10 @@ void test_hmm_frame_state_len4(void)
     cass_close(imm_hmm_likelihood(hmm, "ATCC", path), -11.982929094215963);
     imm_path_destroy(path);
 
-    cass_close(imm_hmm_viterbi(hmm, "ATCC", cast_c(state), NULL), -11.982929094215963);
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "ATCC", cast_c(state), path), -11.982929094215963);
+    cass_close(imm_hmm_likelihood(hmm, "ATCC", path), -11.982929094215963);
+    imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -264,8 +296,15 @@ void test_hmm_frame_state_len5(void)
     cass_close(imm_hmm_likelihood(hmm, "ACTAG", path), -10.11420858385178);
     imm_path_destroy(path);
 
-    cass_cond(!imm_lprob_is_valid(imm_hmm_viterbi(hmm, "ACGTA", cast_c(state), NULL)));
-    cass_close(imm_hmm_viterbi(hmm, "ACTAG", cast_c(state), NULL), -10.11420858385178);
+    path = imm_path_create();
+    cass_cond(!imm_lprob_is_valid(imm_hmm_viterbi(hmm, "ACGTA", cast_c(state), path)));
+    cass_cond(!imm_lprob_is_valid(imm_hmm_likelihood(hmm, "ACGTA", path)));
+    imm_path_destroy(path);
+
+    path = imm_path_create();
+    cass_close(imm_hmm_viterbi(hmm, "ACTAG", cast_c(state), path), -10.11420858385178);
+    cass_close(imm_hmm_likelihood(hmm, "ACTAG", path), -10.11420858385178);
+    imm_path_destroy(path);
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
