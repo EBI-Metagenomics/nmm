@@ -1,11 +1,5 @@
-#ifndef NMM_H_API
-#define NMM_H_API
-
-#define NMM_VERSION_MAJOR 0
-#define NMM_VERSION_MINOR 0
-#define NMM_VERSION_PATCH 1
-
-#define NMM_VERSION "0.0.1"
+#ifndef NMM_H
+#define NMM_H
 
 #ifdef __cplusplus
 extern "C"

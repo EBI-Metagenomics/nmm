@@ -1,76 +1,32 @@
-cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(nmm VERSION 0.0.1 LANGUAGES C)
 
-include(nmm.cmake)
-
-nmm_get_version(${CMAKE_CURRENT_SOURCE_DIR}/include/nmm.h NMM_VERSION_MAJOR NMM_VERSION_MINOR NMM_VERSION_PATCH)
-set(NMM_VERSION ${NMM_VERSION_MAJOR}.${NMM_VERSION_MINOR}.${NMM_VERSION_PATCH})
-
-project(nmm VERSION ${NMM_VERSION} LANGUAGES C)
-
-set(CMAKE_C_STANDARD 11)
-
-# Use FOLDER target property to organize targets into folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+find_package(imm 0.0.1 REQUIRED)
 
 # Generate compile_commands.json file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-message(STATUS "NMM_VERSION=${NMM_VERSION}")
-message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-
-nmm_enable_default_build_type()
-nmm_enable_sanitizer_option()
-nmm_enable_coverage_option()
-
-if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wall -Wextra -pedantic -Wstrict-prototypes -Wshadow -Wconversion
-        -Wmissing-prototypes -Wno-unused-parameter)
-endif()
-
-include_directories(include)
-include_directories(.)
-include_directories(imm/include)
-link_directories(imm/build)
-
-# Interface header that that the user is used to include.
-set(NMM_PUBLIC_HEADER
-    include/nmm.h
+add_library(nmm
+    src/base.c
+    src/codon.c
+    src/frame_state.c
 )
 
-# Headers that are included by the interface header, and therefore
-# installed alongside it.
-set(NMM_PRIVATE_HEADERS
-    include/nmm/api.h
-    include/nmm/base.h
-    include/nmm/codon.h
-    include/nmm/frame_state.h
+target_include_directories(nmm
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-
-set(NMM_SOURCES
-    src/nmm/base.c
-    src/nmm/codon.c
-    src/nmm/frame_state.c
-)
-
-add_library(nmmobj OBJECT ${NMM_SOURCES})
-set_property(TARGET nmmobj PROPERTY POSITION_INDEPENDENT_CODE 1)
-
-add_library(nmm SHARED $<TARGET_OBJECTS:nmmobj>)
-set_target_properties(nmm PROPERTIES VERSION ${NMM_VERSION})
-set_target_properties(nmm PROPERTIES SOVERSION ${NMM_VERSION_MAJOR})
-set_target_properties(nmm PROPERTIES PUBLIC_HEADER ${NMM_PUBLIC_HEADER})
-target_link_libraries(nmm imm)
-if(NOT WIN32)
-    target_link_libraries(nmm m)
-endif()
-target_compile_definitions(nmm PUBLIC NMM_API_EXPORTS)
-nmm_sanitizer_add_target(nmm)
+set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
+target_compile_features(nmm PRIVATE c_std_11)
+target_compile_definitions(nmm PRIVATE NMM_API_EXPORTS)
+target_compile_options(nmm PRIVATE $<$<C_COMPILER_ID:AppleClang>:-Wall -Wextra
+    -pedantic -Wstrict-prototypes -Wshadow -Wconversion -Wmissing-prototypes
+    -Wno-unused-parameter -Wno-empty-translation-unit>)
+target_link_libraries(nmm PUBLIC IMM::imm)
 
 enable_testing()
-
-nmm_add_test(base nmm)
-nmm_add_test(codon nmm)
-nmm_add_test(frame_state nmm)
-nmm_add_test(hmm nmm)
-
-nmm_enable_coverage("${NMM_SOURCES}")
+add_subdirectory(test)

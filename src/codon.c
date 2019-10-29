@@ -1,29 +1,29 @@
-#include "imm.h"
-#include "nmm.h"
+#include "imm/imm.h"
+#include "nmm/nmm.h"
 #include <math.h>
 #include <stdlib.h>
 
 struct nmm_codon
 {
-    const struct imm_abc *abc;
-    double emiss_lprobs[4 * 4 * 4];
+    const struct imm_abc* abc;
+    double                emiss_lprobs[4 * 4 * 4];
 };
 
-void codon_set_ninfs(struct nmm_codon *codon);
+void codon_set_ninfs(struct nmm_codon* codon);
 
-struct nmm_codon *nmm_codon_create(const struct imm_abc *abc)
+struct nmm_codon* nmm_codon_create(const struct imm_abc* abc)
 {
     if (imm_abc_length(abc) != 4) {
         imm_error("alphabet length is not four");
         return NULL;
     }
-    struct nmm_codon *codon = malloc(sizeof(struct nmm_codon));
+    struct nmm_codon* codon = malloc(sizeof(struct nmm_codon));
     codon->abc = abc;
     codon_set_ninfs(codon);
     return codon;
 }
 
-int nmm_codon_set_lprob(struct nmm_codon *codon, char a, char b, char c, double lprob)
+int nmm_codon_set_lprob(struct nmm_codon* codon, char a, char b, char c, double lprob)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
                   imm_abc_symbol_idx(codon->abc, c)};
@@ -37,13 +37,13 @@ int nmm_codon_set_lprob(struct nmm_codon *codon, char a, char b, char c, double 
     return 0;
 }
 
-void codon_set_ninfs(struct nmm_codon *codon)
+void codon_set_ninfs(struct nmm_codon* codon)
 {
     for (int i = 0; i < 4 * 4 * 4; ++i)
         codon->emiss_lprobs[i] = -INFINITY;
 }
 
-double nmm_codon_get_lprob(const struct nmm_codon *codon, char a, char b, char c)
+double nmm_codon_get_lprob(const struct nmm_codon* codon, char a, char b, char c)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
                   imm_abc_symbol_idx(codon->abc, c)};
@@ -56,12 +56,12 @@ double nmm_codon_get_lprob(const struct nmm_codon *codon, char a, char b, char c
     return codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
 }
 
-int nmm_codon_normalize(struct nmm_codon *codon)
+int nmm_codon_normalize(struct nmm_codon* codon)
 {
-    return imm_lognormalize(codon->emiss_lprobs, 4 * 4 * 4);
+    return imm_lprob_normalize(codon->emiss_lprobs, 4 * 4 * 4);
 }
 
-void nmm_codon_destroy(struct nmm_codon *codon)
+void nmm_codon_destroy(struct nmm_codon* codon)
 {
     if (!codon)
         return;
@@ -70,7 +70,4 @@ void nmm_codon_destroy(struct nmm_codon *codon)
     free(codon);
 }
 
-const struct imm_abc *nmm_codon_get_abc(const struct nmm_codon *codon)
-{
-    return codon->abc;
-}
+const struct imm_abc* nmm_codon_get_abc(const struct nmm_codon* codon) { return codon->abc; }

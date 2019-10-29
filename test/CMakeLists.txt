@@ -1,0 +1,11 @@
+function(nmm_add_test name)
+    add_executable(test_${name} src/${name}.c)
+    target_link_libraries(test_${name} PRIVATE IMM::imm nmm)
+    target_include_directories(test_${name} PRIVATE src/)
+    add_test(NAME ${name} COMMAND test_${name})
+endfunction()
+
+nmm_add_test(base)
+nmm_add_test(codon)
+nmm_add_test(frame_state)
+nmm_add_test(hmm)
