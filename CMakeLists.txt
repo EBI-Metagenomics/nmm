@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(nmm VERSION 0.0.1 LANGUAGES C)
 
-find_package(imm 0.0.1 REQUIRED)
-
 # Generate compile_commands.json file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -11,6 +9,9 @@ add_library(nmm
     src/codon.c
     src/frame_state.c
 )
+add_library(NMM::nmm ALIAS nmm)
+
+find_package(imm REQUIRED)
 
 target_include_directories(nmm
     PUBLIC
@@ -19,14 +20,35 @@ target_include_directories(nmm
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+target_link_libraries(nmm PUBLIC IMM::imm)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 target_compile_features(nmm PRIVATE c_std_11)
 target_compile_definitions(nmm PRIVATE NMM_API_EXPORTS)
-target_compile_options(nmm PRIVATE $<$<C_COMPILER_ID:AppleClang>:-Wall -Wextra
-    -pedantic -Wstrict-prototypes -Wshadow -Wconversion -Wmissing-prototypes
-    -Wno-unused-parameter -Wno-empty-translation-unit>)
-target_link_libraries(nmm PUBLIC IMM::imm)
+target_link_libraries(nmm INTERFACE $<$<BOOL:${UNIX}>:m>)
+target_compile_options(nmm PRIVATE
+    $<$<BOOL:${WIN32}>:/W4 /WX>
+    $<$<NOT:$<BOOL:${WIN32}>>:-Wall -Wextra -pedantic -Wstrict-prototypes 
+        -Wshadow -Wconversion -Wmissing-prototypes -Wno-unused-parameter
+        -Wno-empty-translation-unit>
+)
+
+install(TARGETS nmm EXPORT nmm-targets)
+install(DIRECTORY include/ DESTINATION include)
+install(EXPORT nmm-targets
+    FILE nmm-targets.cmake
+    NAMESPACE NMM::
+    DESTINATION lib/cmake/nmm
+)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(nmm-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/nmm-config.cmake
+    INSTALL_DESTINATION lib/cmake/nmm
+    NO_SET_AND_CHECK_MACRO
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nmm-config.cmake
+    DESTINATION lib/cmake/imm
+)
 
 enable_testing()
 add_subdirectory(test)

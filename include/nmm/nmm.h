@@ -1,5 +1,5 @@
-#ifndef NMM_H
-#define NMM_H
+#ifndef NMM_NMM_H
+#define NMM_NMM_H
 
 #ifdef __cplusplus
 extern "C"
