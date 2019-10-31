@@ -14,9 +14,29 @@ struct nmm_frame_state
     double                  l1eps;
 };
 
-double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len);
-int    frame_state_min_seq(const struct imm_state* state);
-int    frame_state_max_seq(const struct imm_state* state);
+static double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len);
+static int    frame_state_min_seq(const struct imm_state* state);
+static int    frame_state_max_seq(const struct imm_state* state);
+
+static double        joint_seq_len1(const struct nmm_frame_state* state, const char* seq);
+static double        joint_seq_len2(const struct nmm_frame_state* state, const char* seq);
+static double        joint_seq_len3(const struct nmm_frame_state* state, const char* seq);
+static double        joint_seq_len4(const struct nmm_frame_state* state, const char* seq);
+static double        joint_seq_len5(const struct nmm_frame_state* state, const char* seq);
+static double        codon_lprob(const struct nmm_frame_state* state, const char* codon);
+static double        base_lprob(const struct nmm_frame_state* state, char id);
+static inline double logaddexp(double a, double b) { return imm_lprob_add(a, b); }
+static inline double logaddexp3(double a, double b, double c)
+{
+    return logaddexp(logaddexp(a, b), c);
+}
+static inline double logsumexp(double* arr, int len) { return imm_lprob_sum(arr, len); }
+static inline double ecodon_lprob(const struct nmm_frame_state* state, const char* seq, int a,
+                                  int b, int c)
+{
+    const char codon[3] = {seq[a], seq[b], seq[c]};
+    return codon_lprob(state, codon);
+}
 
 struct nmm_frame_state* nmm_frame_state_create(const char* name, const struct nmm_base* base,
                                                const struct nmm_codon* codon, double epsilon)
@@ -48,27 +68,20 @@ struct nmm_frame_state* nmm_frame_state_create(const char* name, const struct nm
     return state;
 }
 
-double               joint_seq_len1(const struct nmm_frame_state* state, const char* seq);
-double               joint_seq_len2(const struct nmm_frame_state* state, const char* seq);
-double               joint_seq_len3(const struct nmm_frame_state* state, const char* seq);
-double               joint_seq_len4(const struct nmm_frame_state* state, const char* seq);
-double               joint_seq_len5(const struct nmm_frame_state* state, const char* seq);
-double               codon_lprob(const struct nmm_frame_state* state, const char* codon);
-double               base_lprob(const struct nmm_frame_state* state, char id);
-static inline double logaddexp(double a, double b) { return imm_lprob_add(a, b); }
-static inline double logaddexp3(double a, double b, double c)
+void nmm_frame_state_destroy(struct nmm_frame_state* state)
 {
-    return logaddexp(logaddexp(a, b), c);
-}
-static inline double logsumexp(double* arr, int len) { return imm_lprob_sum(arr, len); }
-static inline double ecodon_lprob(const struct nmm_frame_state* state, const char* seq, int a,
-                                  int b, int c)
-{
-    const char codon[3] = {seq[a], seq[b], seq[c]};
-    return codon_lprob(state, codon);
+    if (!state)
+        return;
+
+    imm_state_destroy(state->interface);
+    state->interface = NULL;
+
+    state->base = NULL;
+    state->codon = NULL;
+    free(state);
 }
 
-double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len)
+static double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len)
 {
     const struct nmm_frame_state* s = imm_state_get_impl_c(state);
     if (seq_len == 1)
@@ -85,24 +98,11 @@ double frame_state_lprob(const struct imm_state* state, const char* seq, int seq
     return -INFINITY;
 }
 
-int frame_state_min_seq(const struct imm_state* state) { return 1; }
+static int frame_state_min_seq(const struct imm_state* state) { return 1; }
 
-int frame_state_max_seq(const struct imm_state* state) { return 5; }
+static int frame_state_max_seq(const struct imm_state* state) { return 5; }
 
-void nmm_frame_state_destroy(struct nmm_frame_state* state)
-{
-    if (!state)
-        return;
-
-    imm_state_destroy(state->interface);
-    state->interface = NULL;
-
-    state->base = NULL;
-    state->codon = NULL;
-    free(state);
-}
-
-double joint_seq_len1(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len1(const struct nmm_frame_state* state, const char* seq)
 {
     const char _ = IMM_ANY_SYMBOL;
     const char c0__[3] = {seq[0], _, _};
@@ -117,7 +117,7 @@ double joint_seq_len1(const struct nmm_frame_state* state, const char* seq)
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
-double joint_seq_len2(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len2(const struct nmm_frame_state* state, const char* seq)
 {
 #define c_lprob(codon) codon_lprob(state, codon)
     const char _ = IMM_ANY_SYMBOL;
@@ -151,7 +151,7 @@ double joint_seq_len2(const struct nmm_frame_state* state, const char* seq)
 #undef c_lprob
 }
 
-double joint_seq_len3(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len3(const struct nmm_frame_state* state, const char* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], IMM_ANY_SYMBOL};
@@ -176,7 +176,7 @@ double joint_seq_len3(const struct nmm_frame_state* state, const char* seq)
 #undef C
 }
 
-double joint_seq_len4(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len4(const struct nmm_frame_state* state, const char* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], seq[3], IMM_ANY_SYMBOL};
@@ -202,7 +202,7 @@ double joint_seq_len4(const struct nmm_frame_state* state, const char* seq)
 #undef C
 }
 
-double joint_seq_len5(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len5(const struct nmm_frame_state* state, const char* seq)
 {
 #define c_lp(codon) codon_lprob(state, codon)
     const char c012[3] = {seq[0], seq[1], seq[2]};
@@ -232,7 +232,7 @@ double joint_seq_len5(const struct nmm_frame_state* state, const char* seq)
 #undef c_lprob
 }
 
-double codon_lprob(const struct nmm_frame_state* state, const char* codon)
+static double codon_lprob(const struct nmm_frame_state* state, const char* codon)
 {
     const struct imm_abc* abc = imm_state_get_abc(imm_state_cast_c(state));
     double                lprob = -INFINITY;
@@ -266,7 +266,7 @@ double codon_lprob(const struct nmm_frame_state* state, const char* codon)
     return lprob;
 }
 
-double base_lprob(const struct nmm_frame_state* state, char id)
+static double base_lprob(const struct nmm_frame_state* state, char id)
 {
     return nmm_base_get_lprob(state->base, id);
 }

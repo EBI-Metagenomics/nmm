@@ -9,7 +9,7 @@ struct nmm_codon
     double                emiss_lprobs[4 * 4 * 4];
 };
 
-void codon_set_ninfs(struct nmm_codon* codon);
+static void codon_set_ninfs(struct nmm_codon* codon);
 
 struct nmm_codon* nmm_codon_create(const struct imm_abc* abc)
 {
@@ -35,12 +35,6 @@ int nmm_codon_set_lprob(struct nmm_codon* codon, char a, char b, char c, double 
 
     codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]] = lprob;
     return 0;
-}
-
-void codon_set_ninfs(struct nmm_codon* codon)
-{
-    for (int i = 0; i < 4 * 4 * 4; ++i)
-        codon->emiss_lprobs[i] = -INFINITY;
 }
 
 double nmm_codon_get_lprob(const struct nmm_codon* codon, char a, char b, char c)
@@ -71,3 +65,9 @@ void nmm_codon_destroy(struct nmm_codon* codon)
 }
 
 const struct imm_abc* nmm_codon_get_abc(const struct nmm_codon* codon) { return codon->abc; }
+
+static void codon_set_ninfs(struct nmm_codon* codon)
+{
+    for (int i = 0; i < 4 * 4 * 4; ++i)
+        codon->emiss_lprobs[i] = -INFINITY;
+}
