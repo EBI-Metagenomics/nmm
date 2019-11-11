@@ -33,7 +33,11 @@ target_compile_options(nmm PRIVATE
         -Wno-empty-translation-unit>
 )
 
-install(TARGETS nmm EXPORT nmm-targets)
+install(TARGETS nmm EXPORT nmm-targets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
 install(DIRECTORY include/ DESTINATION include)
 install(EXPORT nmm-targets
     FILE nmm-targets.cmake
