@@ -14,16 +14,26 @@ struct nmm_frame_state
     double                  l1eps;
 };
 
-static double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len);
-static int    frame_state_min_seq(const struct imm_state* state);
-static int    frame_state_max_seq(const struct imm_state* state);
+static double frame_state_lprob(struct imm_state const* state, char const* seq, int seq_len);
+static int    frame_state_min_seq(struct imm_state const* state);
+static int    frame_state_max_seq(struct imm_state const* state);
 
-static double        joint_seq_len1(const struct nmm_frame_state* state, const char* seq);
-static double        joint_seq_len2(const struct nmm_frame_state* state, const char* seq);
-static double        joint_seq_len3(const struct nmm_frame_state* state, const char* seq);
-static double        joint_seq_len4(const struct nmm_frame_state* state, const char* seq);
-static double        joint_seq_len5(const struct nmm_frame_state* state, const char* seq);
-static double        codon_lprob(const struct nmm_frame_state* state, const char* codon);
+static double        joint_seq_len1(struct nmm_frame_state const* state, char const* seq);
+static double        joint_seq_len2(struct nmm_frame_state const* state, char const* seq);
+static double        joint_seq_len3(struct nmm_frame_state const* state, char const* seq);
+static double        joint_seq_len4(struct nmm_frame_state const* state, char const* seq);
+static double        joint_seq_len5(struct nmm_frame_state const* state, char const* seq);
+/* static double        posterior_seq_len1(struct nmm_frame_state const* state, char const* seq, */
+/*                                         struct nmm_ccode const* ccode); */
+/* static double        posterior_seq_len2(struct nmm_frame_state const* state, char const* seq, */
+/*                                         struct nmm_ccode const* ccode); */
+/* static double        posterior_seq_len3(struct nmm_frame_state const* state, char const* seq, */
+/*                                         struct nmm_ccode const* ccode); */
+/* static double        posterior_seq_len4(struct nmm_frame_state const* state, char const* seq, */
+/*                                         struct nmm_ccode const* ccode); */
+/* static double        posterior_seq_len5(struct nmm_frame_state const* state, char const* seq, */
+/*                                         struct nmm_ccode const* ccode); */
+static double        codon_lprob(const struct nmm_frame_state* state, char const* codon);
 static double        base_lprob(const struct nmm_frame_state* state, char id);
 static inline double logaddexp(double a, double b) { return imm_lprob_add(a, b); }
 static inline double logaddexp3(double a, double b, double c)
@@ -31,14 +41,14 @@ static inline double logaddexp3(double a, double b, double c)
     return logaddexp(logaddexp(a, b), c);
 }
 static inline double logsumexp(double* arr, int len) { return imm_lprob_sum(arr, len); }
-static inline double ecodon_lprob(const struct nmm_frame_state* state, const char* seq, int a,
+static inline double ecodon_lprob(const struct nmm_frame_state* state, char const* seq, int a,
                                   int b, int c)
 {
     const char codon[3] = {seq[a], seq[b], seq[c]};
     return codon_lprob(state, codon);
 }
 
-struct nmm_frame_state* nmm_frame_state_create(const char* name, const struct nmm_base* base,
+struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nmm_base* base,
                                                const struct nmm_codon* codon, double epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
@@ -68,10 +78,21 @@ struct nmm_frame_state* nmm_frame_state_create(const char* name, const struct nm
     return state;
 }
 
-double nmm_frame_state_posterior(struct nmm_frame_state* state, struct nmm_ccode const* ccode,
-                                 char const* seq, int seq_len)
+double nmm_frame_state_posterior(struct nmm_frame_state* state, char const* seq, int seq_len,
+                                 struct nmm_ccode const* ccode)
 {
-    return 0.0;
+    /* if (seq_len == 1) */
+    /*     return posterior_seq_len1(state, seq, ccode); */
+    /* else if (seq_len == 2) */
+    /*     return posterior_seq_len2(state, seq, ccode); */
+    /* else if (seq_len == 3) */
+    /*     return posterior_seq_len3(state, seq, ccode); */
+    /* else if (seq_len == 4) */
+    /*     return posterior_seq_len4(state, seq, ccode); */
+    /* else if (seq_len == 5) */
+    /*     return posterior_seq_len5(state, seq, ccode); */
+
+    return imm_lprob_zero();
 }
 
 void nmm_frame_state_destroy(struct nmm_frame_state* state)
@@ -87,7 +108,7 @@ void nmm_frame_state_destroy(struct nmm_frame_state* state)
     free(state);
 }
 
-static double frame_state_lprob(const struct imm_state* state, const char* seq, int seq_len)
+static double frame_state_lprob(struct imm_state const* state, char const* seq, int seq_len)
 {
     const struct nmm_frame_state* s = imm_state_get_impl_c(state);
     if (seq_len == 1)
@@ -101,14 +122,14 @@ static double frame_state_lprob(const struct imm_state* state, const char* seq, 
     else if (seq_len == 5)
         return joint_seq_len5(s, seq);
 
-    return -INFINITY;
+    return imm_lprob_zero();
 }
 
-static int frame_state_min_seq(const struct imm_state* state) { return 1; }
+static int frame_state_min_seq(struct imm_state const* state) { return 1; }
 
-static int frame_state_max_seq(const struct imm_state* state) { return 5; }
+static int frame_state_max_seq(struct imm_state const* state) { return 5; }
 
-static double joint_seq_len1(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len1(struct nmm_frame_state const* state, char const* seq)
 {
     const char _ = IMM_ANY_SYMBOL;
     const char c0__[3] = {seq[0], _, _};
@@ -123,7 +144,7 @@ static double joint_seq_len1(const struct nmm_frame_state* state, const char* se
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
-static double joint_seq_len2(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len2(struct nmm_frame_state const* state, char const* seq)
 {
 #define c_lprob(codon) codon_lprob(state, codon)
     const char _ = IMM_ANY_SYMBOL;
@@ -157,7 +178,7 @@ static double joint_seq_len2(const struct nmm_frame_state* state, const char* se
 #undef c_lprob
 }
 
-static double joint_seq_len3(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len3(struct nmm_frame_state const* state, char const* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], IMM_ANY_SYMBOL};
@@ -182,7 +203,7 @@ static double joint_seq_len3(const struct nmm_frame_state* state, const char* se
 #undef C
 }
 
-static double joint_seq_len4(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len4(struct nmm_frame_state const* state, char const* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], seq[3], IMM_ANY_SYMBOL};
@@ -208,7 +229,7 @@ static double joint_seq_len4(const struct nmm_frame_state* state, const char* se
 #undef C
 }
 
-static double joint_seq_len5(const struct nmm_frame_state* state, const char* seq)
+static double joint_seq_len5(struct nmm_frame_state const* state, char const* seq)
 {
 #define c_lp(codon) codon_lprob(state, codon)
     const char c012[3] = {seq[0], seq[1], seq[2]};
@@ -238,7 +259,7 @@ static double joint_seq_len5(const struct nmm_frame_state* state, const char* se
 #undef c_lprob
 }
 
-static double codon_lprob(const struct nmm_frame_state* state, const char* codon)
+static double codon_lprob(const struct nmm_frame_state* state, char const* codon)
 {
     const struct imm_abc* abc = imm_state_get_abc(imm_state_cast_c(state));
     double                lprob = -INFINITY;
@@ -257,9 +278,9 @@ static double codon_lprob(const struct nmm_frame_state* state, const char* codon
         }
     }
 
-    const char* a_id = bases;
-    const char* b_id = bases + 4;
-    const char* c_id = bases + 8;
+    char const* a_id = bases;
+    char const* b_id = bases + 4;
+    char const* c_id = bases + 8;
     for (int a = 0; a < nbases[0]; ++a) {
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
