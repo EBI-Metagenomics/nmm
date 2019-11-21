@@ -26,8 +26,8 @@ void test_frame_state1(void)
     cass_cond(nmm_base_normalize(base) == 0);
 
     struct nmm_codon* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, 'A', 'T', 'G', log(0.8 / 0.9));
-    nmm_codon_set_lprob(codon, 'A', 'T', 'T', log(0.1 / 0.9));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8 / 0.9));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1 / 0.9));
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);
 
@@ -60,8 +60,8 @@ void test_frame_state2(void)
 
     struct nmm_codon* codon = nmm_codon_create(abc);
 
-    nmm_codon_set_lprob(codon, 'A', 'T', 'G', log(0.8 / 0.9));
-    nmm_codon_set_lprob(codon, 'A', 'T', 'T', log(0.1 / 0.9));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8 / 0.9));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1 / 0.9));
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);
 
@@ -102,9 +102,9 @@ void test_frame_state3(void)
     cass_cond(nmm_base_normalize(base) == 0);
 
     struct nmm_codon* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, 'A', 'T', 'G', log(0.8));
-    nmm_codon_set_lprob(codon, 'A', 'T', 'T', log(0.1));
-    nmm_codon_set_lprob(codon, 'G', 'T', 'C', log(0.4));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('G', 'T', 'C'), log(0.4));
     cass_cond(nmm_codon_normalize(codon) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);

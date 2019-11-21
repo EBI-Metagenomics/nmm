@@ -257,7 +257,8 @@ static double codon_lprob(const struct nmm_frame_state* state, const char* codon
     for (int a = 0; a < nbases[0]; ++a) {
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
-                double t = nmm_codon_get_lprob(state->codon, a_id[a], b_id[b], c_id[c]);
+                struct nmm_ccode ccode = {a_id[a], b_id[b], c_id[c]};
+                double           t = nmm_codon_get_lprob(state->codon, &ccode);
                 lprob = logaddexp(lprob, t);
             }
         }

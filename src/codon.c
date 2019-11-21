@@ -23,10 +23,11 @@ struct nmm_codon* nmm_codon_create(const struct imm_abc* abc)
     return codon;
 }
 
-int nmm_codon_set_lprob(struct nmm_codon* codon, char a, char b, char c, double lprob)
+int nmm_codon_set_lprob(struct nmm_codon* codon, struct nmm_ccode const* ccode, double lprob)
 {
-    int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
-                  imm_abc_symbol_idx(codon->abc, c)};
+    int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
+                  imm_abc_symbol_idx(codon->abc, ccode->b),
+                  imm_abc_symbol_idx(codon->abc, ccode->c)};
 
     if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
         imm_error("nucleotide not found");
@@ -37,10 +38,11 @@ int nmm_codon_set_lprob(struct nmm_codon* codon, char a, char b, char c, double 
     return 0;
 }
 
-double nmm_codon_get_lprob(const struct nmm_codon* codon, char a, char b, char c)
+double nmm_codon_get_lprob(const struct nmm_codon* codon, struct nmm_ccode const* ccode)
 {
-    int idx[3] = {imm_abc_symbol_idx(codon->abc, a), imm_abc_symbol_idx(codon->abc, b),
-                  imm_abc_symbol_idx(codon->abc, c)};
+    int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
+                  imm_abc_symbol_idx(codon->abc, ccode->b),
+                  imm_abc_symbol_idx(codon->abc, ccode->c)};
 
     if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
         imm_error("nucleotide not found");
