@@ -407,7 +407,7 @@ static double posterior_seq_len4(struct nmm_frame_state const* state, char const
     char const z1 = seq[0];
     char const z2 = seq[1];
     char const z3 = seq[2];
-    char const z4 = seq[2];
+    char const z4 = seq[3];
 
     double const lprob_z1 = base_lprob(state, z1);
     double const lprob_z2 = base_lprob(state, z2);
@@ -447,5 +447,37 @@ static double posterior_seq_len4(struct nmm_frame_state const* state, char const
 static double posterior_seq_len5(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
-    return 0.0;
+    double const loge = state->leps;
+    double const log1e = state->l1eps;
+
+    char const x1 = ccode->a;
+    char const x2 = ccode->b;
+    char const x3 = ccode->c;
+
+    char const z1 = seq[0];
+    char const z2 = seq[1];
+    char const z3 = seq[2];
+    char const z4 = seq[3];
+    char const z5 = seq[4];
+
+    double const lprob_z1 = base_lprob(state, z1);
+    double const lprob_z2 = base_lprob(state, z2);
+    double const lprob_z3 = base_lprob(state, z3);
+    double const lprob_z4 = base_lprob(state, z4);
+    double const lprob_z5 = base_lprob(state, z5);
+
+    double const v[] = {
+        lprob_z1 + lprob_z2 + log((x1 == z3) * (x2 == z4) * (x3 == z5)),
+        lprob_z1 + lprob_z3 + log((x1 == z2) * (x2 == z4) * (x3 == z5)),
+        lprob_z1 + lprob_z4 + log((x1 == z2) * (x2 == z3) * (x3 == z5)),
+        lprob_z1 + lprob_z5 + log((x1 == z2) * (x2 == z3) * (x3 == z4)),
+        lprob_z2 + lprob_z3 + log((x1 == z1) * (x2 == z4) * (x3 == z5)),
+        lprob_z2 + lprob_z4 + log((x1 == z1) * (x2 == z3) * (x3 == z5)),
+        lprob_z2 + lprob_z5 + log((x1 == z1) * (x2 == z3) * (x3 == z4)),
+        lprob_z3 + lprob_z4 + log((x1 == z1) * (x2 == z2) * (x3 == z5)),
+        lprob_z3 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z4)),
+        lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
+    };
+
+    return 2 * loge + 2 * log1e - log(10) + logsumexp(v, ARRAY_SIZE(v));
 }
