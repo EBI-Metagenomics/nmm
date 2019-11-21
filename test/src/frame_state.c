@@ -155,88 +155,100 @@ void test_frame_state_posterior(void)
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);
 
-    /* printf("%c: %16f\n", seq[0], nmm_frame_state_posterior(state, seq, 1, &ccode)); */
-    struct nmm_ccode ccode = {'A', 'G', 'A'};
-    char             seq[5] = "01234";
-    double           total = imm_lprob_zero();
-    double           total_f[5] = {
-        imm_lprob_zero(), imm_lprob_zero(), imm_lprob_zero(),
-        imm_lprob_zero(), imm_lprob_zero(),
-    };
-    for (int i0 = 0; i0 < 4; ++i0) {
-        seq[0] = imm_abc_symbol_id(abc, i0);
-        total = imm_lprob_add(total, nmm_frame_state_posterior(state, seq, 1, &ccode));
-        total_f[0] =
-            imm_lprob_add(total_f[0], nmm_frame_state_posterior(state, seq, 1, &ccode));
-    }
-    printf("Total F=1: %.16f\n", exp(total_f[0]));
-
-    for (int i0 = 0; i0 < 4; ++i0) {
-        for (int i1 = 0; i1 < 4; ++i1) {
-            seq[0] = imm_abc_symbol_id(abc, i0);
-            seq[1] = imm_abc_symbol_id(abc, i1);
-            total = imm_lprob_add(total, nmm_frame_state_posterior(state, seq, 2, &ccode));
-            total_f[1] =
-                imm_lprob_add(total_f[1], nmm_frame_state_posterior(state, seq, 2, &ccode));
-        }
-    }
-    printf("Total F=2: %.16f\n", exp(total_f[1]));
-
-    for (int i0 = 0; i0 < 4; ++i0) {
-        for (int i1 = 0; i1 < 4; ++i1) {
-            for (int i2 = 0; i2 < 4; ++i2) {
-                seq[0] = imm_abc_symbol_id(abc, i0);
-                seq[1] = imm_abc_symbol_id(abc, i1);
-                seq[2] = imm_abc_symbol_id(abc, i2);
-                total =
-                    imm_lprob_add(total, nmm_frame_state_posterior(state, seq, 3, &ccode));
-                total_f[2] = imm_lprob_add(total_f[2],
-                                           nmm_frame_state_posterior(state, seq, 3, &ccode));
-            }
-        }
-    }
-    printf("Total F=3: %.16f\n", exp(total_f[2]));
-
-    for (int i0 = 0; i0 < 4; ++i0) {
-        for (int i1 = 0; i1 < 4; ++i1) {
-            for (int i2 = 0; i2 < 4; ++i2) {
-                for (int i3 = 0; i3 < 4; ++i3) {
+    for (int j0 = 0; j0 < 4; ++j0) {
+        for (int j1 = 0; j1 < 4; ++j1) {
+            for (int j2 = 0; j2 < 4; ++j2) {
+                struct nmm_ccode ccode = {imm_abc_symbol_id(abc, j0),
+                                          imm_abc_symbol_id(abc, j1),
+                                          imm_abc_symbol_id(abc, j2)};
+                char             seq[5] = "01234";
+                double           total = imm_lprob_zero();
+                double           total_f[5] = {
+                    imm_lprob_zero(), imm_lprob_zero(), imm_lprob_zero(),
+                    imm_lprob_zero(), imm_lprob_zero(),
+                };
+                for (int i0 = 0; i0 < 4; ++i0) {
                     seq[0] = imm_abc_symbol_id(abc, i0);
-                    seq[1] = imm_abc_symbol_id(abc, i1);
-                    seq[2] = imm_abc_symbol_id(abc, i2);
-                    seq[3] = imm_abc_symbol_id(abc, i3);
                     total = imm_lprob_add(total,
-                                          nmm_frame_state_posterior(state, seq, 4, &ccode));
-                    total_f[3] = imm_lprob_add(
-                        total_f[3], nmm_frame_state_posterior(state, seq, 4, &ccode));
+                                          nmm_frame_state_posterior(state, seq, 1, &ccode));
+                    total_f[0] = imm_lprob_add(
+                        total_f[0], nmm_frame_state_posterior(state, seq, 1, &ccode));
                 }
-            }
-        }
-    }
-    printf("Total F=4: %.16f\n", exp(total_f[3]));
+                /* printf("Total F=1: %.16f\n", exp(total_f[0])); */
 
-    for (int i0 = 0; i0 < 4; ++i0) {
-        for (int i1 = 0; i1 < 4; ++i1) {
-            for (int i2 = 0; i2 < 4; ++i2) {
-                for (int i3 = 0; i3 < 4; ++i3) {
-                    for (int i4 = 0; i4 < 4; ++i4) {
+                for (int i0 = 0; i0 < 4; ++i0) {
+                    for (int i1 = 0; i1 < 4; ++i1) {
                         seq[0] = imm_abc_symbol_id(abc, i0);
                         seq[1] = imm_abc_symbol_id(abc, i1);
-                        seq[2] = imm_abc_symbol_id(abc, i2);
-                        seq[3] = imm_abc_symbol_id(abc, i3);
-                        seq[4] = imm_abc_symbol_id(abc, i4);
                         total = imm_lprob_add(
-                            total, nmm_frame_state_posterior(state, seq, 5, &ccode));
-                        total_f[4] = imm_lprob_add(
-                            total_f[4], nmm_frame_state_posterior(state, seq, 5, &ccode));
+                            total, nmm_frame_state_posterior(state, seq, 2, &ccode));
+                        total_f[1] = imm_lprob_add(
+                            total_f[1], nmm_frame_state_posterior(state, seq, 2, &ccode));
                     }
                 }
+                /* printf("Total F=2: %.16f\n", exp(total_f[1])); */
+
+                for (int i0 = 0; i0 < 4; ++i0) {
+                    for (int i1 = 0; i1 < 4; ++i1) {
+                        for (int i2 = 0; i2 < 4; ++i2) {
+                            seq[0] = imm_abc_symbol_id(abc, i0);
+                            seq[1] = imm_abc_symbol_id(abc, i1);
+                            seq[2] = imm_abc_symbol_id(abc, i2);
+                            total = imm_lprob_add(
+                                total, nmm_frame_state_posterior(state, seq, 3, &ccode));
+                            total_f[2] = imm_lprob_add(
+                                total_f[2], nmm_frame_state_posterior(state, seq, 3, &ccode));
+                        }
+                    }
+                }
+                /* printf("Total F=3: %.16f\n", exp(total_f[2])); */
+
+                for (int i0 = 0; i0 < 4; ++i0) {
+                    for (int i1 = 0; i1 < 4; ++i1) {
+                        for (int i2 = 0; i2 < 4; ++i2) {
+                            for (int i3 = 0; i3 < 4; ++i3) {
+                                seq[0] = imm_abc_symbol_id(abc, i0);
+                                seq[1] = imm_abc_symbol_id(abc, i1);
+                                seq[2] = imm_abc_symbol_id(abc, i2);
+                                seq[3] = imm_abc_symbol_id(abc, i3);
+                                total = imm_lprob_add(
+                                    total, nmm_frame_state_posterior(state, seq, 4, &ccode));
+                                total_f[3] = imm_lprob_add(
+                                    total_f[3],
+                                    nmm_frame_state_posterior(state, seq, 4, &ccode));
+                            }
+                        }
+                    }
+                }
+                /* printf("Total F=4: %.16f\n", exp(total_f[3])); */
+
+                for (int i0 = 0; i0 < 4; ++i0) {
+                    for (int i1 = 0; i1 < 4; ++i1) {
+                        for (int i2 = 0; i2 < 4; ++i2) {
+                            for (int i3 = 0; i3 < 4; ++i3) {
+                                for (int i4 = 0; i4 < 4; ++i4) {
+                                    seq[0] = imm_abc_symbol_id(abc, i0);
+                                    seq[1] = imm_abc_symbol_id(abc, i1);
+                                    seq[2] = imm_abc_symbol_id(abc, i2);
+                                    seq[3] = imm_abc_symbol_id(abc, i3);
+                                    seq[4] = imm_abc_symbol_id(abc, i4);
+                                    total = imm_lprob_add(total, nmm_frame_state_posterior(
+                                                                     state, seq, 5, &ccode));
+                                    total_f[4] = imm_lprob_add(
+                                        total_f[4],
+                                        nmm_frame_state_posterior(state, seq, 5, &ccode));
+                                }
+                            }
+                        }
+                    }
+                }
+                /* printf("Total F=5: %.16f\n", exp(total_f[4])); */
+
+                /* printf("Total: %.16f\n", exp(total)); */
+                cass_close(exp(total), 1.0);
             }
         }
     }
-    printf("Total F=5: %.16f\n", exp(total_f[4]));
-
-    printf("Total: %.16f\n", exp(total));
 
     nmm_frame_state_destroy(state);
     nmm_base_destroy(base);
