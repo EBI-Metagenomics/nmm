@@ -14,6 +14,8 @@ struct nmm_frame_state
     double                  l1eps;
 };
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 static double frame_state_lprob(struct imm_state const* state, char const* seq, int seq_len);
 static int    frame_state_min_seq(struct imm_state const* state);
 static int    frame_state_max_seq(struct imm_state const* state);
@@ -40,7 +42,7 @@ static inline double logaddexp3(double a, double b, double c)
 {
     return logaddexp(logaddexp(a, b), c);
 }
-static inline double logsumexp(double* arr, int len) { return imm_lprob_sum(arr, len); }
+static inline double logsumexp(double const* arr, int len) { return imm_lprob_sum(arr, len); }
 static inline double ecodon_lprob(const struct nmm_frame_state* state, char const* seq, int a,
                                   int b, int c)
 {
@@ -315,6 +317,7 @@ static double posterior_seq_len1(struct nmm_frame_state const* state, char const
 
     return c + log((x1 == z1) + (x2 == z1) + (x3 == z1)) - log(3);
 }
+
 static double posterior_seq_len2(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
@@ -388,13 +391,59 @@ static double posterior_seq_len3(struct nmm_frame_state const* state, char const
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
-    return logsumexp(v, sizeof(v) / sizeof(v[0]));
+    return logsumexp(v, ARRAY_SIZE(v));
 }
+
 static double posterior_seq_len4(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
-    return 0.0;
+    double const loge = state->leps;
+    double const log1e = state->l1eps;
+
+    char const x1 = ccode->a;
+    char const x2 = ccode->b;
+    char const x3 = ccode->c;
+
+    char const z1 = seq[0];
+    char const z2 = seq[1];
+    char const z3 = seq[2];
+    char const z4 = seq[2];
+
+    double const lprob_z1 = base_lprob(state, z1);
+    double const lprob_z2 = base_lprob(state, z2);
+    double const lprob_z3 = base_lprob(state, z3);
+    double const lprob_z4 = base_lprob(state, z4);
+
+    double const v0[] = {log((x1 == z2) * (x2 == z3) * (x3 == z4)) + lprob_z1,
+                         log((x1 == z1) * (x2 == z3) * (x3 == z4)) + lprob_z2,
+                         log((x1 == z1) * (x2 == z2) * (x3 == z4)) + lprob_z3,
+                         log((x1 == z1) * (x2 == z2) * (x3 == z3)) + lprob_z4};
+
+    double const v1[] = {
+        log((x2 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
+        log((x2 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
+        log((x2 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
+        log((x2 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
+        log((x2 == z1) * (x3 == z3)) + lprob_z2 + lprob_z2,
+        log((x2 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
+        log((x1 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
+        log((x1 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
+        log((x1 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
+        log((x1 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
+        log((x1 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
+        log((x1 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
+        log((x1 == z3) * (x2 == z4)) + lprob_z1 + lprob_z2,
+        log((x1 == z2) * (x2 == z4)) + lprob_z1 + lprob_z3,
+        log((x1 == z2) * (x2 == z3)) + lprob_z1 + lprob_z4,
+        log((x1 == z1) * (x2 == z4)) + lprob_z2 + lprob_z3,
+        log((x1 == z1) * (x2 == z3)) + lprob_z2 + lprob_z4,
+        log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
+    };
+
+    return logaddexp(loge + log1e * 3 - log(2) + logsumexp(v0, ARRAY_SIZE(v0)),
+                     3 * loge + log1e - log(9) + logsumexp(v1, ARRAY_SIZE(v1)));
 }
+
 static double posterior_seq_len5(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
