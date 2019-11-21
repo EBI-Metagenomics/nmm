@@ -24,7 +24,7 @@ target_link_libraries(nmm PUBLIC IMM::imm)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 target_compile_features(nmm PRIVATE c_std_11)
-target_compile_definitions(nmm PRIVATE NMM_API_EXPORTS)
+set_target_properties(nmm PROPERTIES DEFINE_SYMBOL "NMM_EXPORTS")
 target_link_libraries(nmm INTERFACE $<$<BOOL:${UNIX}>:m>)
 target_compile_options(nmm PRIVATE
     $<$<BOOL:${WIN32}>:/W4 /WX>
