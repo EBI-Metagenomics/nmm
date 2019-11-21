@@ -68,6 +68,12 @@ struct nmm_frame_state* nmm_frame_state_create(const char* name, const struct nm
     return state;
 }
 
+double nmm_frame_state_posterior(struct nmm_frame_state* state, struct nmm_ccode const* ccode,
+                                 char const* seq, int seq_len)
+{
+    return 0.0;
+}
+
 void nmm_frame_state_destroy(struct nmm_frame_state* state)
 {
     if (!state)
