@@ -13,8 +13,7 @@ struct nmm_ccode
     char c;
 };
 
-#define NMM_CCODE(a, b, c)                                                                   \
-    (struct nmm_ccode) { a, b, c }
+#define NMM_CCODE(a, b, c) ((struct nmm_ccode){(a), (b), (c)})
 
 NMM_API struct nmm_codon* nmm_codon_create(struct imm_abc const* abc);
 NMM_API int    nmm_codon_set_lprob(struct nmm_codon* codon, struct nmm_ccode const* ccode,
