@@ -14,7 +14,7 @@ struct nmm_frame_state
     double                  l1eps;
 };
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 static double frame_state_lprob(struct imm_state const* state, char const* seq, int seq_len);
 static int    frame_state_min_seq(struct imm_state const* state);
@@ -391,7 +391,7 @@ static double posterior_seq_len3(struct nmm_frame_state const* state, char const
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
-    return logsumexp(v, ARRAY_SIZE(v));
+    return logsumexp(v, ARRAY_LENGTH(v));
 }
 
 static double posterior_seq_len4(struct nmm_frame_state const* state, char const* seq,
@@ -440,8 +440,8 @@ static double posterior_seq_len4(struct nmm_frame_state const* state, char const
         log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return logaddexp(loge + log1e * 3 - log(2) + logsumexp(v0, ARRAY_SIZE(v0)),
-                     3 * loge + log1e - log(9) + logsumexp(v1, ARRAY_SIZE(v1)));
+    return logaddexp(loge + log1e * 3 - log(2) + logsumexp(v0, ARRAY_LENGTH(v0)),
+                     3 * loge + log1e - log(9) + logsumexp(v1, ARRAY_LENGTH(v1)));
 }
 
 static double posterior_seq_len5(struct nmm_frame_state const* state, char const* seq,
@@ -479,5 +479,5 @@ static double posterior_seq_len5(struct nmm_frame_state const* state, char const
         lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
     };
 
-    return 2 * loge + 2 * log1e - log(10) + logsumexp(v, ARRAY_SIZE(v));
+    return 2 * loge + 2 * log1e - log(10) + logsumexp(v, ARRAY_LENGTH(v));
 }
