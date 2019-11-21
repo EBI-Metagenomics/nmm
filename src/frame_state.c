@@ -424,7 +424,7 @@ static double posterior_seq_len4(struct nmm_frame_state const* state, char const
         log((x2 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
         log((x2 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
         log((x2 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
-        log((x2 == z1) * (x3 == z3)) + lprob_z2 + lprob_z2,
+        log((x2 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
         log((x2 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
         log((x1 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
         log((x1 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
