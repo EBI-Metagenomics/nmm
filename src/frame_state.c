@@ -23,16 +23,16 @@ static double        joint_seq_len2(struct nmm_frame_state const* state, char co
 static double        joint_seq_len3(struct nmm_frame_state const* state, char const* seq);
 static double        joint_seq_len4(struct nmm_frame_state const* state, char const* seq);
 static double        joint_seq_len5(struct nmm_frame_state const* state, char const* seq);
-/* static double        posterior_seq_len1(struct nmm_frame_state const* state, char const* seq, */
-/*                                         struct nmm_ccode const* ccode); */
-/* static double        posterior_seq_len2(struct nmm_frame_state const* state, char const* seq, */
-/*                                         struct nmm_ccode const* ccode); */
-/* static double        posterior_seq_len3(struct nmm_frame_state const* state, char const* seq, */
-/*                                         struct nmm_ccode const* ccode); */
-/* static double        posterior_seq_len4(struct nmm_frame_state const* state, char const* seq, */
-/*                                         struct nmm_ccode const* ccode); */
-/* static double        posterior_seq_len5(struct nmm_frame_state const* state, char const* seq, */
-/*                                         struct nmm_ccode const* ccode); */
+static double        posterior_seq_len1(struct nmm_frame_state const* state, char const* seq,
+                                        struct nmm_ccode const* ccode);
+static double        posterior_seq_len2(struct nmm_frame_state const* state, char const* seq,
+                                        struct nmm_ccode const* ccode);
+static double        posterior_seq_len3(struct nmm_frame_state const* state, char const* seq,
+                                        struct nmm_ccode const* ccode);
+static double        posterior_seq_len4(struct nmm_frame_state const* state, char const* seq,
+                                        struct nmm_ccode const* ccode);
+static double        posterior_seq_len5(struct nmm_frame_state const* state, char const* seq,
+                                        struct nmm_ccode const* ccode);
 static double        codon_lprob(const struct nmm_frame_state* state, char const* codon);
 static double        base_lprob(const struct nmm_frame_state* state, char id);
 static inline double logaddexp(double a, double b) { return imm_lprob_add(a, b); }
@@ -81,16 +81,16 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
 double nmm_frame_state_posterior(struct nmm_frame_state* state, char const* seq, int seq_len,
                                  struct nmm_ccode const* ccode)
 {
-    /* if (seq_len == 1) */
-    /*     return posterior_seq_len1(state, seq, ccode); */
-    /* else if (seq_len == 2) */
-    /*     return posterior_seq_len2(state, seq, ccode); */
-    /* else if (seq_len == 3) */
-    /*     return posterior_seq_len3(state, seq, ccode); */
-    /* else if (seq_len == 4) */
-    /*     return posterior_seq_len4(state, seq, ccode); */
-    /* else if (seq_len == 5) */
-    /*     return posterior_seq_len5(state, seq, ccode); */
+    if (seq_len == 1)
+        return posterior_seq_len1(state, seq, ccode);
+    else if (seq_len == 2)
+        return posterior_seq_len2(state, seq, ccode);
+    else if (seq_len == 3)
+        return posterior_seq_len3(state, seq, ccode);
+    else if (seq_len == 4)
+        return posterior_seq_len4(state, seq, ccode);
+    else if (seq_len == 5)
+        return posterior_seq_len5(state, seq, ccode);
 
     return imm_lprob_zero();
 }
@@ -297,4 +297,38 @@ static double codon_lprob(const struct nmm_frame_state* state, char const* codon
 static double base_lprob(const struct nmm_frame_state* state, char id)
 {
     return nmm_base_get_lprob(state->base, id);
+}
+
+static double posterior_seq_len1(struct nmm_frame_state const* state, char const* seq,
+                                 struct nmm_ccode const* ccode)
+{
+    double const x1 = ccode->a;
+    double const x2 = ccode->b;
+    double const x3 = ccode->c;
+
+    double const z1 = seq[0];
+
+    double c = 2 * state->leps + 2 * state->l1eps;
+
+    return c + log((x1 == z1) + (x2 == z1) + (x3 == z1)) - log(3);
+}
+static double posterior_seq_len2(struct nmm_frame_state const* state, char const* seq,
+                                 struct nmm_ccode const* ccode)
+{
+    return 0.0;
+}
+static double posterior_seq_len3(struct nmm_frame_state const* state, char const* seq,
+                                 struct nmm_ccode const* ccode)
+{
+    return 0.0;
+}
+static double posterior_seq_len4(struct nmm_frame_state const* state, char const* seq,
+                                 struct nmm_ccode const* ccode)
+{
+    return 0.0;
+}
+static double posterior_seq_len5(struct nmm_frame_state const* state, char const* seq,
+                                 struct nmm_ccode const* ccode)
+{
+    return 0.0;
 }
