@@ -302,19 +302,25 @@ static double base_lprob(const struct nmm_frame_state* state, char id)
 static double posterior_seq_len1(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
+    double const loge = state->leps;
+    double const log1e = state->l1eps;
+
     char const x1 = ccode->a;
     char const x2 = ccode->b;
     char const x3 = ccode->c;
 
     char const z1 = seq[0];
 
-    double const c = 2 * state->leps + 2 * state->l1eps;
+    double const c = 2 * loge + 2 * log1e;
 
     return c + log((x1 == z1) + (x2 == z1) + (x3 == z1)) - log(3);
 }
 static double posterior_seq_len2(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
+    double const loge = state->leps;
+    double const log1e = state->l1eps;
+
     char const x1 = ccode->a;
     char const x2 = ccode->b;
     char const x3 = ccode->c;
@@ -322,17 +328,17 @@ static double posterior_seq_len2(struct nmm_frame_state const* state, char const
     char const z1 = seq[0];
     char const z2 = seq[1];
 
-    double const lpz1 = base_lprob(state, z1);
-    double const lpz2 = base_lprob(state, z2);
+    double const lprob_z1 = base_lprob(state, z1);
+    double const lprob_z2 = base_lprob(state, z2);
 
-    double const c1 = log(2) + state->leps + state->l1eps * 3 - log(3);
+    double const c1 = log(2) + loge + log1e * 3 - log(3);
     double const v0 =
         c1 + log((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2));
 
-    double const c2 = 3 * state->leps + state->l1eps - log(3);
+    double const c2 = 3 * loge + log1e - log(3);
 
-    double const v1 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lpz2;
-    double const v2 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z2)) + lpz1;
+    double const v1 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2;
+    double const v2 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z2)) + lprob_z1;
 
     return logaddexp3(v0, v1, v2);
 }
@@ -340,6 +346,9 @@ static double posterior_seq_len2(struct nmm_frame_state const* state, char const
 static double posterior_seq_len3(struct nmm_frame_state const* state, char const* seq,
                                  struct nmm_ccode const* ccode)
 {
+    double const loge = state->leps;
+    double const log1e = state->l1eps;
+
     char const x1 = ccode->a;
     char const x2 = ccode->b;
     char const x3 = ccode->c;
@@ -348,34 +357,34 @@ static double posterior_seq_len3(struct nmm_frame_state const* state, char const
     char const z2 = seq[1];
     char const z3 = seq[2];
 
-    double const lpz1 = base_lprob(state, z1);
-    double const lpz2 = base_lprob(state, z2);
-    double const lpz3 = base_lprob(state, z3);
+    double const lprob_z1 = base_lprob(state, z1);
+    double const lprob_z2 = base_lprob(state, z2);
+    double const lprob_z3 = base_lprob(state, z3);
 
-    double const v0 = 4 * state->l1eps + log((x1 == z1) * (x2 == z2) * (x3 == z3));
+    double const v0 = 4 * log1e + log((x1 == z1) * (x2 == z2) * (x3 == z3));
 
-    double const c1 = log(4) + 2 * state->leps + 2 * state->l1eps - log(9);
+    double const c1 = log(4) + 2 * loge + 2 * log1e - log(9);
 
     double const v1 =
         c1 +
         log((x2 == z2) * (x3 == z3) + (x1 == z2) * (x3 == z3) + (x1 == z2) * (x2 == z3)) +
-        lpz1;
+        lprob_z1;
 
     double const v2 =
         c1 +
         log((x2 == z1) * (x3 == z3) + (x1 == z1) * (x3 == z3) + (x1 == z1) * (x2 == z3)) +
-        lpz2;
+        lprob_z2;
 
     double const v3 =
         c1 +
         log((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2)) +
-        lpz3;
+        lprob_z3;
 
-    double const c2 = 4 * state->leps - log(9);
+    double const c2 = 4 * loge - log(9);
 
-    double const v4 = c2 + log((x1 == z3) + (x2 == z3) + (x3 == z3)) + lpz1 + lpz2;
-    double const v5 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z3)) + lpz1 + lpz3;
-    double const v6 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lpz2 + lpz3;
+    double const v4 = c2 + log((x1 == z3) + (x2 == z3) + (x3 == z3)) + lprob_z1 + lprob_z2;
+    double const v5 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z3)) + lprob_z1 + lprob_z3;
+    double const v6 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2 + lprob_z3;
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
