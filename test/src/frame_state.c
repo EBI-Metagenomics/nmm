@@ -172,7 +172,7 @@ void test_frame_state_posterior(void)
 
             while ((seq = cartes_next(seq_iter)) != NULL) {
                 total = imm_lprob_add(total,
-                                      nmm_frame_state_posterior(state, seq, times, &ccode));
+                                      nmm_frame_state_posterior(state, &ccode, seq, times));
             }
             cartes_destroy(seq_iter);
         }
