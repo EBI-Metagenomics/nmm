@@ -16,6 +16,8 @@ NMM_API struct nmm_frame_state* nmm_frame_state_create(char const*             n
 NMM_API double                  nmm_frame_state_lposterior(struct nmm_frame_state* state,
                                                            struct nmm_ccode const* ccode, char const* seq,
                                                            int seq_len);
-NMM_API void                    nmm_frame_state_destroy(struct nmm_frame_state* state);
+NMM_API double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq,
+                                      int seq_len, struct nmm_ccode* ccode);
+NMM_API void   nmm_frame_state_destroy(struct nmm_frame_state* state);
 
 #endif

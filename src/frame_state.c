@@ -99,6 +99,34 @@ double nmm_frame_state_lposterior(struct nmm_frame_state* state,
     return lprob + nmm_codon_get_lprob(state->codon, ccode);
 }
 
+double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq, int seq_len,
+                              struct nmm_ccode* ccode)
+{
+    struct imm_abc const* abc = nmm_codon_get_abc(state->codon);
+    char const*           symbols = imm_abc_symbols(abc);
+    int                   n = imm_abc_length(abc);
+
+    double max_lprob = imm_lprob_zero();
+
+    for (int i0 = 0; i0 < n; ++i0) {
+        for (int i1 = 0; i1 < n; ++i1) {
+            for (int i2 = 0; i2 < n; ++i2) {
+
+                struct nmm_ccode tmp = {symbols[i0], symbols[i1], symbols[i2]};
+                double lprob = nmm_frame_state_lposterior(state, &tmp, seq, seq_len);
+
+                if (lprob >= max_lprob) {
+                    max_lprob = lprob;
+                    ccode->a = tmp.a;
+                    ccode->b = tmp.b;
+                    ccode->c = tmp.c;
+                }
+            }
+        }
+    }
+    return max_lprob;
+}
+
 void nmm_frame_state_destroy(struct nmm_frame_state* state)
 {
     if (!state)

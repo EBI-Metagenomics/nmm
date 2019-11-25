@@ -6,14 +6,16 @@
 void test_frame_state1(void);
 void test_frame_state2(void);
 void test_frame_state3(void);
-void test_frame_state_posterior(void);
+void test_frame_state_lposterior(void);
+void test_frame_state_decode(void);
 
 int main(void)
 {
     test_frame_state1();
     test_frame_state2();
     test_frame_state3();
-    test_frame_state_posterior();
+    test_frame_state_lposterior();
+    test_frame_state_decode();
     return cass_status();
 }
 
@@ -136,7 +138,7 @@ void test_frame_state3(void)
     imm_abc_destroy(abc);
 }
 
-void test_frame_state_posterior(void)
+void test_frame_state_lposterior(void)
 {
     struct imm_abc* abc = imm_abc_create("ACGT");
 
@@ -188,6 +190,57 @@ void test_frame_state_posterior(void)
         cass_close(exp(total), 1.0);
     }
     cartes_destroy(ccode_iter);
+
+    nmm_frame_state_destroy(state);
+    nmm_base_destroy(base);
+    nmm_codon_destroy(codon);
+    imm_abc_destroy(abc);
+}
+
+void test_frame_state_decode(void)
+{
+    struct imm_abc* abc = imm_abc_create("ACGT");
+
+    struct nmm_base* base = nmm_base_create(abc);
+    nmm_base_set_lprob(base, 'A', log(0.1));
+    nmm_base_set_lprob(base, 'C', log(0.2));
+    nmm_base_set_lprob(base, 'G', log(0.3));
+    nmm_base_set_lprob(base, 'T', log(0.4));
+    cass_cond(nmm_base_normalize(base) == 0);
+
+    char const* symbols = imm_abc_symbols(abc);
+    int         length = imm_abc_length(abc);
+
+    struct nmm_codon* codon = nmm_codon_create(abc);
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codon_set_lprob(codon, &NMM_CCODE('G', 'T', 'C'), log(0.4));
+    cass_cond(nmm_codon_normalize(codon) == 0);
+
+    struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);
+
+    struct nmm_ccode ccode = NMM_CCODE('X', 'X', 'X');
+
+    cass_close(nmm_frame_state_decode(state, "ATG", 3, &ccode), -0.902566706136);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "ATGT", 4, &ccode), -4.710599080052);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "ATGA", 4, &ccode), -6.097714346951);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "ATGGT", 5, &ccode), -9.031100481720);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "ATT", 3, &ccode), -2.977101440300);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'T');
+    cass_close(nmm_frame_state_decode(state, "ATC", 3, &ccode), -7.720225141384);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "TC", 2, &ccode), -4.199089882536);
+    cass_cond(ccode.a == 'G' && ccode.b == 'T' && ccode.c == 'C');
+    cass_close(nmm_frame_state_decode(state, "A", 1, &ccode), -6.400011321754);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "AG", 2, &ccode), -3.507173471362);
+    cass_cond(ccode.a == 'A' && ccode.b == 'T' && ccode.c == 'G');
+    cass_close(nmm_frame_state_decode(state, "GC", 2, &ccode), -4.199705077880);
+    cass_cond(ccode.a == 'G' && ccode.b == 'T' && ccode.c == 'C');
 
     nmm_frame_state_destroy(state);
     nmm_base_destroy(base);
