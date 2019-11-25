@@ -80,9 +80,8 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
     return state;
 }
 
-#include <stdio.h>
-double nmm_frame_state_posterior(struct nmm_frame_state* state, struct nmm_ccode const* ccode,
-                                 char const* seq, int seq_len)
+double nmm_frame_state_lposterior(struct nmm_frame_state* state,
+                                  struct nmm_ccode const* ccode, char const* seq, int seq_len)
 {
     double lprob = imm_lprob_zero();
 

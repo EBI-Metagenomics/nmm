@@ -179,7 +179,7 @@ void test_frame_state_posterior(void)
             char const*    seq = NULL;
 
             while ((seq = cartes_next(seq_iter)) != NULL) {
-                double lprob = nmm_frame_state_posterior(state, &ccode, seq, times);
+                double lprob = nmm_frame_state_lposterior(state, &ccode, seq, times);
                 lprob -= nmm_codon_get_lprob(codon, &ccode);
                 total = imm_lprob_add(total, lprob);
             }
