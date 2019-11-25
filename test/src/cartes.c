@@ -2,6 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+struct cartes
+{
+    char const* set;
+    int         set_size;
+    int         times;
+    int         iter_idx;
+    char*       item;
+    int         nitems;
+};
+
 static int ipow(int base, int exp);
 
 struct cartes* cartes_create(char const* set, int set_size, int times)
