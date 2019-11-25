@@ -25,16 +25,16 @@ static double joint_seq_len2(struct nmm_frame_state const* state, char const* se
 static double joint_seq_len3(struct nmm_frame_state const* state, char const* seq);
 static double joint_seq_len4(struct nmm_frame_state const* state, char const* seq);
 static double joint_seq_len5(struct nmm_frame_state const* state, char const* seq);
-static double prob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode);
-static double prob_frag_given_codon2(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode);
-static double prob_frag_given_codon3(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode);
-static double prob_frag_given_codon4(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode);
-static double prob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode);
+static double lprob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode);
+static double lprob_frag_given_codon2(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode);
+static double lprob_frag_given_codon3(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode);
+static double lprob_frag_given_codon4(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode);
+static double lprob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode);
 static double codon_lprob(const struct nmm_frame_state* state, char const* codon);
 static double base_lprob(const struct nmm_frame_state* state, char id);
 static inline double logaddexp(double a, double b) { return imm_lprob_add(a, b); }
@@ -80,21 +80,24 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
     return state;
 }
 
+#include <stdio.h>
 double nmm_frame_state_posterior(struct nmm_frame_state* state, struct nmm_ccode const* ccode,
                                  char const* seq, int seq_len)
 {
-    if (seq_len == 1)
-        return prob_frag_given_codon1(state, seq, ccode);
-    else if (seq_len == 2)
-        return prob_frag_given_codon2(state, seq, ccode);
-    else if (seq_len == 3)
-        return prob_frag_given_codon3(state, seq, ccode);
-    else if (seq_len == 4)
-        return prob_frag_given_codon4(state, seq, ccode);
-    else if (seq_len == 5)
-        return prob_frag_given_codon5(state, seq, ccode);
+    double lprob = imm_lprob_zero();
 
-    return imm_lprob_zero();
+    if (seq_len == 1)
+        lprob = lprob_frag_given_codon1(state, seq, ccode);
+    else if (seq_len == 2)
+        lprob = lprob_frag_given_codon2(state, seq, ccode);
+    else if (seq_len == 3)
+        lprob = lprob_frag_given_codon3(state, seq, ccode);
+    else if (seq_len == 4)
+        lprob = lprob_frag_given_codon4(state, seq, ccode);
+    else if (seq_len == 5)
+        lprob = lprob_frag_given_codon5(state, seq, ccode);
+
+    return lprob + nmm_codon_get_lprob(state->codon, ccode);
 }
 
 void nmm_frame_state_destroy(struct nmm_frame_state* state)
@@ -301,8 +304,8 @@ static double base_lprob(const struct nmm_frame_state* state, char id)
     return nmm_base_get_lprob(state->base, id);
 }
 
-static double prob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode)
+static double lprob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
@@ -318,8 +321,8 @@ static double prob_frag_given_codon1(struct nmm_frame_state const* state, char c
     return c + log((x1 == z1) + (x2 == z1) + (x3 == z1)) - log(3);
 }
 
-static double prob_frag_given_codon2(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode)
+static double lprob_frag_given_codon2(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
@@ -346,8 +349,8 @@ static double prob_frag_given_codon2(struct nmm_frame_state const* state, char c
     return logaddexp3(v0, v1, v2);
 }
 
-static double prob_frag_given_codon3(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode)
+static double lprob_frag_given_codon3(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
@@ -394,8 +397,8 @@ static double prob_frag_given_codon3(struct nmm_frame_state const* state, char c
     return logsumexp(v, ARRAY_LENGTH(v));
 }
 
-static double prob_frag_given_codon4(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode)
+static double lprob_frag_given_codon4(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
@@ -444,8 +447,8 @@ static double prob_frag_given_codon4(struct nmm_frame_state const* state, char c
                      3 * loge + log1e - log(9) + logsumexp(v1, ARRAY_LENGTH(v1)));
 }
 
-static double prob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
-                                     struct nmm_ccode const* ccode)
+static double lprob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
+                                      struct nmm_ccode const* ccode)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;

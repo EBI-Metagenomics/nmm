@@ -147,7 +147,19 @@ void test_frame_state_posterior(void)
     nmm_base_set_lprob(base, 'T', log(0.4));
     cass_cond(nmm_base_normalize(base) == 0);
 
+    char const* symbols = imm_abc_symbols(abc);
+    int         length = imm_abc_length(abc);
+
     struct nmm_codon* codon = nmm_codon_create(abc);
+    struct cartes*    ccode_iter = cartes_create(symbols, length, 3);
+    char const*       ccode_item = NULL;
+
+    while ((ccode_item = cartes_next(ccode_iter)) != NULL) {
+        struct nmm_ccode ccode = {ccode_item[0], ccode_item[1], ccode_item[2]};
+        nmm_codon_set_lprob(codon, &ccode, log(0.001));
+    }
+    cartes_destroy(ccode_iter);
+
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
     nmm_codon_set_lprob(codon, &NMM_CCODE('G', 'T', 'C'), log(0.4));
@@ -155,11 +167,7 @@ void test_frame_state_posterior(void)
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", base, codon, 0.1);
 
-    char const* symbols = imm_abc_symbols(abc);
-    int         length = imm_abc_length(abc);
-
-    struct cartes* ccode_iter = cartes_create(symbols, length, 3);
-    char const*    ccode_item = NULL;
+    ccode_iter = cartes_create(symbols, length, 3);
 
     while ((ccode_item = cartes_next(ccode_iter)) != NULL) {
         struct nmm_ccode ccode = {ccode_item[0], ccode_item[1], ccode_item[2]};
@@ -171,8 +179,9 @@ void test_frame_state_posterior(void)
             char const*    seq = NULL;
 
             while ((seq = cartes_next(seq_iter)) != NULL) {
-                total = imm_lprob_add(total,
-                                      nmm_frame_state_posterior(state, &ccode, seq, times));
+                double lprob = nmm_frame_state_posterior(state, &ccode, seq, times);
+                lprob -= nmm_codon_get_lprob(codon, &ccode);
+                total = imm_lprob_add(total, lprob);
             }
             cartes_destroy(seq_iter);
         }
