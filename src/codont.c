@@ -23,7 +23,8 @@ struct nmm_codont* nmm_codont_create(const struct imm_abc* abc)
     return codon;
 }
 
-int nmm_codont_set_lprob(struct nmm_codont* codon, struct nmm_ccode const* ccode, double lprob)
+int nmm_codont_set_lprob(struct nmm_codont* codon, struct nmm_codon const* ccode,
+                         double lprob)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
                   imm_abc_symbol_idx(codon->abc, ccode->b),
@@ -38,7 +39,7 @@ int nmm_codont_set_lprob(struct nmm_codont* codon, struct nmm_ccode const* ccode
     return 0;
 }
 
-double nmm_codont_get_lprob(const struct nmm_codont* codon, struct nmm_ccode const* ccode)
+double nmm_codont_get_lprob(const struct nmm_codont* codon, struct nmm_codon const* ccode)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
                   imm_abc_symbol_idx(codon->abc, ccode->b),
@@ -66,7 +67,10 @@ void nmm_codont_destroy(struct nmm_codont* codon)
     free(codon);
 }
 
-const struct imm_abc* nmm_codont_get_abc(const struct nmm_codont* codon) { return codon->abc; }
+const struct imm_abc* nmm_codont_get_abc(const struct nmm_codont* codon)
+{
+    return codon->abc;
+}
 
 static void codon_set_ninfs(struct nmm_codont* codon)
 {
