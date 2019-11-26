@@ -13,8 +13,8 @@ int main(void)
 void test_codon(void)
 {
 #define CCODE(a, b, c) &NMM_CCODE(a, b, c)
-    struct imm_abc*   abc = imm_abc_create("ACGT");
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct imm_abc*    abc = imm_abc_create("ACGT");
+    struct nmm_codont* codon = nmm_codon_create(abc);
 
     cass_cond(nmm_codon_set_lprob(codon, CCODE('A', 'T', 'G'), log(0.8)) == 0);
     cass_cond(nmm_codon_set_lprob(codon, CCODE('A', 'T', 'T'), log(0.1)) == 0);

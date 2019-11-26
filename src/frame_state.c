@@ -8,7 +8,7 @@ struct nmm_frame_state
 {
     struct imm_state*       interface;
     struct nmm_base const*  base;
-    const struct nmm_codon* codon;
+    const struct nmm_codont* codon;
     double                  epsilon;
     double                  leps;
     double                  l1eps;
@@ -51,7 +51,7 @@ static inline double ecodon_lprob(const struct nmm_frame_state* state, char cons
 }
 
 struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nmm_base* base,
-                                               const struct nmm_codon* codon, double epsilon)
+                                               const struct nmm_codont* codon, double epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 

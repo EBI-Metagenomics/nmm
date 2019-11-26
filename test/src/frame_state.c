@@ -30,7 +30,7 @@ void test_frame_state1(void)
     nmm_base_set_lprob(base, 'T', log(0.2));
     cass_cond(nmm_base_normalize(base) == 0);
 
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct nmm_codont* codon = nmm_codon_create(abc);
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8 / 0.9));
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1 / 0.9));
 
@@ -63,7 +63,7 @@ void test_frame_state2(void)
     nmm_base_set_lprob(base, 'T', log(0.4));
     cass_cond(nmm_base_normalize(base) == 0);
 
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct nmm_codont* codon = nmm_codon_create(abc);
 
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8 / 0.9));
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1 / 0.9));
@@ -106,7 +106,7 @@ void test_frame_state3(void)
     nmm_base_set_lprob(base, 'T', log(0.4));
     cass_cond(nmm_base_normalize(base) == 0);
 
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct nmm_codont* codon = nmm_codon_create(abc);
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
     nmm_codon_set_lprob(codon, &NMM_CCODE('G', 'T', 'C'), log(0.4));
@@ -152,7 +152,7 @@ void test_frame_state_lposterior(void)
     char const* symbols = imm_abc_symbols(abc);
     int         length = imm_abc_length(abc);
 
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct nmm_codont* codon = nmm_codon_create(abc);
     struct cartes*    ccode_iter = cartes_create(symbols, length, 3);
     char const*       ccode_item = NULL;
 
@@ -211,7 +211,7 @@ void test_frame_state_decode(void)
     char const* symbols = imm_abc_symbols(abc);
     int         length = imm_abc_length(abc);
 
-    struct nmm_codon* codon = nmm_codon_create(abc);
+    struct nmm_codont* codon = nmm_codon_create(abc);
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
     nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
     nmm_codon_set_lprob(codon, &NMM_CCODE('G', 'T', 'C'), log(0.4));

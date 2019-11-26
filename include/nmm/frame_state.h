@@ -7,11 +7,11 @@
 struct imm_abc;
 struct nmm_base;
 struct nmm_frame_state;
-struct nmm_codon;
+struct nmm_codont;
 
 NMM_API struct nmm_frame_state* nmm_frame_state_create(char const*             name,
                                                        struct nmm_base const*  base,
-                                                       struct nmm_codon const* codon,
+                                                       struct nmm_codont const* codon,
                                                        double                  epsilon);
 NMM_API double                  nmm_frame_state_lposterior(struct nmm_frame_state* state,
                                                            struct nmm_ccode const* ccode, char const* seq,
