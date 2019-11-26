@@ -5,6 +5,6 @@ function(nmm_add_test name)
 endfunction()
 
 nmm_add_test(base)
-nmm_add_test(codon)
+nmm_add_test(codont)
 nmm_add_test(frame_state)
 nmm_add_test(hmm)

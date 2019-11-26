@@ -2,7 +2,7 @@
 #define NMM_FRAME_STATE_H
 
 #include "nmm/api.h"
-#include "nmm/codon.h"
+#include "nmm/codont.h"
 
 struct imm_abc;
 struct nmm_base;

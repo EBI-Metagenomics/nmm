@@ -32,10 +32,10 @@ void test_hmm_frame_state_0eps(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -57,7 +57,7 @@ void test_hmm_frame_state_0eps(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
@@ -72,10 +72,10 @@ void test_hmm_frame_state_len1(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -105,7 +105,7 @@ void test_hmm_frame_state_len1(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
@@ -120,10 +120,10 @@ void test_hmm_frame_state_len2(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -173,7 +173,7 @@ void test_hmm_frame_state_len2(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
@@ -188,10 +188,10 @@ void test_hmm_frame_state_len3(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -221,7 +221,7 @@ void test_hmm_frame_state_len3(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
@@ -236,10 +236,10 @@ void test_hmm_frame_state_len4(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -259,7 +259,7 @@ void test_hmm_frame_state_len4(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
@@ -275,10 +275,10 @@ void test_hmm_frame_state_len5(void)
     nmm_base_set_lprob(base, 'G', log(0.5));
     nmm_base_set_lprob(base, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codon = nmm_codon_create(abc);
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
-    nmm_codon_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
+    struct nmm_codont* codon = nmm_codont_create(abc);
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'G'), log(0.8));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('A', 'T', 'T'), log(0.1));
+    nmm_codont_set_lprob(codon, &NMM_CCODE('C', 'C', 'C'), log(0.1));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -308,7 +308,7 @@ void test_hmm_frame_state_len5(void)
 
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_destroy(codon);
+    nmm_codont_destroy(codon);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }

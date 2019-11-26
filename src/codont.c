@@ -11,7 +11,7 @@ struct nmm_codont
 
 static void codon_set_ninfs(struct nmm_codont* codon);
 
-struct nmm_codont* nmm_codon_create(const struct imm_abc* abc)
+struct nmm_codont* nmm_codont_create(const struct imm_abc* abc)
 {
     if (imm_abc_length(abc) != 4) {
         imm_error("alphabet length is not four");
@@ -23,7 +23,7 @@ struct nmm_codont* nmm_codon_create(const struct imm_abc* abc)
     return codon;
 }
 
-int nmm_codon_set_lprob(struct nmm_codont* codon, struct nmm_ccode const* ccode, double lprob)
+int nmm_codont_set_lprob(struct nmm_codont* codon, struct nmm_ccode const* ccode, double lprob)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
                   imm_abc_symbol_idx(codon->abc, ccode->b),
@@ -38,7 +38,7 @@ int nmm_codon_set_lprob(struct nmm_codont* codon, struct nmm_ccode const* ccode,
     return 0;
 }
 
-double nmm_codon_get_lprob(const struct nmm_codont* codon, struct nmm_ccode const* ccode)
+double nmm_codont_get_lprob(const struct nmm_codont* codon, struct nmm_ccode const* ccode)
 {
     int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
                   imm_abc_symbol_idx(codon->abc, ccode->b),
@@ -52,12 +52,12 @@ double nmm_codon_get_lprob(const struct nmm_codont* codon, struct nmm_ccode cons
     return codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
 }
 
-int nmm_codon_normalize(struct nmm_codont* codon)
+int nmm_codont_normalize(struct nmm_codont* codon)
 {
     return imm_lprob_normalize(codon->emiss_lprobs, 4 * 4 * 4);
 }
 
-void nmm_codon_destroy(struct nmm_codont* codon)
+void nmm_codont_destroy(struct nmm_codont* codon)
 {
     if (!codon)
         return;
@@ -66,7 +66,7 @@ void nmm_codon_destroy(struct nmm_codont* codon)
     free(codon);
 }
 
-const struct imm_abc* nmm_codon_get_abc(const struct nmm_codont* codon) { return codon->abc; }
+const struct imm_abc* nmm_codont_get_abc(const struct nmm_codont* codon) { return codon->abc; }
 
 static void codon_set_ninfs(struct nmm_codont* codon)
 {

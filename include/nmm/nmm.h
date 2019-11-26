@@ -7,7 +7,7 @@ extern "C"
 #endif
 
 #include "nmm/base.h"
-#include "nmm/codon.h"
+#include "nmm/codont.h"
 #include "nmm/frame_state.h"
 
 #ifdef __cplusplus

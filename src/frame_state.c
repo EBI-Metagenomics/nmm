@@ -55,7 +55,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (nmm_base_get_abc(base) != nmm_codon_get_abc(codon)) {
+    if (nmm_base_get_abc(base) != nmm_codont_get_abc(codon)) {
         free(state);
         imm_error("alphabets from base and codon are different");
         return NULL;
@@ -96,13 +96,13 @@ double nmm_frame_state_lposterior(struct nmm_frame_state* state,
     else if (seq_len == 5)
         lprob = lprob_frag_given_codon5(state, seq, ccode);
 
-    return lprob + nmm_codon_get_lprob(state->codon, ccode);
+    return lprob + nmm_codont_get_lprob(state->codon, ccode);
 }
 
 double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq, int seq_len,
                               struct nmm_ccode* ccode)
 {
-    struct imm_abc const* abc = nmm_codon_get_abc(state->codon);
+    struct imm_abc const* abc = nmm_codont_get_abc(state->codon);
     char const*           symbols = imm_abc_symbols(abc);
     int                   n = imm_abc_length(abc);
 
@@ -317,7 +317,7 @@ static double codon_lprob(const struct nmm_frame_state* state, char const* codon
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
                 struct nmm_ccode ccode = {a_id[a], b_id[b], c_id[c]};
-                double           t = nmm_codon_get_lprob(state->codon, &ccode);
+                double           t = nmm_codont_get_lprob(state->codon, &ccode);
                 lprob = logaddexp(lprob, t);
             }
         }
