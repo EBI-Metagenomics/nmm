@@ -9,7 +9,7 @@ struct nmm_codont
     double                emiss_lprobs[4 * 4 * 4];
 };
 
-static void codon_set_ninfs(struct nmm_codont* codon);
+static void codon_set_ninfs(struct nmm_codont* codont);
 
 struct nmm_codont* nmm_codont_create(const struct imm_abc* abc)
 {
@@ -17,63 +17,63 @@ struct nmm_codont* nmm_codont_create(const struct imm_abc* abc)
         imm_error("alphabet length is not four");
         return NULL;
     }
-    struct nmm_codont* codon = malloc(sizeof(struct nmm_codont));
-    codon->abc = abc;
-    codon_set_ninfs(codon);
-    return codon;
+    struct nmm_codont* codont = malloc(sizeof(struct nmm_codont));
+    codont->abc = abc;
+    codon_set_ninfs(codont);
+    return codont;
 }
 
-int nmm_codont_set_lprob(struct nmm_codont* codon, struct nmm_codon const* ccode,
+int nmm_codont_set_lprob(struct nmm_codont* codont, struct nmm_codon const* codon,
                          double lprob)
 {
-    int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
-                  imm_abc_symbol_idx(codon->abc, ccode->b),
-                  imm_abc_symbol_idx(codon->abc, ccode->c)};
+    int idx[3] = {imm_abc_symbol_idx(codont->abc, codon->a),
+                  imm_abc_symbol_idx(codont->abc, codon->b),
+                  imm_abc_symbol_idx(codont->abc, codon->c)};
 
     if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
         imm_error("nucleotide not found");
         return 1;
     }
 
-    codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]] = lprob;
+    codont->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]] = lprob;
     return 0;
 }
 
-double nmm_codont_get_lprob(const struct nmm_codont* codon, struct nmm_codon const* ccode)
+double nmm_codont_get_lprob(const struct nmm_codont* codont, struct nmm_codon const* codon)
 {
-    int idx[3] = {imm_abc_symbol_idx(codon->abc, ccode->a),
-                  imm_abc_symbol_idx(codon->abc, ccode->b),
-                  imm_abc_symbol_idx(codon->abc, ccode->c)};
+    int idx[3] = {imm_abc_symbol_idx(codont->abc, codon->a),
+                  imm_abc_symbol_idx(codont->abc, codon->b),
+                  imm_abc_symbol_idx(codont->abc, codon->c)};
 
     if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
         imm_error("nucleotide not found");
         return NAN;
     }
 
-    return codon->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
+    return codont->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
 }
 
-int nmm_codont_normalize(struct nmm_codont* codon)
+int nmm_codont_normalize(struct nmm_codont* codont)
 {
-    return imm_lprob_normalize(codon->emiss_lprobs, 4 * 4 * 4);
+    return imm_lprob_normalize(codont->emiss_lprobs, 4 * 4 * 4);
 }
 
-void nmm_codont_destroy(struct nmm_codont* codon)
+void nmm_codont_destroy(struct nmm_codont* codont)
 {
-    if (!codon)
+    if (!codont)
         return;
 
-    codon->abc = NULL;
-    free(codon);
+    codont->abc = NULL;
+    free(codont);
 }
 
-const struct imm_abc* nmm_codont_get_abc(const struct nmm_codont* codon)
+struct imm_abc const* nmm_codont_get_abc(const struct nmm_codont* codont)
 {
-    return codon->abc;
+    return codont->abc;
 }
 
-static void codon_set_ninfs(struct nmm_codont* codon)
+static void codon_set_ninfs(struct nmm_codont* codont)
 {
     for (int i = 0; i < 4 * 4 * 4; ++i)
-        codon->emiss_lprobs[i] = -INFINITY;
+        codont->emiss_lprobs[i] = -INFINITY;
 }
