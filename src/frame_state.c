@@ -51,11 +51,12 @@ static inline double ecodon_lprob(const struct nmm_frame_state* state, char cons
 }
 
 struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nmm_base* base,
-                                               const struct nmm_codont* codon, double epsilon)
+                                               const struct nmm_codont* codont,
+                                               double                   epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (nmm_base_get_abc(base) != nmm_codont_get_abc(codon)) {
+    if (nmm_base_get_abc(base) != nmm_codont_get_abc(codont)) {
         free(state);
         imm_error("alphabets from base and codon are different");
         return NULL;
@@ -68,7 +69,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
     }
 
     state->base = base;
-    state->codon = codon;
+    state->codon = codont;
     state->epsilon = epsilon;
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
@@ -81,26 +82,26 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
 }
 
 double nmm_frame_state_lposterior(struct nmm_frame_state* state,
-                                  struct nmm_codon const* ccode, char const* seq, int seq_len)
+                                  struct nmm_codon const* codon, char const* seq, int seq_len)
 {
     double lprob = imm_lprob_zero();
 
     if (seq_len == 1)
-        lprob = lprob_frag_given_codon1(state, seq, ccode);
+        lprob = lprob_frag_given_codon1(state, seq, codon);
     else if (seq_len == 2)
-        lprob = lprob_frag_given_codon2(state, seq, ccode);
+        lprob = lprob_frag_given_codon2(state, seq, codon);
     else if (seq_len == 3)
-        lprob = lprob_frag_given_codon3(state, seq, ccode);
+        lprob = lprob_frag_given_codon3(state, seq, codon);
     else if (seq_len == 4)
-        lprob = lprob_frag_given_codon4(state, seq, ccode);
+        lprob = lprob_frag_given_codon4(state, seq, codon);
     else if (seq_len == 5)
-        lprob = lprob_frag_given_codon5(state, seq, ccode);
+        lprob = lprob_frag_given_codon5(state, seq, codon);
 
-    return lprob + nmm_codont_get_lprob(state->codon, ccode);
+    return lprob + nmm_codont_get_lprob(state->codon, codon);
 }
 
 double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq, int seq_len,
-                              struct nmm_codon* ccode)
+                              struct nmm_codon* codon)
 {
     struct imm_abc const* abc = nmm_codont_get_abc(state->codon);
     char const*           symbols = imm_abc_symbols(abc);
@@ -117,9 +118,9 @@ double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq, in
 
                 if (lprob >= max_lprob) {
                     max_lprob = lprob;
-                    ccode->a = tmp.a;
-                    ccode->b = tmp.b;
-                    ccode->c = tmp.c;
+                    codon->a = tmp.a;
+                    codon->b = tmp.b;
+                    codon->c = tmp.c;
                 }
             }
         }
@@ -332,14 +333,14 @@ static double base_lprob(const struct nmm_frame_state* state, char id)
 }
 
 static double lprob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,
-                                      struct nmm_codon const* ccode)
+                                      struct nmm_codon const* codon)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
 
-    char const x1 = ccode->a;
-    char const x2 = ccode->b;
-    char const x3 = ccode->c;
+    char const x1 = codon->a;
+    char const x2 = codon->b;
+    char const x3 = codon->c;
 
     char const z1 = seq[0];
 
@@ -349,14 +350,14 @@ static double lprob_frag_given_codon1(struct nmm_frame_state const* state, char 
 }
 
 static double lprob_frag_given_codon2(struct nmm_frame_state const* state, char const* seq,
-                                      struct nmm_codon const* ccode)
+                                      struct nmm_codon const* codon)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
 
-    char const x1 = ccode->a;
-    char const x2 = ccode->b;
-    char const x3 = ccode->c;
+    char const x1 = codon->a;
+    char const x2 = codon->b;
+    char const x3 = codon->c;
 
     char const z1 = seq[0];
     char const z2 = seq[1];
@@ -377,14 +378,14 @@ static double lprob_frag_given_codon2(struct nmm_frame_state const* state, char 
 }
 
 static double lprob_frag_given_codon3(struct nmm_frame_state const* state, char const* seq,
-                                      struct nmm_codon const* ccode)
+                                      struct nmm_codon const* codon)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
 
-    char const x1 = ccode->a;
-    char const x2 = ccode->b;
-    char const x3 = ccode->c;
+    char const x1 = codon->a;
+    char const x2 = codon->b;
+    char const x3 = codon->c;
 
     char const z1 = seq[0];
     char const z2 = seq[1];
@@ -425,14 +426,14 @@ static double lprob_frag_given_codon3(struct nmm_frame_state const* state, char 
 }
 
 static double lprob_frag_given_codon4(struct nmm_frame_state const* state, char const* seq,
-                                      struct nmm_codon const* ccode)
+                                      struct nmm_codon const* codon)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
 
-    char const x1 = ccode->a;
-    char const x2 = ccode->b;
-    char const x3 = ccode->c;
+    char const x1 = codon->a;
+    char const x2 = codon->b;
+    char const x3 = codon->c;
 
     char const z1 = seq[0];
     char const z2 = seq[1];
@@ -475,14 +476,14 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state, char 
 }
 
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
-                                      struct nmm_codon const* ccode)
+                                      struct nmm_codon const* codon)
 {
     double const loge = state->leps;
     double const log1e = state->l1eps;
 
-    char const x1 = ccode->a;
-    char const x2 = ccode->b;
-    char const x3 = ccode->c;
+    char const x1 = codon->a;
+    char const x2 = codon->b;
+    char const x3 = codon->c;
 
     char const z1 = seq[0];
     char const z2 = seq[1];

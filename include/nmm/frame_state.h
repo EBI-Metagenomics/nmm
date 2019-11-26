@@ -11,13 +11,13 @@ struct nmm_codont;
 
 NMM_API struct nmm_frame_state* nmm_frame_state_create(char const*              name,
                                                        struct nmm_base const*   base,
-                                                       struct nmm_codont const* codon,
+                                                       struct nmm_codont const* codont,
                                                        double                   epsilon);
 NMM_API double                  nmm_frame_state_lposterior(struct nmm_frame_state* state,
-                                                           struct nmm_codon const* ccode, char const* seq,
+                                                           struct nmm_codon const* codon, char const* seq,
                                                            int seq_len);
 NMM_API double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq,
-                                      int seq_len, struct nmm_codon* ccode);
+                                      int seq_len, struct nmm_codon* codon);
 NMM_API void   nmm_frame_state_destroy(struct nmm_frame_state* state);
 
 #endif
