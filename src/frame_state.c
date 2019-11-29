@@ -7,7 +7,7 @@
 struct nmm_frame_state
 {
     struct imm_state*        interface;
-    struct nmm_base const*   base;
+    struct nmm_baset const*  baset;
     const struct nmm_codont* codon;
     double                   epsilon;
     double                   leps;
@@ -50,25 +50,25 @@ static inline double ecodon_lprob(const struct nmm_frame_state* state, char cons
     return codon_lprob(state, codon);
 }
 
-struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nmm_base* base,
+struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nmm_baset* baset,
                                                const struct nmm_codont* codont,
                                                double                   epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (nmm_base_get_abc(base) != nmm_codont_get_abc(codont)) {
+    if (nmm_baset_get_abc(baset) != nmm_codont_get_abc(codont)) {
         free(state);
         imm_error("alphabets from base and codon are different");
         return NULL;
     }
 
-    if (imm_abc_length(nmm_base_get_abc(base)) != 4) {
+    if (imm_abc_length(nmm_baset_get_abc(baset)) != 4) {
         free(state);
         imm_error("alphabet length is not four");
         return NULL;
     }
 
-    state->base = base;
+    state->baset = baset;
     state->codon = codont;
     state->epsilon = epsilon;
     state->leps = log(epsilon);
@@ -77,7 +77,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const* name, const struct nm
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
 
-    state->interface = imm_state_create(name, nmm_base_get_abc(base), funcs, state);
+    state->interface = imm_state_create(name, nmm_baset_get_abc(baset), funcs, state);
     return state;
 }
 
@@ -136,7 +136,7 @@ void nmm_frame_state_destroy(struct nmm_frame_state* state)
     imm_state_destroy(state->interface);
     state->interface = NULL;
 
-    state->base = NULL;
+    state->baset = NULL;
     state->codon = NULL;
     free(state);
 }
@@ -329,7 +329,7 @@ static double codon_lprob(const struct nmm_frame_state* state, char const* codon
 
 static double base_lprob(const struct nmm_frame_state* state, char id)
 {
-    return nmm_base_get_lprob(state->base, id);
+    return nmm_baset_get_lprob(state->baset, id);
 }
 
 static double lprob_frag_given_codon1(struct nmm_frame_state const* state, char const* seq,

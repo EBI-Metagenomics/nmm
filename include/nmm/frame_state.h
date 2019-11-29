@@ -5,12 +5,12 @@
 #include "nmm/codont.h"
 
 struct imm_abc;
-struct nmm_base;
+struct nmm_baset;
 struct nmm_frame_state;
 struct nmm_codont;
 
 NMM_API struct nmm_frame_state* nmm_frame_state_create(char const*              name,
-                                                       struct nmm_base const*   base,
+                                                       struct nmm_baset const*  baset,
                                                        struct nmm_codont const* codont,
                                                        double                   epsilon);
 NMM_API double                  nmm_frame_state_lposterior(struct nmm_frame_state* state,

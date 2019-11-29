@@ -57,15 +57,6 @@ char const* cartes_next(struct cartes* cartes)
     return item;
 }
 
-/* int cartes_nitems(int seq_len, int times) { return ipow(seq_len, times); } */
-
-/* void cartes_item(char const* seq, int seq_len, int times, int idx, char* item) */
-/* { */
-/*     for (int i = 0; i < times; ++i) { */
-/*         item[i] = seq[(idx % ipow(seq_len, i + 1)) / ipow(seq_len, i)]; */
-/*     } */
-/* } */
-
 static int ipow(int base, int exp)
 {
     int result = 1;

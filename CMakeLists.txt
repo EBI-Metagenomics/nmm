@@ -5,7 +5,7 @@ project(nmm VERSION 0.0.1 LANGUAGES C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(nmm
-    src/base.c
+    src/baset.c
     src/codont.c
     src/frame_state.c
 )
