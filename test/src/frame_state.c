@@ -21,7 +21,7 @@ int main(void)
 
 void test_frame_state1(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.2));
@@ -54,7 +54,7 @@ void test_frame_state1(void)
 
 void test_frame_state2(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.1));
@@ -97,7 +97,7 @@ void test_frame_state2(void)
 
 void test_frame_state3(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.1));
@@ -140,7 +140,7 @@ void test_frame_state3(void)
 
 void test_frame_state_lposterior(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.1));
@@ -199,7 +199,7 @@ void test_frame_state_lposterior(void)
 
 void test_frame_state_decode(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.1));

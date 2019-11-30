@@ -164,7 +164,7 @@ static int frame_state_max_seq(struct imm_state const* state) { return 5; }
 
 static double joint_seq_len1(struct nmm_frame_state const* state, char const* seq)
 {
-    const char _ = IMM_ANY_SYMBOL;
+    const char _ = 'X';
     const char c0__[3] = {seq[0], _, _};
     const char c_0_[3] = {_, seq[0], _};
     const char c__0[3] = {_, _, seq[0]};
@@ -180,7 +180,7 @@ static double joint_seq_len1(struct nmm_frame_state const* state, char const* se
 static double joint_seq_len2(struct nmm_frame_state const* state, char const* seq)
 {
 #define c_lprob(codon) codon_lprob(state, codon)
-    const char _ = IMM_ANY_SYMBOL;
+    const char _ = 'X';
 
     const char c_01[3] = {_, seq[0], seq[1]};
     const char c0_1[3] = {seq[0], _, seq[1]};
@@ -214,7 +214,7 @@ static double joint_seq_len2(struct nmm_frame_state const* state, char const* se
 static double joint_seq_len3(struct nmm_frame_state const* state, char const* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
-    const char eseq[] = {seq[0], seq[1], seq[2], IMM_ANY_SYMBOL};
+    const char eseq[] = {seq[0], seq[1], seq[2], 'X'};
     const char _ = sizeof(eseq) - 1;
 
     const double B[] = {base_lprob(state, seq[0]), base_lprob(state, seq[1]),
@@ -239,7 +239,7 @@ static double joint_seq_len3(struct nmm_frame_state const* state, char const* se
 static double joint_seq_len4(struct nmm_frame_state const* state, char const* seq)
 {
 #define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
-    const char eseq[] = {seq[0], seq[1], seq[2], seq[3], IMM_ANY_SYMBOL};
+    const char eseq[] = {seq[0], seq[1], seq[2], seq[3], 'X'};
     const char _ = sizeof(eseq) - 1;
 
     const double B[] = {base_lprob(state, seq[0]), base_lprob(state, seq[1]),
@@ -305,7 +305,7 @@ static double codon_lprob(const struct nmm_frame_state* state, char const* codon
     int nbases[3] = {4, 4, 4};
 
     for (int i = 0; i < 3; ++i) {
-        if (codon[i] != IMM_ANY_SYMBOL) {
+        if (codon[i] != 'X') {
             bases[i * 4] = codon[i];
             nbases[i] = 1;
         }

@@ -13,7 +13,7 @@ int main(void)
 void test_codont(void)
 {
 #define CODON(a, b, c) &NMM_CODON(a, b, c)
-    struct imm_abc*    abc = imm_abc_create("ACGT");
+    struct imm_abc*    abc = imm_abc_create("ACGT", 'X');
     struct nmm_codont* codont = nmm_codont_create(abc);
 
     cass_cond(nmm_codont_set_lprob(codont, CODON('A', 'T', 'G'), log(0.8)) == 0);

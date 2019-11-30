@@ -24,7 +24,7 @@ static inline struct imm_state const* cast_c(void const* s) { return imm_state_c
 
 void test_hmm_frame_state_0eps(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));
@@ -64,7 +64,7 @@ void test_hmm_frame_state_0eps(void)
 
 void test_hmm_frame_state_len1(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));
@@ -112,7 +112,7 @@ void test_hmm_frame_state_len1(void)
 
 void test_hmm_frame_state_len2(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));
@@ -180,7 +180,7 @@ void test_hmm_frame_state_len2(void)
 
 void test_hmm_frame_state_len3(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));
@@ -228,7 +228,7 @@ void test_hmm_frame_state_len3(void)
 
 void test_hmm_frame_state_len4(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));
@@ -267,7 +267,7 @@ void test_hmm_frame_state_len4(void)
 void test_hmm_frame_state_len5(void)
 {
 
-    struct imm_abc* abc = imm_abc_create("ACGT");
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_baset* baset = nmm_baset_create(abc);
     nmm_baset_set_lprob(baset, 'A', log(0.25));

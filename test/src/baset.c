@@ -12,7 +12,7 @@ int main(void)
 
 void test_baset(void)
 {
-    struct imm_abc*   abc = imm_abc_create("ACGT");
+    struct imm_abc*   abc = imm_abc_create("ACGT", 'X');
     struct nmm_baset* baset = nmm_baset_create(abc);
 
     cass_cond(nmm_baset_set_lprob(baset, 'A', log(0.8)) == 0);
