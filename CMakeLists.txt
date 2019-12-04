@@ -52,7 +52,7 @@ configure_package_config_file(nmm-config.cmake.in
     NO_SET_AND_CHECK_MACRO
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nmm-config.cmake
-    DESTINATION lib/cmake/imm
+    DESTINATION lib/cmake/nmm
 )
 
 enable_testing()
