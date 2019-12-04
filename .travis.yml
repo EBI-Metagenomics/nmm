@@ -44,7 +44,6 @@ notifications:
     on_failure: always
 deploy:
   provider: releases
-  edge: true
   on:
     tags: true
     repo: EBI-Metagenomics/nmm
