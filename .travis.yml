@@ -8,14 +8,14 @@ jobs:
     - test -e /usr/bin/cmake || sudo ln -s $(which cmake) /usr/bin/cmake
     - curl -fsSL https://git.io/JerYI | GITHUB_USER=horta GITHUB_PROJECT=logaddexp
       DO_CMD=sudo bash
-    - curl -fsSL https://git.io/JerYI | GITHUB_USER=horta GITHUB_PROJECT=imm DO_CMD=sudo
+    - curl -fsSL https://git.io/JerYI | GITHUB_USER=EBI-Metagenomics GITHUB_PROJECT=imm DO_CMD=sudo
       bash
   - os: osx
     env: GENERATOR="Unix Makefiles"
     before_script:
     - curl -fsSL https://git.io/JerYI | GITHUB_USER=horta GITHUB_PROJECT=logaddexp
       DO_CMD=sudo bash
-    - curl -fsSL https://git.io/JerYI | GITHUB_USER=horta GITHUB_PROJECT=imm DO_CMD=sudo
+    - curl -fsSL https://git.io/JerYI | GITHUB_USER=EBI-Metagenomics GITHUB_PROJECT=imm DO_CMD=sudo
       bash
 addons:
   apt:
