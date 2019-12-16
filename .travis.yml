@@ -48,6 +48,8 @@ script:
   - test -e $TRAVIS_BUILD_DIR/prefix/lib/cmake/nmm/nmm-config.cmake
   - test -e $TRAVIS_BUILD_DIR/prefix/lib/cmake/nmm/nmm-targets-release.cmake
   - test -e $TRAVIS_BUILD_DIR/prefix/lib/cmake/nmm/nmm-targets.cmake
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then otool -l $TRAVIS_BUILD_DIR/prefix/lib/libnmm.dylib | grep -q LC_RPATH; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then test -e $TRAVIS_BUILD_DIR/prefix/lib/libnmm.so; fi
   - cd $TRAVIS_BUILD_DIR
   - git clean -xdf
 notifications:

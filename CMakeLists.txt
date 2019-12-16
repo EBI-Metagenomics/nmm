@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(nmm VERSION 0.0.1 LANGUAGES C
-    DESCRIPTION "Nucleotides Markov model library.")
+cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
+project(nmm VERSION 0.0.2 LANGUAGES C)
 
 # Generate compile_commands.json file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
