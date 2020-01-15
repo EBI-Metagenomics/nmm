@@ -5,17 +5,40 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ASCII_LAST_STD 127
+#define NSYMBOLS (NMM_CODON_NBASES + 1)
+
+struct codon_lprob
+{
+    double lprob[NSYMBOLS * NSYMBOLS * NSYMBOLS];
+    int    symbol_idx[ASCII_LAST_STD + 1];
+};
+
+static inline int codon_lprob_idx(struct codon_lprob const* codon_lprob, char const* codon)
+{
+    return codon_lprob->symbol_idx[(size_t)codon[0]] +
+           NSYMBOLS * codon_lprob->symbol_idx[(size_t)codon[1]] +
+           NSYMBOLS * NSYMBOLS * codon_lprob->symbol_idx[(size_t)codon[2]];
+}
+
+static inline double codon_lprob_value(struct codon_lprob const* codon_lprob,
+                                       char const*               codon)
+{
+    return codon_lprob->lprob[codon_lprob_idx(codon_lprob, codon)];
+}
+
 struct nmm_frame_state
 {
     struct imm_state*        interface;
     struct nmm_baset const*  baset;
-    const struct nmm_codont* codon;
+    struct nmm_codont const* codon;
+    struct imm_abc const*    abc;
     double                   epsilon;
     double                   leps;
     double                   l1eps;
     double                   zero_lprob;
     char                     any_symbol;
-    char                     bases_comb[3 * 4];
+    struct codon_lprob       codon_lprob;
 };
 
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -39,18 +62,67 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state, char 
                                       struct nmm_codon const* ccode);
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state, char const* seq,
                                       struct nmm_codon const* ccode);
-static double codon_lprob(struct nmm_frame_state const* state, char const* codon);
+/* static double compute_codon_lprob(struct nmm_frame_state const* state, char const* codon);
+ */
+static double compute_codon_lprob(char const* bases_comb, struct nmm_codont const* codont,
+                                  char const* codon, char const any_symbol);
 static double base_lprob(struct nmm_frame_state const* state, char id);
 static inline double logaddexp3(double a, double b, double c)
 {
     return logaddexp(logaddexp(a, b), c);
 }
 static inline double logsumexp(double const* arr, int len) { return imm_lprob_sum(arr, len); }
-static inline double ecodon_lprob(const struct nmm_frame_state* state, char const* seq, int a,
-                                  int b, int c)
+static inline double ecodon_lprob_value(struct codon_lprob const* codon_lprob,
+                                        char const* seq, int const a, int const b,
+                                        int const c)
 {
-    const char codon[3] = {seq[a], seq[b], seq[c]};
-    return codon_lprob(state, codon);
+    char const codon[3] = {seq[a], seq[b], seq[c]};
+    return codon_lprob_value(codon_lprob, codon);
+}
+
+static void codon_lprob_init(struct codon_lprob* codon_lprob, struct nmm_codont const* codont,
+                             struct imm_abc const* abc);
+
+static void codon_lprob_init(struct codon_lprob* codon_lprob, struct nmm_codont const* codont,
+                             struct imm_abc const* abc)
+{
+    char bases_comb[3 * NMM_CODON_NBASES];
+    bases_comb[0] = imm_abc_symbol_id(abc, 0);
+    bases_comb[1] = imm_abc_symbol_id(abc, 1);
+    bases_comb[2] = imm_abc_symbol_id(abc, 2);
+    bases_comb[3] = imm_abc_symbol_id(abc, 3);
+    bases_comb[4 + 0] = imm_abc_symbol_id(abc, 0);
+    bases_comb[4 + 1] = imm_abc_symbol_id(abc, 1);
+    bases_comb[4 + 2] = imm_abc_symbol_id(abc, 2);
+    bases_comb[4 + 3] = imm_abc_symbol_id(abc, 3);
+    bases_comb[8 + 0] = imm_abc_symbol_id(abc, 0);
+    bases_comb[8 + 1] = imm_abc_symbol_id(abc, 1);
+    bases_comb[8 + 2] = imm_abc_symbol_id(abc, 2);
+    bases_comb[8 + 3] = imm_abc_symbol_id(abc, 3);
+
+    char const any_symbol = imm_abc_any_symbol(abc);
+
+    for (int i = 0; i <= ASCII_LAST_STD; ++i)
+        codon_lprob->symbol_idx[i] = -1;
+
+    char const* symbols = imm_abc_symbols(abc);
+    for (int i = 0; i < NMM_CODON_NBASES; ++i)
+        codon_lprob->symbol_idx[(size_t)symbols[i]] = imm_abc_symbol_idx(abc, symbols[i]);
+    codon_lprob->symbol_idx[(size_t)any_symbol] = NMM_CODON_NBASES;
+
+    char const all_symbols[NSYMBOLS] = {symbols[0], symbols[1], symbols[2], symbols[3],
+                                        any_symbol};
+
+    for (int i0 = 0; i0 < NSYMBOLS; ++i0) {
+        for (int i1 = 0; i1 < NSYMBOLS; ++i1) {
+            for (int i2 = 0; i2 < NSYMBOLS; ++i2) {
+                char const codon[3] = {all_symbols[i0], all_symbols[i1], all_symbols[i2]};
+
+                codon_lprob->lprob[codon_lprob_idx(codon_lprob, codon)] =
+                    compute_codon_lprob(bases_comb, codont, codon, any_symbol);
+            }
+        }
+    }
 }
 
 struct nmm_frame_state* nmm_frame_state_create(char const*              name,
@@ -67,12 +139,13 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
         return NULL;
     }
 
-    if (imm_abc_length(abc) != 4) {
+    if (imm_abc_length(abc) != NMM_CODON_NBASES) {
         free(state);
         imm_error("alphabet length is not four");
         return NULL;
     }
 
+    state->abc = abc;
     state->baset = baset;
     state->codon = codont;
     state->epsilon = epsilon;
@@ -81,18 +154,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
     state->zero_lprob = imm_lprob_zero();
     state->any_symbol = imm_abc_any_symbol(abc);
 
-    state->bases_comb[0] = imm_abc_symbol_id(abc, 0);
-    state->bases_comb[1] = imm_abc_symbol_id(abc, 1);
-    state->bases_comb[2] = imm_abc_symbol_id(abc, 2);
-    state->bases_comb[3] = imm_abc_symbol_id(abc, 3);
-    state->bases_comb[4 + 0] = imm_abc_symbol_id(abc, 0);
-    state->bases_comb[4 + 1] = imm_abc_symbol_id(abc, 1);
-    state->bases_comb[4 + 2] = imm_abc_symbol_id(abc, 2);
-    state->bases_comb[4 + 3] = imm_abc_symbol_id(abc, 3);
-    state->bases_comb[8 + 0] = imm_abc_symbol_id(abc, 0);
-    state->bases_comb[8 + 1] = imm_abc_symbol_id(abc, 1);
-    state->bases_comb[8 + 2] = imm_abc_symbol_id(abc, 2);
-    state->bases_comb[8 + 3] = imm_abc_symbol_id(abc, 3);
+    codon_lprob_init(&state->codon_lprob, codont, abc);
 
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
@@ -191,15 +253,15 @@ static double joint_seq_len1(struct nmm_frame_state const* state, char const* se
 
     double c = 2 * state->leps + 2 * state->l1eps;
 
-    double e0 = codon_lprob(state, c0__);
-    double e1 = codon_lprob(state, c_0_);
-    double e2 = codon_lprob(state, c__0);
+    double e0 = codon_lprob_value(&state->codon_lprob, c0__);
+    double e1 = codon_lprob_value(&state->codon_lprob, c_0_);
+    double e2 = codon_lprob_value(&state->codon_lprob, c__0);
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
 static double joint_seq_len2(struct nmm_frame_state const* state, char const* seq)
 {
-#define c_lprob(codon) codon_lprob(state, codon)
+#define c_lprob(codon) codon_lprob_value(&state->codon_lprob, codon)
     const char _ = state->any_symbol;
 
     const char c_01[3] = {_, seq[0], seq[1]};
@@ -233,7 +295,7 @@ static double joint_seq_len2(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len3(struct nmm_frame_state const* state, char const* seq)
 {
-#define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
+#define C(a, b, c) ecodon_lprob_value(&state->codon_lprob, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], state->any_symbol};
     const char _ = sizeof(eseq) - 1;
 
@@ -258,7 +320,7 @@ static double joint_seq_len3(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len4(struct nmm_frame_state const* state, char const* seq)
 {
-#define C(a, b, c) ecodon_lprob(state, eseq, a, b, c)
+#define C(a, b, c) ecodon_lprob_value(&state->codon_lprob, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], seq[3], state->any_symbol};
     const char _ = sizeof(eseq) - 1;
 
@@ -284,7 +346,7 @@ static double joint_seq_len4(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len5(struct nmm_frame_state const* state, char const* seq)
 {
-#define c_lp(codon) codon_lprob(state, codon)
+#define c_lp(codon) codon_lprob_value(&state->codon_lprob, codon)
     const char c012[3] = {seq[0], seq[1], seq[2]};
     const char c013[3] = {seq[0], seq[1], seq[3]};
     const char c014[3] = {seq[0], seq[1], seq[4]};
@@ -312,32 +374,35 @@ static double joint_seq_len5(struct nmm_frame_state const* state, char const* se
 #undef c_lprob
 }
 
-static double codon_lprob(struct nmm_frame_state const* state, char const* codon)
+/* static double compute_codon_lprob(struct nmm_frame_state const* state, char const* codon)
+ */
+static double compute_codon_lprob(char const* bases_comb, struct nmm_codont const* codont,
+                                  char const* codon, char const any_symbol)
 {
-    double lprob = state->zero_lprob;
+    /* double lprob = state->zero_lprob; */
+    double lprob = imm_lprob_zero();
     char   bases[3 * 4] = {
-        state->bases_comb[0], state->bases_comb[1], state->bases_comb[2],
-        state->bases_comb[3], state->bases_comb[0], state->bases_comb[1],
-        state->bases_comb[2], state->bases_comb[3], state->bases_comb[0],
-        state->bases_comb[1], state->bases_comb[2], state->bases_comb[3],
+        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
+        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
+        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
     };
-    int nbases[3] = {4, 4, 4};
+    int nbases[3] = {NMM_CODON_NBASES, NMM_CODON_NBASES, NMM_CODON_NBASES};
 
     for (int i = 0; i < 3; ++i) {
-        if (codon[i] != state->any_symbol) {
-            bases[i * 4] = codon[i];
+        if (codon[i] != any_symbol) {
+            bases[i * NMM_CODON_NBASES] = codon[i];
             nbases[i] = 1;
         }
     }
 
     char const* a_id = bases;
-    char const* b_id = bases + 4;
-    char const* c_id = bases + 8;
+    char const* b_id = bases + NMM_CODON_NBASES;
+    char const* c_id = bases + 2 * NMM_CODON_NBASES;
     for (int a = 0; a < nbases[0]; ++a) {
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
                 struct nmm_codon const ccode = {a_id[a], b_id[b], c_id[c]};
-                double                 t = nmm_codont_get_lprob(state->codon, &ccode);
+                double                 t = nmm_codont_get_lprob(codont, &ccode);
                 lprob = logaddexp(lprob, t);
             }
         }
