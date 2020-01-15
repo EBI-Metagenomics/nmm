@@ -18,6 +18,7 @@ add_library(nmm
 )
 add_library(NMM::nmm ALIAS nmm)
 
+find_package(logaddexp REQUIRED)
 find_package(imm REQUIRED)
 
 target_include_directories(nmm
@@ -27,6 +28,7 @@ target_include_directories(nmm
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+target_link_libraries(nmm PRIVATE LOGADDEXP::logaddexp)
 target_link_libraries(nmm PUBLIC IMM::imm)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})

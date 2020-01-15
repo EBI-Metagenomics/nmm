@@ -208,9 +208,6 @@ void test_frame_state_decode(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    char const* symbols = imm_abc_symbols(abc);
-    int         length = imm_abc_length(abc);
-
     struct nmm_codont* codont = nmm_codont_create(abc);
     nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
     nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));

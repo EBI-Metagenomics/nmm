@@ -39,7 +39,7 @@ int nmm_codont_set_lprob(struct nmm_codont* codont, struct nmm_codon const* codo
     return 0;
 }
 
-double nmm_codont_get_lprob(const struct nmm_codont* codont, struct nmm_codon const* codon)
+double nmm_codont_get_lprob(struct nmm_codont const* codont, struct nmm_codon const* codon)
 {
     int idx[3] = {imm_abc_symbol_idx(codont->abc, codon->a),
                   imm_abc_symbol_idx(codont->abc, codon->b),
@@ -47,7 +47,7 @@ double nmm_codont_get_lprob(const struct nmm_codont* codont, struct nmm_codon co
 
     if (idx[0] < 0 || idx[1] < 0 || idx[2] < 0) {
         imm_error("nucleotide not found");
-        return NAN;
+        return imm_lprob_invalid();
     }
 
     return codont->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
