@@ -116,7 +116,7 @@ void test_perf_viterbi(void)
         }
     }
 
-    struct elapsed* elapsed = elapsed_create();
+    struct elapsed*  elapsed = elapsed_create();
     struct imm_path* path = imm_path_create();
 
     char const seq[] = "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
@@ -169,7 +169,9 @@ void test_perf_viterbi(void)
     elapsed_end(elapsed);
     imm_path_destroy(path);
 
+#ifdef NDEBUG
     cass_cond(elapsed_seconds(elapsed) < 20.0);
+#endif
     /* Elapsed: 8.93 seconds */
     printf("Elapsed: %.10f seconds\n", elapsed_seconds(elapsed));
 
