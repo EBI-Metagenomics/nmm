@@ -4,15 +4,15 @@
 #include <stdlib.h>
 
 #define ASCII_LAST_STD 127
+#define NBASES NMM_CODON_NBASES
 
 struct nmm_codont
 {
     const struct imm_abc* abc;
     int                   symbol_idx[ASCII_LAST_STD + 1];
-    double                emiss_lprobs[4 * 4 * 4];
+    double                emiss_lprobs[(NBASES + 1) * (NBASES + 1) * (NBASES + 1)];
 };
 
-static void set_zero_lprobs(double* lprobs);
 static int  set_lprobs(double* dst_lprobs, int const* symbol_idx,
                        struct nmm_codon_lprob const* lprobs, int lprobs_length);
 static void set_symbol_idx(int* symbol_idx, const struct imm_abc* abc);
@@ -47,12 +47,9 @@ double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const*
         return imm_lprob_invalid();
     }
 
-    return codont->emiss_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]];
-}
-
-int nmm_codont_normalize(struct nmm_codont* codont)
-{
-    return imm_lprob_normalize(codont->emiss_lprobs, 4 * 4 * 4);
+    int const strides[3] = {(NBASES + 1) * (NBASES + 1), NBASES + 1, 1};
+    return codont
+        ->emiss_lprobs[strides[0] * idx[0] + strides[1] * idx[1] + strides[2] * idx[2]];
 }
 
 void nmm_codont_destroy(struct nmm_codont* codont)
@@ -69,10 +66,10 @@ struct imm_abc const* nmm_codont_get_abc(const struct nmm_codont* codont)
     return codont->abc;
 }
 
-static void set_zero_lprobs(double* lprobs)
+static inline void set_zero_lprobs(double* lprobs)
 {
     double const zero_lprob = imm_lprob_zero();
-    for (int i = 0; i < 4 * 4 * 4; ++i)
+    for (int i = 0; i < (NBASES + 1) * (NBASES + 1) * (NBASES + 1); ++i)
         lprobs[i] = zero_lprob;
 }
 
@@ -80,6 +77,8 @@ static int set_lprobs(double* dst_lprobs, int const* symbol_idx,
                       struct nmm_codon_lprob const* lprobs, int const lprobs_length)
 {
     set_zero_lprobs(dst_lprobs);
+    int const strides[3] = {(NBASES + 1) * (NBASES + 1), NBASES + 1, 1};
+
     for (int i = 0; i < lprobs_length; ++i) {
         int idx[3] = {symbol_idx[(size_t)lprobs[i].codon.a],
                       symbol_idx[(size_t)lprobs[i].codon.b],
@@ -90,7 +89,8 @@ static int set_lprobs(double* dst_lprobs, int const* symbol_idx,
             return 1;
         }
 
-        dst_lprobs[4 * 4 * idx[0] + 4 * idx[1] + idx[2]] = lprobs[i].lprob;
+        dst_lprobs[strides[0] * idx[0] + strides[1] * idx[1] + strides[2] * idx[2]] =
+            lprobs[i].lprob;
     }
 
     return 0;

@@ -108,11 +108,10 @@ void test_frame_state3(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8)},
-                                              {CODON('A', 'T', 'T'), log(0.1)},
-                                              {CODON('G', 'T', 'C'), log(0.4)}};
+    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8) - log(1.3)},
+                                              {CODON('A', 'T', 'T'), log(0.1) - log(1.3)},
+                                              {CODON('G', 'T', 'C'), log(0.4) - log(1.3)}};
     struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
-    cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -139,6 +138,8 @@ void test_frame_state3(void)
     nmm_codont_destroy(codont);
     imm_abc_destroy(abc);
 }
+
+void normalize_codon_lprobs(struct nmm_codon_lprob* lprobs, int length);
 
 void test_frame_state_lposterior(void)
 {
@@ -181,8 +182,8 @@ void test_frame_state_lposterior(void)
     lprobs[lprobs_length - 1].codon = CODON('G', 'T', 'C');
     lprobs[lprobs_length - 1].lprob = log(0.4);
 
+    normalize_codon_lprobs(lprobs, lprobs_length);
     struct nmm_codont* codont = nmm_codont_create(abc, lprobs, lprobs_length);
-    cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -225,11 +226,10 @@ void test_frame_state_decode(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8)},
-                                              {CODON('A', 'T', 'T'), log(0.1)},
-                                              {CODON('G', 'T', 'C'), log(0.4)}};
+    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8) - log(1.3)},
+                                              {CODON('A', 'T', 'T'), log(0.1) - log(1.3)},
+                                              {CODON('G', 'T', 'C'), log(0.4) - log(1.3)}};
     struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
-    cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -260,4 +260,15 @@ void test_frame_state_decode(void)
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
     imm_abc_destroy(abc);
+}
+
+void normalize_codon_lprobs(struct nmm_codon_lprob* lprobs, int length)
+{
+    double arr[length];
+    for (int i = 0; i < length; ++i)
+        arr[i] = lprobs[i].lprob;
+
+    imm_lprob_normalize(arr, length);
+    for (int i = 0; i < length; ++i)
+        lprobs[i].lprob = arr[i];
 }
