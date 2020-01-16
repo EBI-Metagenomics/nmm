@@ -1,3 +1,4 @@
+#include "array.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 #include <math.h>
@@ -10,10 +11,10 @@ struct nmm_codont
 {
     const struct imm_abc* abc;
     int                   symbol_idx[ASCII_LAST_STD + 1];
-    double                emiss_lprobs[(NBASES + 1) * (NBASES + 1) * (NBASES + 1)];
+    struct array3d        lprobs;
 };
 
-static int  set_lprobs(double* dst_lprobs, int const* symbol_idx,
+static int  set_lprobs(struct array3d* marg_lprobs, int const* symbol_idx,
                        struct nmm_codon_lprob const* lprobs, int lprobs_length);
 static void set_symbol_idx(int* symbol_idx, const struct imm_abc* abc);
 
@@ -27,9 +28,14 @@ struct nmm_codont* nmm_codont_create(const struct imm_abc*         abc,
 
     struct nmm_codont* codont = malloc(sizeof(struct nmm_codont));
     codont->abc = abc;
+
     set_symbol_idx(codont->symbol_idx, abc);
-    if (set_lprobs(codont->emiss_lprobs, codont->symbol_idx, lprobs, lprobs_length)) {
+
+    codont->lprobs = array3d_create(NBASES + 1, NBASES + 1, NBASES + 1);
+
+    if (set_lprobs(&codont->lprobs, codont->symbol_idx, lprobs, lprobs_length)) {
         free(codont);
+        array3d_destroy(codont->lprobs);
         return NULL;
     }
 
@@ -47,9 +53,7 @@ double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const*
         return imm_lprob_invalid();
     }
 
-    int const strides[3] = {(NBASES + 1) * (NBASES + 1), NBASES + 1, 1};
-    return codont
-        ->emiss_lprobs[strides[0] * idx[0] + strides[1] * idx[1] + strides[2] * idx[2]];
+    return array3d_get(&codont->lprobs, idx[0], idx[1], idx[2]);
 }
 
 void nmm_codont_destroy(struct nmm_codont* codont)
@@ -66,18 +70,10 @@ struct imm_abc const* nmm_codont_get_abc(const struct nmm_codont* codont)
     return codont->abc;
 }
 
-static inline void set_zero_lprobs(double* lprobs)
-{
-    double const zero_lprob = imm_lprob_zero();
-    for (int i = 0; i < (NBASES + 1) * (NBASES + 1) * (NBASES + 1); ++i)
-        lprobs[i] = zero_lprob;
-}
-
-static int set_lprobs(double* dst_lprobs, int const* symbol_idx,
+static int set_lprobs(struct array3d* marg_lprobs, int const* symbol_idx,
                       struct nmm_codon_lprob const* lprobs, int const lprobs_length)
 {
-    set_zero_lprobs(dst_lprobs);
-    int const strides[3] = {(NBASES + 1) * (NBASES + 1), NBASES + 1, 1};
+    array3d_fill(marg_lprobs, imm_lprob_zero());
 
     for (int i = 0; i < lprobs_length; ++i) {
         int idx[3] = {symbol_idx[(size_t)lprobs[i].codon.a],
@@ -89,8 +85,7 @@ static int set_lprobs(double* dst_lprobs, int const* symbol_idx,
             return 1;
         }
 
-        dst_lprobs[strides[0] * idx[0] + strides[1] * idx[1] + strides[2] * idx[2]] =
-            lprobs[i].lprob;
+        array3d_set(marg_lprobs, idx[0], idx[1], idx[2], lprobs[i].lprob);
     }
 
     return 0;
@@ -98,7 +93,6 @@ static int set_lprobs(double* dst_lprobs, int const* symbol_idx,
 
 static void set_symbol_idx(int* symbol_idx, const struct imm_abc* abc)
 {
-
     for (int i = 0; i <= ASCII_LAST_STD; ++i)
         symbol_idx[i] = -1;
 
