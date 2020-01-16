@@ -67,7 +67,7 @@ static double compute_codon_lprob(char const* bases_comb, struct nmm_codont cons
         for (int b = 0; b < nbases[1]; ++b) {
             for (int c = 0; c < nbases[2]; ++c) {
                 struct nmm_codon const ccode = {a_id[a], b_id[b], c_id[c]};
-                double const           t = nmm_codont_get_lprob(codont, &ccode);
+                double const           t = nmm_codont_lprob(codont, &ccode);
                 lprob = logaddexp(lprob, t);
             }
         }

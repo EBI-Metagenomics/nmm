@@ -2,6 +2,9 @@
 #include "cass.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
+#include <stdlib.h>
+
+#define CODON(a, b, c) NMM_CODON(a, b, c)
 
 void test_frame_state1(void);
 void test_frame_state2(void);
@@ -30,9 +33,9 @@ void test_frame_state1(void)
     nmm_baset_set_lprob(baset, 'T', log(0.2));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8 / 0.9));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1 / 0.9));
+    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8 / 0.9)},
+                                              {CODON('A', 'T', 'T'), log(0.1 / 0.9)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -63,10 +66,9 @@ void test_frame_state2(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8 / 0.9));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1 / 0.9));
+    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8 / 0.9)},
+                                              {CODON('A', 'T', 'T'), log(0.1 / 0.9)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -106,10 +108,10 @@ void test_frame_state3(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'C'), log(0.4));
+    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8)},
+                                              {CODON('A', 'T', 'T'), log(0.1)},
+                                              {CODON('G', 'T', 'C'), log(0.4)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
     cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
@@ -152,19 +154,34 @@ void test_frame_state_lposterior(void)
     char const* symbols = imm_abc_symbols(abc);
     int         length = imm_abc_length(abc);
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    struct cartes*     codon_iter = cartes_create(symbols, length, 3);
-    char const*        codon_item = NULL;
+    struct cartes* codon_iter = cartes_create(symbols, length, 3);
+    char const*    codon_item = NULL;
+
+    struct nmm_codon_lprob* lprobs = NULL;
+    int                     lprobs_length = 0;
 
     while ((codon_item = cartes_next(codon_iter)) != NULL) {
-        struct nmm_codon codon = NMM_CODON(codon_item[0], codon_item[1], codon_item[2]);
-        nmm_codont_set_lprob(codont, &codon, log(0.001));
+
+        lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
+
+        lprobs[lprobs_length - 1].codon = CODON(codon_item[0], codon_item[1], codon_item[2]);
+        lprobs[lprobs_length - 1].lprob = log(0.001);
     }
     cartes_destroy(codon_iter);
 
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'C'), log(0.4));
+    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
+    lprobs[lprobs_length - 1].codon = CODON('A', 'T', 'G');
+    lprobs[lprobs_length - 1].lprob = log(0.8);
+
+    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
+    lprobs[lprobs_length - 1].codon = CODON('A', 'T', 'T');
+    lprobs[lprobs_length - 1].lprob = log(0.1);
+
+    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
+    lprobs[lprobs_length - 1].codon = CODON('G', 'T', 'C');
+    lprobs[lprobs_length - 1].lprob = log(0.4);
+
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs, lprobs_length);
     cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
@@ -182,7 +199,7 @@ void test_frame_state_lposterior(void)
 
             while ((seq = cartes_next(seq_iter)) != NULL) {
                 double lprob = nmm_frame_state_lposterior(state, &codon, seq, times);
-                lprob -= nmm_codont_get_lprob(codont, &codon);
+                lprob -= nmm_codont_lprob(codont, &codon);
                 total = imm_lprob_add(total, lprob);
             }
             cartes_destroy(seq_iter);
@@ -208,15 +225,15 @@ void test_frame_state_decode(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'C'), log(0.4));
+    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8)},
+                                              {CODON('A', 'T', 'T'), log(0.1)},
+                                              {CODON('G', 'T', 'C'), log(0.4)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
     cass_cond(nmm_codont_normalize(codont) == 0);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
-    struct nmm_codon codon = NMM_CODON('X', 'X', 'X');
+    struct nmm_codon codon = CODON('X', 'X', 'X');
 
     cass_close(nmm_frame_state_decode(state, "ATG", 3, &codon), -0.902566706136);
     cass_cond(codon.a == 'A' && codon.b == 'T' && codon.c == 'G');

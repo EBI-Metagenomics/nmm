@@ -32,10 +32,10 @@ void test_hmm_frame_state_0eps(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -72,10 +72,10 @@ void test_hmm_frame_state_len1(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -120,10 +120,10 @@ void test_hmm_frame_state_len2(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -188,10 +188,10 @@ void test_hmm_frame_state_len3(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -236,10 +236,10 @@ void test_hmm_frame_state_len4(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -275,10 +275,10 @@ void test_hmm_frame_state_len5(void)
     nmm_baset_set_lprob(baset, 'G', log(0.5));
     nmm_baset_set_lprob(baset, 'T', imm_lprob_zero());
 
-    struct nmm_codont* codont = nmm_codont_create(abc);
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.1));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'C'), log(0.1));
+    struct nmm_codon_lprob const lprobs[3] = {{NMM_CODON('A', 'T', 'G'), log(0.8)},
+                                              {NMM_CODON('A', 'T', 'T'), log(0.1)},
+                                              {NMM_CODON('C', 'C', 'C'), log(0.1)}};
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs, 3);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 

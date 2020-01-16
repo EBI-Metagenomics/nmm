@@ -109,7 +109,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state* state,
     else if (seq_len == 5)
         lprob = lprob_frag_given_codon5(state, seq, codon);
 
-    return lprob + nmm_codont_get_lprob(state->codon, codon);
+    return lprob + nmm_codont_lprob(state->codon, codon);
 }
 
 double nmm_frame_state_decode(struct nmm_frame_state* state, char const* seq, int seq_len,
