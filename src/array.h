@@ -1,6 +1,7 @@
 #ifndef NMM_ARRAY_H
 #define NMM_ARRAY_H
 
+#include "imm/imm.h"
 #include <stdlib.h>
 
 struct array3d
@@ -36,5 +37,11 @@ static inline double array3d_get(struct array3d const* arr, int i0, int i1, int 
 }
 
 static inline void array3d_destroy(struct array3d arr) { free(arr.values); }
+
+static inline int array3d_normalize(struct array3d const* arr)
+{
+    int const len = arr->strides[0] * arr->strides[1] * arr->strides[2];
+    return imm_lprob_normalize(arr->values, len);
+}
 
 #endif

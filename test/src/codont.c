@@ -20,9 +20,11 @@ void test_codont_works(void)
 {
     struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
-    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8)},
-                                              {CODON('A', 'T', 'T'), log(0.1)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     cass_cond(codont != NULL);
 
@@ -39,10 +41,12 @@ void test_codont_fails(void)
 {
     struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
-    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8)},
-                                              {CODON('A', 'T', 'T'), log(0.1)},
-                                              {CODON('A', 'H', 'T'), log(0.1)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'H', 'T'), log(0.1));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     cass_cond(codont == NULL);
 
@@ -54,9 +58,11 @@ void test_codont_marginal(void)
 {
     struct imm_abc* abc = imm_abc_create("ACGT", 'X');
 
-    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8)},
-                                              {CODON('A', 'T', 'T'), log(0.1)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     cass_cond(codont != NULL);
 

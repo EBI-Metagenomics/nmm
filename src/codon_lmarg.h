@@ -29,18 +29,8 @@ struct codon_lmarg
     struct array3d lprobs;
 };
 
-HIDE struct codon_lmarg* nmm_codon_lmarg_create(const struct imm_abc*         abc,
-                                                struct nmm_codon_lprob const* lprobs,
-                                                int                           lprobs_length);
-static inline void       codon_lmarg_set(struct codon_lmarg*     codon_lprob,
-                                         struct nmm_codon const* codon, double lprob)
-{
-
-    int const* symbol_idx = codon_lprob->symbol_idx;
-    int const  dim[3] = {symbol_idx[(size_t)codon->a], symbol_idx[(size_t)codon->b],
-                        symbol_idx[(size_t)codon->c]};
-    array3d_set(&codon_lprob->lprobs, dim[0], dim[1], dim[2], lprob);
-}
+HIDE struct codon_lmarg* nmm_codon_lmarg_create(struct imm_abc const*    abc,
+                                                struct nmm_codonp const* lprob);
 
 /**
  * Calculate any of the marginalization forms of
@@ -54,15 +44,14 @@ static inline void       codon_lmarg_set(struct codon_lmarg*     codon_lprob,
  *
  * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
  */
-static inline double codon_lmarg_get(struct codon_lmarg const* codon_lprob,
+static inline double codon_lmarg_get(struct codon_lmarg const* lmarg,
                                      struct nmm_codon const*   codon)
 {
-
-    int const* symbol_idx = codon_lprob->symbol_idx;
+    int const* symbol_idx = lmarg->symbol_idx;
     int const  dim[3] = {symbol_idx[(size_t)codon->a], symbol_idx[(size_t)codon->b],
                         symbol_idx[(size_t)codon->c]};
-    return array3d_get(&codon_lprob->lprobs, dim[0], dim[1], dim[2]);
+    return array3d_get(&lmarg->lprobs, dim[0], dim[1], dim[2]);
 }
-HIDE void nmm_codon_lmarg_destroy(struct codon_lmarg* codon_lprob);
+HIDE void nmm_codon_lmarg_destroy(struct codon_lmarg* lmarg);
 
 #endif

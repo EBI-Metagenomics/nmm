@@ -33,9 +33,11 @@ void test_frame_state1(void)
     nmm_baset_set_lprob(baset, 'T', log(0.2));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8 / 0.9)},
-                                              {CODON('A', 'T', 'T'), log(0.1 / 0.9)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8 / 0.9));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1 / 0.9));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -66,9 +68,11 @@ void test_frame_state2(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8 / 0.9)},
-                                              {CODON('A', 'T', 'T'), log(0.1 / 0.9)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8 / 0.9));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1 / 0.9));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -108,10 +112,12 @@ void test_frame_state3(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8) - log(1.3)},
-                                              {CODON('A', 'T', 'T'), log(0.1) - log(1.3)},
-                                              {CODON('G', 'T', 'C'), log(0.4) - log(1.3)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8) - log(1.3));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1) - log(1.3));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'C'), log(0.4) - log(1.3));
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -139,8 +145,6 @@ void test_frame_state3(void)
     imm_abc_destroy(abc);
 }
 
-void normalize_codon_lprobs(struct nmm_codon_lprob* lprobs, int length);
-
 void test_frame_state_lposterior(void)
 {
     struct imm_abc* abc = imm_abc_create("ACGT", 'X');
@@ -158,32 +162,20 @@ void test_frame_state_lposterior(void)
     struct cartes* codon_iter = cartes_create(symbols, length, 3);
     char const*    codon_item = NULL;
 
-    struct nmm_codon_lprob* lprobs = NULL;
-    int                     lprobs_length = 0;
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
 
     while ((codon_item = cartes_next(codon_iter)) != NULL) {
-
-        lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
-
-        lprobs[lprobs_length - 1].codon = CODON(codon_item[0], codon_item[1], codon_item[2]);
-        lprobs[lprobs_length - 1].lprob = log(0.001);
+        nmm_codonp_set(lprobs, &NMM_CODON(codon_item[0], codon_item[1], codon_item[2]), log(0.001));
     }
     cartes_destroy(codon_iter);
 
-    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
-    lprobs[lprobs_length - 1].codon = CODON('A', 'T', 'G');
-    lprobs[lprobs_length - 1].lprob = log(0.8);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'C'), log(0.4));
 
-    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
-    lprobs[lprobs_length - 1].codon = CODON('A', 'T', 'T');
-    lprobs[lprobs_length - 1].lprob = log(0.1);
-
-    lprobs = realloc(lprobs, sizeof(struct nmm_codon_lprob) * ++lprobs_length);
-    lprobs[lprobs_length - 1].codon = CODON('G', 'T', 'C');
-    lprobs[lprobs_length - 1].lprob = log(0.4);
-
-    normalize_codon_lprobs(lprobs, lprobs_length);
-    struct nmm_codont* codont = nmm_codont_create(abc, lprobs, lprobs_length);
+    nmm_codonp_normalize(lprobs);
+    struct nmm_codont* codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -226,10 +218,12 @@ void test_frame_state_decode(void)
     nmm_baset_set_lprob(baset, 'T', log(0.4));
     cass_cond(nmm_baset_normalize(baset) == 0);
 
-    struct nmm_codon_lprob const lprobs[3] = {{CODON('A', 'T', 'G'), log(0.8) - log(1.3)},
-                                              {CODON('A', 'T', 'T'), log(0.1) - log(1.3)},
-                                              {CODON('G', 'T', 'C'), log(0.4) - log(1.3)}};
-    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.8) - log(1.3));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.1) - log(1.3));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'C'), log(0.4) - log(1.3));
+    struct nmm_codont*      codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
@@ -260,15 +254,4 @@ void test_frame_state_decode(void)
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
     imm_abc_destroy(abc);
-}
-
-void normalize_codon_lprobs(struct nmm_codon_lprob* lprobs, int length)
-{
-    double arr[length];
-    for (int i = 0; i < length; ++i)
-        arr[i] = lprobs[i].lprob;
-
-    imm_lprob_normalize(arr, length);
-    for (int i = 0; i < length; ++i)
-        lprobs[i].lprob = arr[i];
 }

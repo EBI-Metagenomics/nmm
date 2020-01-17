@@ -7,6 +7,8 @@ extern "C"
 #endif
 
 #include "nmm/baset.h"
+#include "nmm/codon.h"
+#include "nmm/codonp.h"
 #include "nmm/codont.h"
 #include "nmm/frame_state.h"
 
