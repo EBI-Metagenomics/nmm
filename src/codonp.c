@@ -17,7 +17,7 @@ struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
     }
 
     struct nmm_codonp* codonp = malloc(sizeof(struct nmm_codonp));
-    codonp->abc = NULL;
+    codonp->abc = abc;
 
     codonp->lprobs = array3d_create(NMM_CODON_NBASES, NMM_CODON_NBASES, NMM_CODON_NBASES);
     array3d_fill(&codonp->lprobs, imm_lprob_zero());
@@ -27,7 +27,6 @@ struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
 
 int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, double lprob)
 {
-
     int a = imm_abc_symbol_idx(codonp->abc, codon->a);
     int b = imm_abc_symbol_idx(codonp->abc, codon->b);
     int c = imm_abc_symbol_idx(codonp->abc, codon->c);
