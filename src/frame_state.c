@@ -1,4 +1,4 @@
-#include "codon_lprob.h"
+#include "codon_lmarg.h"
 #include "imm/imm.h"
 #include "logaddexp.h"
 #include "nmm/nmm.h"

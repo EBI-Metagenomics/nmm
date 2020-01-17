@@ -1,4 +1,4 @@
-#include "codon_lprob.h"
+#include "codon_lmarg.h"
 #include "logaddexp.h"
 
 /**
@@ -7,15 +7,15 @@
 #define NSYMBOLS (NMM_CODON_NBASES + 1)
 
 static void set_symbol_index(int* symbol_idx, struct imm_abc const* abc);
-static int  set_nonmarginal_lprobs(struct codon_lprob*           lprob,
+static int  set_nonmarginal_lprobs(struct codon_lmarg*           lprob,
                                    struct nmm_codon_lprob const* lprobs, int lprobs_length);
-static void set_marginal_lprobs(struct codon_lprob* lprob, struct imm_abc const* abc);
+static void set_marginal_lprobs(struct codon_lmarg* lprob, struct imm_abc const* abc);
 
-struct codon_lprob* nmm_codon_lprob_create(const struct imm_abc*         abc,
-                                       struct nmm_codon_lprob const* lprobs,
-                                       int                           lprobs_length)
+struct codon_lmarg* nmm_codon_lmarg_create(const struct imm_abc*         abc,
+                                           struct nmm_codon_lprob const* lprobs,
+                                           int                           lprobs_length)
 {
-    struct codon_lprob* codon_lprob = malloc(sizeof(struct codon_lprob));
+    struct codon_lmarg* codon_lprob = malloc(sizeof(struct codon_lmarg));
 
     set_symbol_index(codon_lprob->symbol_idx, abc);
 
@@ -34,7 +34,7 @@ struct codon_lprob* nmm_codon_lprob_create(const struct imm_abc*         abc,
     return codon_lprob;
 }
 
-void nmm_codon_lprob_destroy(struct codon_lprob* codon_lprob)
+void nmm_codon_lmarg_destroy(struct codon_lmarg* codon_lprob)
 {
     if (!codon_lprob) {
         imm_error("codon_lprob should not be NULL");
@@ -58,7 +58,7 @@ static void set_symbol_index(int* symbol_idx, const struct imm_abc* abc)
     symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_CODON_NBASES;
 }
 
-static inline int is_codon_valid(struct codon_lprob const* lprob,
+static inline int is_codon_valid(struct codon_lmarg const* lprob,
                                  struct nmm_codon const*   codon)
 {
     if (lprob->symbol_idx[(size_t)codon->a] < 0)
@@ -73,7 +73,7 @@ static inline int is_codon_valid(struct codon_lprob const* lprob,
     return 1;
 }
 
-static int set_nonmarginal_lprobs(struct codon_lprob*           lprob,
+static int set_nonmarginal_lprobs(struct codon_lmarg*           lprob,
                                   struct nmm_codon_lprob const* lprobs,
                                   int const                     lprobs_length)
 {
@@ -83,7 +83,7 @@ static int set_nonmarginal_lprobs(struct codon_lprob*           lprob,
             imm_error("nucleotide not found");
             return 1;
         }
-        codon_lprob_set(lprob, &lprobs[i].codon, lprobs[i].lprob);
+        codon_lmarg_set(lprob, &lprobs[i].codon, lprobs[i].lprob);
     }
 
     return 0;
@@ -94,10 +94,10 @@ static inline int not_marginal(struct nmm_codon const* codon, char const any_sym
     return codon->a != any_symbol && codon->b != any_symbol && codon->c != any_symbol;
 }
 
-static double marginalization(struct codon_lprob const* lprobt, char const* symbols,
+static double marginalization(struct codon_lmarg const* lprobt, char const* symbols,
                               struct nmm_codon const* codon);
 
-static void set_marginal_lprobs(struct codon_lprob* lprob, struct imm_abc const* abc)
+static void set_marginal_lprobs(struct codon_lmarg* lprob, struct imm_abc const* abc)
 {
     char       any_symbol = imm_abc_any_symbol(abc);
     char const symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
@@ -113,13 +113,13 @@ static void set_marginal_lprobs(struct codon_lprob* lprob, struct imm_abc const*
                 if (not_marginal(&codon, any_symbol))
                     continue;
 
-                codon_lprob_set(lprob, &codon, marginalization(lprob, symbols, &codon));
+                codon_lmarg_set(lprob, &codon, marginalization(lprob, symbols, &codon));
             }
         }
     }
 }
 
-static double marginalization(struct codon_lprob const* lprobt, char const* symbols,
+static double marginalization(struct codon_lmarg const* lprobt, char const* symbols,
                               struct nmm_codon const* codon)
 {
     char const any_symbol = symbols[NSYMBOLS - 1];
@@ -145,7 +145,7 @@ static double marginalization(struct codon_lprob const* lprobt, char const* symb
 
                 struct nmm_codon const t = {arr[0][a], arr[1][b], arr[2][c]};
 
-                lprob = logaddexp(lprob, codon_lprob_get(lprobt, &t));
+                lprob = logaddexp(lprob, codon_lmarg_get(lprobt, &t));
             }
         }
     }

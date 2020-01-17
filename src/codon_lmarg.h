@@ -1,5 +1,5 @@
-#ifndef NMM_CODON_LPROB_H
-#define NMM_CODON_LPROB_H
+#ifndef NMM_CODON_LMARG_H
+#define NMM_CODON_LMARG_H
 
 #include "array.h"
 #include "hide.h"
@@ -16,7 +16,7 @@
  * marginalization forms (e.g., p(𝑋₁=𝚡₁,𝑋₃=𝚡₃) or p(𝑋₃=𝚡₃)).
  */
 
-struct codon_lprob
+struct codon_lmarg
 {
     /**
      * Maps alphabet symbols to the indices 0, 1, 2, and 3 and the any-symbol to 4.
@@ -29,10 +29,10 @@ struct codon_lprob
     struct array3d lprobs;
 };
 
-HIDE struct codon_lprob* nmm_codon_lprob_create(const struct imm_abc*         abc,
+HIDE struct codon_lmarg* nmm_codon_lmarg_create(const struct imm_abc*         abc,
                                                 struct nmm_codon_lprob const* lprobs,
                                                 int                           lprobs_length);
-static inline void       codon_lprob_set(struct codon_lprob*     codon_lprob,
+static inline void       codon_lmarg_set(struct codon_lmarg*     codon_lprob,
                                          struct nmm_codon const* codon, double lprob)
 {
 
@@ -54,7 +54,7 @@ static inline void       codon_lprob_set(struct codon_lprob*     codon_lprob,
  *
  * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
  */
-static inline double codon_lprob_get(struct codon_lprob const* codon_lprob,
+static inline double codon_lmarg_get(struct codon_lmarg const* codon_lprob,
                                      struct nmm_codon const*   codon)
 {
 
@@ -63,6 +63,6 @@ static inline double codon_lprob_get(struct codon_lprob const* codon_lprob,
                         symbol_idx[(size_t)codon->c]};
     return array3d_get(&codon_lprob->lprobs, dim[0], dim[1], dim[2]);
 }
-HIDE void nmm_codon_lprob_destroy(struct codon_lprob* codon_lprob);
+HIDE void nmm_codon_lmarg_destroy(struct codon_lmarg* codon_lprob);
 
 #endif
