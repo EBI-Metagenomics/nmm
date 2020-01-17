@@ -1,5 +1,5 @@
 #include "array.h"
-#include "codon_lprob2.h"
+#include "codon_lprob.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 #include <math.h>
@@ -11,7 +11,7 @@
 struct nmm_codont
 {
     const struct imm_abc* abc;
-    struct codon_lprob2*  lprob;
+    struct codon_lprob*   lprob;
 };
 
 struct nmm_codont* nmm_codont_create(const struct imm_abc*         abc,
@@ -24,10 +24,10 @@ struct nmm_codont* nmm_codont_create(const struct imm_abc*         abc,
 
     struct nmm_codont* codont = malloc(sizeof(struct nmm_codont));
     codont->abc = abc;
-    codont->lprob = codon_lprob2_create(abc, lprobs, lprobs_length);
+    codont->lprob = nmm_codon_lprob_create(abc, lprobs, lprobs_length);
 
     if (!codont->lprob) {
-        codon_lprob2_destroy(codont->lprob);
+        nmm_codon_lprob_destroy(codont->lprob);
         free(codont);
         return NULL;
     }
@@ -37,7 +37,7 @@ struct nmm_codont* nmm_codont_create(const struct imm_abc*         abc,
 
 double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const* codon)
 {
-    return codon_lprob2_get(codont->lprob, codon);
+    return codon_lprob_get(codont->lprob, codon);
 }
 
 void nmm_codont_destroy(struct nmm_codont* codont)

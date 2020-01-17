@@ -17,7 +17,6 @@ struct nmm_frame_state
     double                   l1eps;
     double                   zero_lprob;
     char                     any_symbol;
-    struct codon_lprob       codon_lprob;
 };
 
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -47,12 +46,10 @@ static inline double logaddexp3(double const a, double const b, double const c)
     return logaddexp(logaddexp(a, b), c);
 }
 static inline double logsumexp(double const* arr, int len) { return imm_lprob_sum(arr, len); }
-static inline double ecodon_lprob_value(struct codon_lprob const* codon_lprob,
-                                        char const* seq, int const a, int const b,
-                                        int const c)
+static inline double ecodon_lprob_value(struct nmm_codont const* codont, char const* seq,
+                                        int const a, int const b, int const c)
 {
-    char const codon[3] = {seq[a], seq[b], seq[c]};
-    return codon_lprob_value(codon_lprob, codon);
+    return nmm_codont_lprob(codont, &NMM_CODON(seq[a], seq[b], seq[c]));
 }
 
 struct nmm_frame_state* nmm_frame_state_create(char const*              name,
@@ -83,8 +80,6 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
     state->l1eps = log(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
     state->any_symbol = imm_abc_any_symbol(abc);
-
-    nmm_codon_lprob_init(&state->codon_lprob, codont);
 
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
@@ -177,21 +172,19 @@ static int frame_state_max_seq(struct imm_state const* state) { return 5; }
 static double joint_seq_len1(struct nmm_frame_state const* state, char const* seq)
 {
     const char _ = state->any_symbol;
-    const char c0__[3] = {seq[0], _, _};
-    const char c_0_[3] = {_, seq[0], _};
-    const char c__0[3] = {_, _, seq[0]};
 
     double c = 2 * state->leps + 2 * state->l1eps;
 
-    double e0 = codon_lprob_value(&state->codon_lprob, c0__);
-    double e1 = codon_lprob_value(&state->codon_lprob, c_0_);
-    double e2 = codon_lprob_value(&state->codon_lprob, c__0);
+    double e0 = nmm_codont_lprob(state->codon, &NMM_CODON(seq[0], _, _));
+    double e1 = nmm_codont_lprob(state->codon, &NMM_CODON(_, seq[0], _));
+    double e2 = nmm_codont_lprob(state->codon, &NMM_CODON(_, _, seq[0]));
+
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
 static double joint_seq_len2(struct nmm_frame_state const* state, char const* seq)
 {
-#define c_lprob(codon) codon_lprob_value(&state->codon_lprob, codon)
+#define c_lprob(v) nmm_codont_lprob(state->codon, &NMM_CODON(v[0], v[1], v[2]))
     const char _ = state->any_symbol;
 
     const char c_01[3] = {_, seq[0], seq[1]};
@@ -225,7 +218,7 @@ static double joint_seq_len2(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len3(struct nmm_frame_state const* state, char const* seq)
 {
-#define C(a, b, c) ecodon_lprob_value(&state->codon_lprob, eseq, a, b, c)
+#define C(a, b, c) ecodon_lprob_value(state->codon, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], state->any_symbol};
     const char _ = sizeof(eseq) - 1;
 
@@ -250,7 +243,7 @@ static double joint_seq_len3(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len4(struct nmm_frame_state const* state, char const* seq)
 {
-#define C(a, b, c) ecodon_lprob_value(&state->codon_lprob, eseq, a, b, c)
+#define C(a, b, c) ecodon_lprob_value(state->codon, eseq, a, b, c)
     const char eseq[] = {seq[0], seq[1], seq[2], seq[3], state->any_symbol};
     const char _ = sizeof(eseq) - 1;
 
@@ -276,7 +269,7 @@ static double joint_seq_len4(struct nmm_frame_state const* state, char const* se
 
 static double joint_seq_len5(struct nmm_frame_state const* state, char const* seq)
 {
-#define c_lp(codon) codon_lprob_value(&state->codon_lprob, codon)
+#define c_lp(v) nmm_codont_lprob(state->codon, &NMM_CODON(v[0], v[1], v[2]))
     const char c012[3] = {seq[0], seq[1], seq[2]};
     const char c013[3] = {seq[0], seq[1], seq[3]};
     const char c014[3] = {seq[0], seq[1], seq[4]};

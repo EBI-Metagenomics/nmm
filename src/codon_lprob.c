@@ -1,74 +1,151 @@
 #include "codon_lprob.h"
 #include "logaddexp.h"
 
-static double compute_codon_lprob(char const* bases_comb, struct nmm_codont const* codont,
-                                  char const* codon);
+/**
+ * The symbols here are the standard alphabet symbols plus the special any-symbol one.
+ */
+#define NSYMBOLS (NMM_CODON_NBASES + 1)
 
-void nmm_codon_lprob_init(struct codon_lprob* codon_lprob, struct nmm_codont const* codont)
+static void set_symbol_index(int* symbol_idx, struct imm_abc const* abc);
+static int  set_nonmarginal_lprobs(struct codon_lprob*           lprob,
+                                   struct nmm_codon_lprob const* lprobs, int lprobs_length);
+static void set_marginal_lprobs(struct codon_lprob* lprob, struct imm_abc const* abc);
+
+struct codon_lprob* nmm_codon_lprob_create(const struct imm_abc*         abc,
+                                       struct nmm_codon_lprob const* lprobs,
+                                       int                           lprobs_length)
 {
-    struct imm_abc const* abc = nmm_codont_get_abc(codont);
-    char const            bases_comb[3 * NMM_CODON_NBASES] = {
-        imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1), imm_abc_symbol_id(abc, 2),
-        imm_abc_symbol_id(abc, 3), imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
-        imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3), imm_abc_symbol_id(abc, 0),
-        imm_abc_symbol_id(abc, 1), imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3)};
+    struct codon_lprob* codon_lprob = malloc(sizeof(struct codon_lprob));
 
-    char const any_symbol = imm_abc_any_symbol(abc);
+    set_symbol_index(codon_lprob->symbol_idx, abc);
 
+    static int const n = NSYMBOLS;
+    codon_lprob->lprobs = array3d_create(n, n, n);
+    array3d_fill(&codon_lprob->lprobs, imm_lprob_zero());
+
+    if (set_nonmarginal_lprobs(codon_lprob, lprobs, lprobs_length)) {
+        array3d_destroy(codon_lprob->lprobs);
+        free(codon_lprob);
+        return NULL;
+    }
+
+    set_marginal_lprobs(codon_lprob, abc);
+
+    return codon_lprob;
+}
+
+void nmm_codon_lprob_destroy(struct codon_lprob* codon_lprob)
+{
+    if (!codon_lprob) {
+        imm_error("codon_lprob should not be NULL");
+        return;
+    }
+
+    array3d_destroy(codon_lprob->lprobs);
+    free(codon_lprob);
+}
+
+static void set_symbol_index(int* symbol_idx, const struct imm_abc* abc)
+{
     for (int i = 0; i <= ASCII_LAST_STD; ++i)
-        codon_lprob->symbol_idx[i] = -1;
+        symbol_idx[i] = -1;
 
     char const* symbols = imm_abc_symbols(abc);
-    char const  all_symbols[NSYMBOLS] = {symbols[0], symbols[1], symbols[2], symbols[3],
-                                        any_symbol};
 
     for (int i = 0; i < NMM_CODON_NBASES; ++i)
-        codon_lprob->symbol_idx[(size_t)symbols[i]] = imm_abc_symbol_idx(abc, symbols[i]);
+        symbol_idx[(size_t)symbols[i]] = imm_abc_symbol_idx(abc, symbols[i]);
 
-    codon_lprob->symbol_idx[(size_t)any_symbol] = NMM_CODON_NBASES;
+    symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_CODON_NBASES;
+}
 
-    double* lprob = codon_lprob->lprob;
+static inline int is_codon_valid(struct codon_lprob const* lprob,
+                                 struct nmm_codon const*   codon)
+{
+    if (lprob->symbol_idx[(size_t)codon->a] < 0)
+        return 0;
+
+    if (lprob->symbol_idx[(size_t)codon->b] < 0)
+        return 0;
+
+    if (lprob->symbol_idx[(size_t)codon->c] < 0)
+        return 0;
+
+    return 1;
+}
+
+static int set_nonmarginal_lprobs(struct codon_lprob*           lprob,
+                                  struct nmm_codon_lprob const* lprobs,
+                                  int const                     lprobs_length)
+{
+    for (int i = 0; i < lprobs_length; ++i) {
+
+        if (!is_codon_valid(lprob, &lprobs[i].codon)) {
+            imm_error("nucleotide not found");
+            return 1;
+        }
+        codon_lprob_set(lprob, &lprobs[i].codon, lprobs[i].lprob);
+    }
+
+    return 0;
+}
+
+static inline int not_marginal(struct nmm_codon const* codon, char const any_symbol)
+{
+    return codon->a != any_symbol && codon->b != any_symbol && codon->c != any_symbol;
+}
+
+static double marginalization(struct codon_lprob const* lprobt, char const* symbols,
+                              struct nmm_codon const* codon);
+
+static void set_marginal_lprobs(struct codon_lprob* lprob, struct imm_abc const* abc)
+{
+    char       any_symbol = imm_abc_any_symbol(abc);
+    char const symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
+                             imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3),
+                             any_symbol};
+
     for (int i0 = 0; i0 < NSYMBOLS; ++i0) {
         for (int i1 = 0; i1 < NSYMBOLS; ++i1) {
             for (int i2 = 0; i2 < NSYMBOLS; ++i2) {
 
-                char const codon[3] = {all_symbols[i0], all_symbols[i1], all_symbols[i2]};
+                struct nmm_codon const codon = {symbols[i0], symbols[i1], symbols[i2]};
 
-                int const i = codon_lprob_idx(codon_lprob, codon);
-                lprob[i] = compute_codon_lprob(bases_comb, codont, codon);
+                if (not_marginal(&codon, any_symbol))
+                    continue;
+
+                codon_lprob_set(lprob, &codon, marginalization(lprob, symbols, &codon));
             }
         }
     }
 }
 
-static double compute_codon_lprob(char const* bases_comb, struct nmm_codont const* codont,
-                                  char const* codon)
+static double marginalization(struct codon_lprob const* lprobt, char const* symbols,
+                              struct nmm_codon const* codon)
 {
-    double lprob = imm_lprob_zero();
-    char   bases[3 * 4] = {
-        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
-        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
-        bases_comb[0], bases_comb[1], bases_comb[2], bases_comb[3],
-    };
-    int nbases[3] = {NMM_CODON_NBASES, NMM_CODON_NBASES, NMM_CODON_NBASES};
+    char const any_symbol = symbols[NSYMBOLS - 1];
 
-    char const any_symbol = imm_abc_any_symbol(nmm_codont_get_abc(codont));
+    char const seq[3] = {codon->a, codon->b, codon->c};
+
+    char const* arr[3];
+    int         shape[3];
     for (int i = 0; i < 3; ++i) {
-        if (codon[i] != any_symbol) {
-            bases[i * NMM_CODON_NBASES] = codon[i];
-            nbases[i] = 1;
+        if (seq[i] == any_symbol) {
+            arr[i] = symbols;
+            shape[i] = NMM_CODON_NBASES;
+        } else {
+            arr[i] = seq + i;
+            shape[i] = 1;
         }
     }
 
-    char const* a_id = bases;
-    char const* b_id = bases + NMM_CODON_NBASES;
-    char const* c_id = bases + 2 * NMM_CODON_NBASES;
-    for (int a = 0; a < nbases[0]; ++a) {
-        for (int b = 0; b < nbases[1]; ++b) {
-            for (int c = 0; c < nbases[2]; ++c) {
-                struct nmm_codon const ccode = {a_id[a], b_id[b], c_id[c]};
-                double const           t = nmm_codont_lprob(codont, &ccode);
-                lprob = logaddexp(lprob, t);
+    double lprob = imm_lprob_zero();
+    for (int a = 0; a < shape[0]; ++a) {
+        for (int b = 0; b < shape[1]; ++b) {
+            for (int c = 0; c < shape[2]; ++c) {
+
+                struct nmm_codon const t = {arr[0][a], arr[1][b], arr[2][c]};
+
+                lprob = logaddexp(lprob, codon_lprob_get(lprobt, &t));
             }
         }
     }

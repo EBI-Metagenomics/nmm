@@ -14,7 +14,6 @@ endif()
 add_library(nmm
     src/baset.c
     src/codon_lprob.c
-    src/codon_lprob2.c
     src/codont.c
     src/frame_state.c
 )
