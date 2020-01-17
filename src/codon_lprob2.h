@@ -25,8 +25,8 @@ static inline void   codon_lprob2_set(struct codon_lprob2*    codon_lprob,
                         symbol_idx[(size_t)codon->c]};
     array3d_set(&codon_lprob->lprobs, dim[0], dim[1], dim[2], lprob);
 }
-static inline double codon_lprob2_get(struct codon_lprob2*    codon_lprob,
-                                      struct nmm_codon const* codon)
+static inline double codon_lprob2_get(struct codon_lprob2 const* codon_lprob,
+                                      struct nmm_codon const*    codon)
 {
 
     int const* symbol_idx = codon_lprob->symbol_idx;

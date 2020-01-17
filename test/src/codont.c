@@ -6,11 +6,13 @@
 
 void test_codont_works(void);
 void test_codont_fails(void);
+void test_codont_marginal(void);
 
 int main(void)
 {
     test_codont_works();
     test_codont_fails();
+    test_codont_marginal();
     return cass_status();
 }
 
@@ -43,6 +45,29 @@ void test_codont_fails(void)
     struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 3);
 
     cass_cond(codont == NULL);
+
+    imm_abc_destroy(abc);
+    nmm_codont_destroy(codont);
+}
+
+void test_codont_marginal(void)
+{
+    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
+
+    struct nmm_codon_lprob const lprobs[2] = {{CODON('A', 'T', 'G'), log(0.8)},
+                                              {CODON('A', 'T', 'T'), log(0.1)}};
+    struct nmm_codont*           codont = nmm_codont_create(abc, lprobs, 2);
+
+    cass_cond(codont != NULL);
+
+    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'G')), log(0.8));
+    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'T')), log(0.1));
+    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'X')), log(0.9));
+    cass_close(nmm_codont_lprob(codont, &CODON('A', 'X', 'X')), log(0.9));
+    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'X')), log(0.9));
+    cass_close(nmm_codont_lprob(codont, &CODON('X', 'T', 'X')), log(0.9));
+    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'G')), log(0.8));
+    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'T')), log(0.1));
 
     imm_abc_destroy(abc);
     nmm_codont_destroy(codont);
