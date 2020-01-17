@@ -21,7 +21,7 @@ static inline char*                   fmt_name(char* restrict buffer, char const
     return buffer;
 }
 
-void set_codont(struct nmm_codont* codont);
+struct nmm_codonp* create_codonp(struct imm_abc const* abc);
 
 void test_perf_viterbi(void)
 {
@@ -35,25 +35,30 @@ void test_perf_viterbi(void)
     nmm_baset_set_lprob(baset, 'G', log(0.45));
     nmm_baset_set_lprob(baset, 'T', log(0.05));
 
-    struct nmm_codont* M_codont = nmm_codont_create(abc);
-    set_codont(M_codont);
-    nmm_codont_set_lprob(M_codont, &NMM_CODON('A', 'C', 'G'), log(100.0));
+    struct nmm_codonp* lprobs = create_codonp(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'C', 'G'), log(100.0));
+    struct nmm_codont* M_codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
-    struct nmm_codont* I_codont = nmm_codont_create(abc);
-    set_codont(I_codont);
-    nmm_codont_set_lprob(I_codont, &NMM_CODON('C', 'G', 'T'), log(100.0));
+    lprobs = create_codonp(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'G', 'T'), log(100.0));
+    struct nmm_codont* I_codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
-    struct nmm_codont* B_codont = nmm_codont_create(abc);
-    set_codont(B_codont);
-    nmm_codont_set_lprob(B_codont, &NMM_CODON('A', 'A', 'A'), log(100.0));
+    lprobs = create_codonp(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'A', 'A'), log(100.0));
+    struct nmm_codont* B_codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
-    struct nmm_codont* E_codont = nmm_codont_create(abc);
-    set_codont(E_codont);
-    nmm_codont_set_lprob(E_codont, &NMM_CODON('C', 'C', 'C'), log(100.0));
+    lprobs = create_codonp(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'C', 'C'), log(100.0));
+    struct nmm_codont* E_codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
-    struct nmm_codont* J_codont = nmm_codont_create(abc);
-    set_codont(J_codont);
-    nmm_codont_set_lprob(J_codont, &NMM_CODON('G', 'G', 'G'), log(100.0));
+    lprobs = create_codonp(abc);
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'G', 'G'), log(100.0));
+    struct nmm_codont* J_codont = nmm_codont_create(abc, lprobs);
+    nmm_codonp_destroy(lprobs);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -119,55 +124,55 @@ void test_perf_viterbi(void)
     struct elapsed*  elapsed = elapsed_create();
     struct imm_path* path = imm_path_create();
 
-    /* char const seq[] = "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC" */
-    /*                    "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG" */
-    /*                    "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"; */
+    char const seq[] = "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                       "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                       "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC";
 
-    char const seq[] = "";
+    /* char const seq[] = ""; */
 
-    /* cass_cond(strlen(seq) == 2000); */
+    cass_cond(strlen(seq) == 2000);
 
     elapsed_start(elapsed);
     double score = imm_hmm_viterbi(hmm, seq, cast_c(end), path);
-    /* cass_cond(is_valid(score) && !is_zero(score)); */
-    /* cass_close(score, -1641.970511421383435); */
+    cass_cond(is_valid(score) && !is_zero(score));
+    cass_close(score, -1641.970511421383435);
     elapsed_end(elapsed);
     imm_path_destroy(path);
 
@@ -198,58 +203,62 @@ void test_perf_viterbi(void)
     imm_abc_destroy(abc);
 }
 
-void set_codont(struct nmm_codont* codont)
+struct nmm_codonp* create_codonp(struct imm_abc const* abc)
 {
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'A', 'A'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'A', 'C'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'A', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'A', 'T'), log(0.0023173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'C', 'A'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'C', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'C', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'G', 'C'), log(0.0029114));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'G', 'G'), log(0.0029003));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'G', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'A'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'G'), log(0.0049178));
-    nmm_codont_set_lprob(codont, &NMM_CODON('A', 'T', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'A', 'A'), log(0.0029478));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'A', 'C'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'A', 'G'), log(0.0029123));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'A', 'T'), log(0.0009133));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'A'), log(0.0029179));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'C', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'G', 'C'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'G', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'G', 'T'), log(0.0041183));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'T', 'A'), log(0.0038173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'T', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('C', 'T', 'T'), log(0.0029111));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'A', 'A'), log(0.0019173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'A', 'C'), log(0.0029103));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'A', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'A', 'T'), log(0.0029103));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'C', 'A'), log(0.0003138));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'C', 'G'), log(0.0039173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'C', 'T'), log(0.0029103));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'G', 'C'), log(0.0019173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'G', 'G'), log(0.0009173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'G', 'T'), log(0.0029143));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'A'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('G', 'T', 'T'), log(0.0029171));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'A', 'A'), log(0.0099113));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'A', 'C'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'A', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'A', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'C', 'A'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'C', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'C', 'T'), log(0.0020173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'G', 'C'), log(0.0029193));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'G', 'G'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'G', 'T'), log(0.0029173));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'T', 'A'), log(0.0089193));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'T', 'G'), log(0.0029138));
-    nmm_codont_set_lprob(codont, &NMM_CODON('T', 'T', 'T'), log(0.0089183));
+    struct nmm_codonp* lprobs = nmm_codonp_create(abc);
+
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'A', 'A'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'A', 'C'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'A', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'A', 'T'), log(0.0023173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'C', 'A'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'C', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'C', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'G', 'C'), log(0.0029114));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'G', 'G'), log(0.0029003));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'G', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'A'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'G'), log(0.0049178));
+    nmm_codonp_set(lprobs, &NMM_CODON('A', 'T', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'A', 'A'), log(0.0029478));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'A', 'C'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'A', 'G'), log(0.0029123));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'A', 'T'), log(0.0009133));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'C', 'A'), log(0.0029179));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'C', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'C', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'G', 'C'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'G', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'G', 'T'), log(0.0041183));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'T', 'A'), log(0.0038173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'T', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('C', 'T', 'T'), log(0.0029111));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'A', 'A'), log(0.0019173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'A', 'C'), log(0.0029103));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'A', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'A', 'T'), log(0.0029103));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'C', 'A'), log(0.0003138));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'C', 'G'), log(0.0039173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'C', 'T'), log(0.0029103));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'G', 'C'), log(0.0019173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'G', 'G'), log(0.0009173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'G', 'T'), log(0.0029143));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'A'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('G', 'T', 'T'), log(0.0029171));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'A', 'A'), log(0.0099113));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'A', 'C'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'A', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'A', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'C', 'A'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'C', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'C', 'T'), log(0.0020173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'G', 'C'), log(0.0029193));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'G', 'G'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'G', 'T'), log(0.0029173));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'T', 'A'), log(0.0089193));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'T', 'G'), log(0.0029138));
+    nmm_codonp_set(lprobs, &NMM_CODON('T', 'T', 'T'), log(0.0089183));
+
+    return lprobs;
 }
