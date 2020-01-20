@@ -17,7 +17,7 @@ struct nmm_codonp;
 struct nmm_codont;
 
 NMM_API struct nmm_codont*    nmm_codont_create(struct imm_abc const*    abc,
-                                                struct nmm_codonp const* lprobs);
+                                                struct nmm_codonp const* codonp);
 NMM_API double                nmm_codont_lprob(struct nmm_codont const* codont,
                                                struct nmm_codon const*  codon);
 NMM_API void                  nmm_codont_destroy(struct nmm_codont* codont);
