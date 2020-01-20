@@ -6,7 +6,9 @@
 /** @file codont.h
  * Codon table module.
  *
- * A codon table is represented by an (immutable) object of type @ref nmm_codon.
+ * A codon table is represented by an (immutable) object of type @ref nmm_codon
+ * and is used to compute the marginalization forms of p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃),
+ * the probability of emitting codon (𝚡₁,𝚡₂,𝚡₃).
  */
 
 struct imm_abc;

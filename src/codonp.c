@@ -3,9 +3,19 @@
 #include "nmm/nmm.h"
 #include <stdlib.h>
 
+/** @file codonp.c
+ * Compute the probability of emitting a codon.
+ *
+ * Let p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) be the probability of emitting codon (𝚡₁,𝚡₂,𝚡₃), where 𝚡ᵢ𝜖𝒜.
+ * This modules implements the computation of p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
+ */
+
 struct nmm_codonp
 {
     struct imm_abc const* abc;
+    /**
+     * Pre-computed probability p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
+     */
     struct array3d        lprobs;
 };
 

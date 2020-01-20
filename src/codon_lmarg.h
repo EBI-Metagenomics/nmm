@@ -9,10 +9,10 @@
 #define ASCII_LAST_STD 127
 
 /** @file codon_lprob.h
- * Compute the probability of emitting a codon.
+ * Compute the marginal probability of emitting a codon.
  *
  * Let p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) be the probability of emitting codon (𝚡₁,𝚡₂,𝚡₃), where 𝚡ᵢ𝜖𝒜.
- * This modules implements the computation of p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃ and any of its
+ * This modules implements the computation of p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) and any of its
  * marginalization forms (e.g., p(𝑋₁=𝚡₁,𝑋₃=𝚡₃) or p(𝑋₃=𝚡₃)).
  */
 
