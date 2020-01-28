@@ -12,7 +12,7 @@ NMM_API int    nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const*
                               double lprob);
 NMM_API double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* codon);
 NMM_API int    nmm_codonp_normalize(struct nmm_codonp* codonp);
-NMM_API void   nmm_codonp_destroy(struct nmm_codonp* codonp);
+NMM_API void   nmm_codonp_destroy(struct nmm_codonp const* codonp);
 NMM_API struct imm_abc const* nmm_codonp_get_abc(struct nmm_codonp const* codonp);
 
 #endif

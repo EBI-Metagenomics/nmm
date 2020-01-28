@@ -12,6 +12,7 @@ if("${isSystemDir}" STREQUAL "-1")
 endif()
 
 add_library(nmm
+    src/base.c
     src/baset.c
     src/codon_lmarg.c
     src/codonp.c
@@ -35,11 +36,12 @@ target_link_libraries(nmm PUBLIC IMM::imm)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 target_compile_features(nmm PRIVATE c_std_11)
+set_target_properties(nmm PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(nmm PROPERTIES DEFINE_SYMBOL "NMM_EXPORTS")
 target_link_libraries(nmm INTERFACE $<$<BOOL:${UNIX}>:m>)
 target_compile_options(nmm PRIVATE
-    $<$<BOOL:${WIN32}>:/W4 /WX>
-    $<$<NOT:$<BOOL:${WIN32}>>:-Wall -Wextra -pedantic -Wstrict-prototypes 
+    $<$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>:/W3 /WX>
+    $<$<NOT:$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>>:-Wall -Wextra -pedantic -Wstrict-prototypes
         -Wshadow -Wconversion -Wmissing-prototypes -Wno-unused-parameter
         -Wno-empty-translation-unit>
 )

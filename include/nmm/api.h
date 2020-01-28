@@ -8,7 +8,7 @@
 #define NMM_API __declspec(dllimport)
 #endif
 #else
-#define NMM_API
+#define NMM_API __attribute__((visibility("default")))
 #endif
 
 #endif

@@ -1,6 +1,8 @@
+#include "nmm/codonp.h"
 #include "array.h"
+#include "free.h"
 #include "imm/imm.h"
-#include "nmm/nmm.h"
+#include "nmm/codon.h"
 #include <stdlib.h>
 
 /** @file codonp.c
@@ -16,7 +18,7 @@ struct nmm_codonp
     /**
      * Pre-computed probability p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
      */
-    struct array3d        lprobs;
+    struct array3d lprobs;
 };
 
 struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
@@ -37,44 +39,41 @@ struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
 
 int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, double lprob)
 {
-    int a = imm_abc_symbol_idx(codonp->abc, codon->a);
-    int b = imm_abc_symbol_idx(codonp->abc, codon->b);
-    int c = imm_abc_symbol_idx(codonp->abc, codon->c);
+    int const a = imm_abc_symbol_idx(codonp->abc, codon->a);
+    int const b = imm_abc_symbol_idx(codonp->abc, codon->b);
+    int const c = imm_abc_symbol_idx(codonp->abc, codon->c);
 
     if (a < 0 || b < 0 || c < 0) {
         imm_error("codon not found");
         return 1;
     }
 
-    array3d_set(&codonp->lprobs, a, b, c, lprob);
+    array3d_set(&codonp->lprobs, (unsigned)a, (unsigned)b, (unsigned)c, lprob);
 
     return 0;
 }
 
 double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
 {
-    int a = imm_abc_symbol_idx(codonp->abc, codon->a);
-    int b = imm_abc_symbol_idx(codonp->abc, codon->b);
-    int c = imm_abc_symbol_idx(codonp->abc, codon->c);
+    int const a = imm_abc_symbol_idx(codonp->abc, codon->a);
+    int const b = imm_abc_symbol_idx(codonp->abc, codon->b);
+    int const c = imm_abc_symbol_idx(codonp->abc, codon->c);
 
     if (a < 0 || b < 0 || c < 0)
         return imm_lprob_invalid();
 
-    return array3d_get(&codonp->lprobs, a, b, c);
+    return array3d_get(&codonp->lprobs, (unsigned)a, (unsigned)b, (unsigned)c);
 }
 
-int nmm_codonp_normalize(struct nmm_codonp* codonp) { return array3d_normalize(&codonp->lprobs); }
-
-void nmm_codonp_destroy(struct nmm_codonp* codonp)
+int nmm_codonp_normalize(struct nmm_codonp* codonp)
 {
-    if (!codonp) {
-        imm_error("codonp should not be NULL");
-        return;
-    }
+    return array3d_normalize(&codonp->lprobs);
+}
 
-    codonp->abc = NULL;
+void nmm_codonp_destroy(struct nmm_codonp const* codonp)
+{
     array3d_destroy(codonp->lprobs);
-    free(codonp);
+    free_c(codonp);
 }
 
 struct imm_abc const* nmm_codonp_get_abc(struct nmm_codonp const* codonp)

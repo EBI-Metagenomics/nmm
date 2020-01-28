@@ -2,7 +2,6 @@
 #define NMM_CODON_LMARG_H
 
 #include "array.h"
-#include "hide.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
@@ -29,7 +28,7 @@ struct codon_lmarg
     struct array3d lprobs;
 };
 
-HIDE struct codon_lmarg* nmm_codon_lmarg_create(struct imm_abc const*    abc,
+struct codon_lmarg* nmm_codon_lmarg_create(struct imm_abc const*    abc,
                                                 struct nmm_codonp const* lprob);
 
 /**
@@ -52,6 +51,6 @@ static inline double codon_lmarg_get(struct codon_lmarg const* lmarg,
                         symbol_idx[(size_t)codon->c]};
     return array3d_get(&lmarg->lprobs, dim[0], dim[1], dim[2]);
 }
-HIDE void nmm_codon_lmarg_destroy(struct codon_lmarg* lmarg);
+void nmm_codon_lmarg_destroy(struct codon_lmarg* lmarg);
 
 #endif

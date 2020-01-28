@@ -16,7 +16,7 @@ int main(void)
 
 void test_codont_nonmarginal(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
+    struct imm_abc const* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_codonp* codonp = nmm_codonp_create(abc);
     cass_cond(nmm_codonp_set(codonp, &CODON('A', 'T', 'G'), log(0.8)) == 0);
@@ -37,7 +37,7 @@ void test_codont_nonmarginal(void)
 
 void test_codont_marginal(void)
 {
-    struct imm_abc* abc = imm_abc_create("ACGT", 'X');
+    struct imm_abc const* abc = imm_abc_create("ACGT", 'X');
 
     struct nmm_codonp* codonp = nmm_codonp_create(abc);
     nmm_codonp_set(codonp, &NMM_CODON('A', 'T', 'G'), log(0.8));

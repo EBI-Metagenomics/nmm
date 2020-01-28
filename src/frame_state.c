@@ -41,7 +41,7 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state, char 
                                       struct nmm_codon const* ccode);
 static inline double base_lprob(struct nmm_frame_state const* state, char id)
 {
-    return nmm_baset_get_lprob(state->baset, id);
+    return nmm_baset_lprob(state->baset, id);
 }
 static inline double logaddexp3(double const a, double const b, double const c)
 {
@@ -55,7 +55,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
                                                double                   epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
-    struct imm_abc const*   abc = nmm_baset_get_abc(baset);
+    struct imm_abc const*   abc = nmm_base_get_abc(nmm_baset_get_base(baset));
 
     if (abc != nmm_codont_get_abc(codont)) {
         free(state);
@@ -80,7 +80,8 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
 
-    state->interface = imm_state_create(name, nmm_baset_get_abc(baset), funcs, state);
+    state->interface =
+        imm_state_create(name, nmm_base_get_abc(nmm_baset_get_base(baset)), funcs, state);
     return state;
 }
 
