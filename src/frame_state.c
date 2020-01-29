@@ -1,4 +1,4 @@
-#include "codon_lmarg.h"
+#include "free.h"
 #include "imm/imm.h"
 #include "logaddexp.h"
 #include "nmm/nmm.h"
@@ -47,7 +47,7 @@ static inline double logaddexp3(double const a, double const b, double const c)
 {
     return logaddexp(logaddexp(a, b), c);
 }
-static inline double logsumexp(double const* arr, int len) { return imm_lprob_sum(arr, len); }
+static inline double logsumexp(double const* arr, unsigned len) { return imm_lprob_sum(arr, len); }
 
 struct nmm_frame_state* nmm_frame_state_create(char const*              name,
                                                struct nmm_baset const*  baset,
@@ -57,14 +57,14 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
     struct imm_abc const*   abc = nmm_base_get_abc(nmm_baset_get_base(baset));
 
-    if (abc != nmm_codont_get_abc(codont)) {
-        free(state);
+    if (abc != nmm_base_get_abc(nmm_codont_get_base(codont))) {
+        free_c(state);
         imm_error("alphabets from base and codon are different");
         return NULL;
     }
 
     if (imm_abc_length(abc) != NMM_BASE_SIZE) {
-        free(state);
+        free_c(state);
         imm_error("alphabet length is not four");
         return NULL;
     }
@@ -108,7 +108,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 double nmm_frame_state_decode(struct nmm_frame_state const* state, char const* seq,
                               int const seq_len, struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_codont_get_abc(state->codont);
+    struct imm_abc const* abc = nmm_base_get_abc(nmm_codont_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     int const             n = imm_abc_length(abc);
 
