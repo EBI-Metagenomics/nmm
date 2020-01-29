@@ -63,7 +63,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
         return NULL;
     }
 
-    if (imm_abc_length(abc) != NMM_CODON_NBASES) {
+    if (imm_abc_length(abc) != NMM_BASE_SIZE) {
         free(state);
         imm_error("alphabet length is not four");
         return NULL;

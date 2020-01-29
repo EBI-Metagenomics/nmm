@@ -3,6 +3,8 @@
 
 #include "nmm/api.h"
 
+#define NMM_BASE_SIZE 4
+
 struct imm_abc;
 struct nmm_base;
 

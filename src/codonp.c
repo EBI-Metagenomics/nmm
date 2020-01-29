@@ -2,6 +2,7 @@
 #include "array.h"
 #include "free.h"
 #include "imm/imm.h"
+#include "nmm/base.h"
 #include "nmm/codon.h"
 #include <stdlib.h>
 
@@ -14,24 +15,19 @@
 
 struct nmm_codonp
 {
-    struct imm_abc const* abc;
+    struct nmm_base const* base;
     /**
      * Pre-computed probability p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
      */
     struct array3d lprobs;
 };
 
-struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
+struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
 {
-    if (imm_abc_length(abc) != NMM_CODON_NBASES) {
-        imm_error("alphabet length is not four");
-        return NULL;
-    }
-
     struct nmm_codonp* codonp = malloc(sizeof(struct nmm_codonp));
-    codonp->abc = abc;
+    codonp->base = base;
 
-    codonp->lprobs = array3d_create(NMM_CODON_NBASES, NMM_CODON_NBASES, NMM_CODON_NBASES);
+    codonp->lprobs = array3d_create(NMM_BASE_SIZE, NMM_BASE_SIZE, NMM_BASE_SIZE);
     array3d_fill(&codonp->lprobs, imm_lprob_zero());
 
     return codonp;
@@ -39,9 +35,10 @@ struct nmm_codonp* nmm_codonp_create(struct imm_abc const* abc)
 
 int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, double lprob)
 {
-    int const a = imm_abc_symbol_idx(codonp->abc, codon->a);
-    int const b = imm_abc_symbol_idx(codonp->abc, codon->b);
-    int const c = imm_abc_symbol_idx(codonp->abc, codon->c);
+    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
+    int const             a = imm_abc_symbol_idx(abc, codon->a);
+    int const             b = imm_abc_symbol_idx(abc, codon->b);
+    int const             c = imm_abc_symbol_idx(abc, codon->c);
 
     if (a < 0 || b < 0 || c < 0) {
         imm_error("codon not found");
@@ -55,12 +52,15 @@ int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, dou
 
 double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
 {
-    int const a = imm_abc_symbol_idx(codonp->abc, codon->a);
-    int const b = imm_abc_symbol_idx(codonp->abc, codon->b);
-    int const c = imm_abc_symbol_idx(codonp->abc, codon->c);
+    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
+    int const             a = imm_abc_symbol_idx(abc, codon->a);
+    int const             b = imm_abc_symbol_idx(abc, codon->b);
+    int const             c = imm_abc_symbol_idx(abc, codon->c);
 
-    if (a < 0 || b < 0 || c < 0)
+    if (a < 0 || b < 0 || c < 0) {
+        imm_error("codon not found");
         return imm_lprob_invalid();
+    }
 
     return array3d_get(&codonp->lprobs, (unsigned)a, (unsigned)b, (unsigned)c);
 }
@@ -76,7 +76,7 @@ void nmm_codonp_destroy(struct nmm_codonp const* codonp)
     free_c(codonp);
 }
 
-struct imm_abc const* nmm_codonp_get_abc(struct nmm_codonp const* codonp)
+struct nmm_base const* nmm_codonp_get_base(struct nmm_codonp const* codonp)
 {
-    return codonp->abc;
+    return codonp->base;
 }

@@ -5,7 +5,7 @@
 /**
  * The symbols here are the standard alphabet symbols plus the special any-symbol one.
  */
-#define NSYMBOLS (NMM_CODON_NBASES + 1)
+#define NSYMBOLS (NMM_BASE_SIZE + 1)
 
 static void set_symbol_index(int* symbol_idx, struct imm_abc const* abc);
 static int  set_nonmarginal_lprobs(struct codon_lmarg* lmarg, struct nmm_codonp const* lprob);
@@ -50,10 +50,10 @@ static void set_symbol_index(int* symbol_idx, const struct imm_abc* abc)
 
     char const* symbols = imm_abc_symbols(abc);
 
-    for (int i = 0; i < NMM_CODON_NBASES; ++i)
+    for (int i = 0; i < NMM_BASE_SIZE; ++i)
         symbol_idx[(size_t)symbols[i]] = imm_abc_symbol_idx(abc, symbols[i]);
 
-    symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_CODON_NBASES;
+    symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_SIZE;
 }
 
 static inline void codon_lmarg_set(struct codon_lmarg*     codon_lprob,
@@ -68,7 +68,8 @@ static inline void codon_lmarg_set(struct codon_lmarg*     codon_lprob,
 
 static int set_nonmarginal_lprobs(struct codon_lmarg* lmarg, struct nmm_codonp const* lprob)
 {
-    struct codon_iter iter = codon_iter_begin(nmm_codonp_get_abc(lprob));
+    struct imm_abc const* abc = nmm_base_get_abc(nmm_codonp_get_base(lprob));
+    struct codon_iter iter = codon_iter_begin(abc);
     while (!codon_iter_end(&iter)) {
         struct nmm_codon const codon = codon_iter_next(&iter);
         codon_lmarg_set(lmarg, &codon, nmm_codonp_get(lprob, &codon));
@@ -118,7 +119,7 @@ static double marginalization(struct codon_lmarg const* lmarg, char const* symbo
     for (int i = 0; i < 3; ++i) {
         if (seq[i] == any_symbol) {
             arr[i] = symbols;
-            shape[i] = NMM_CODON_NBASES;
+            shape[i] = NMM_BASE_SIZE;
         } else {
             arr[i] = seq + i;
             shape[i] = 1;

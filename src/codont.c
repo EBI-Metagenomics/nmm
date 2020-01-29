@@ -1,3 +1,4 @@
+#include "nmm/base.h"
 #include "array.h"
 #include "codon_lmarg.h"
 #include "imm/imm.h"
@@ -14,7 +15,7 @@ struct nmm_codont
 struct nmm_codont* nmm_codont_create(struct imm_abc const*    abc,
                                      struct nmm_codonp const* lprobs)
 {
-    if (imm_abc_length(abc) != NMM_CODON_NBASES) {
+    if (imm_abc_length(abc) != NMM_BASE_SIZE) {
         imm_error("alphabet length is not four");
         return NULL;
     }
