@@ -33,28 +33,26 @@ struct nmm_base const* nmm_codon_get_base(struct nmm_codon const* codon)
     return codon->base;
 }
 
-int nmm_codon_set(struct nmm_codon* codon, char a, char b, char c)
+int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
 {
     struct imm_abc const* abc = nmm_base_get_abc(codon->base);
-    bool                  ok = imm_abc_has_symbol(abc, a) || a == imm_abc_any_symbol(abc);
-    ok = ok && (imm_abc_has_symbol(abc, b) || b == imm_abc_any_symbol(abc));
-    ok = ok && (imm_abc_has_symbol(abc, c) || c == imm_abc_any_symbol(abc));
+    bool ok = imm_abc_has_symbol(abc, triplet.a) || triplet.a == imm_abc_any_symbol(abc);
+    ok = ok && (imm_abc_has_symbol(abc, triplet.b) || triplet.b == imm_abc_any_symbol(abc));
+    ok = ok && (imm_abc_has_symbol(abc, triplet.c) || triplet.c == imm_abc_any_symbol(abc));
 
     if (!ok) {
         imm_error("wrong codon symbol");
         return 1;
     }
 
-    codon->a = a;
-    codon->b = b;
-    codon->c = c;
+    codon->a = triplet.a;
+    codon->b = triplet.b;
+    codon->c = triplet.c;
 
     return 0;
 }
 
-void nmm_codon_get(struct nmm_codon const* codon, char* a, char* b, char* c)
+struct nmm_triplet nmm_codon_get(struct nmm_codon const* codon)
 {
-    *a = codon->a;
-    *b = codon->b;
-    *c = codon->c;
+    return (struct nmm_triplet){codon->a, codon->b, codon->c};
 }

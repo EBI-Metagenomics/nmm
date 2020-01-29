@@ -10,6 +10,13 @@ struct array3d
     unsigned strides[3];
 };
 
+struct array3d_idx
+{
+    unsigned i0;
+    unsigned i1;
+    unsigned i2;
+};
+
 static inline struct array3d array3d_create(unsigned dim0, unsigned dim1, unsigned dim2)
 {
     size_t         len = (size_t)(dim0 * dim1 * dim2);
@@ -17,11 +24,10 @@ static inline struct array3d array3d_create(unsigned dim0, unsigned dim1, unsign
     return arr;
 }
 
-static inline void array3d_set(struct array3d* arr, unsigned i0, unsigned i1, unsigned i2,
-                               double val)
+static inline void array3d_set(struct array3d* arr, struct array3d_idx idx, double val)
 {
     unsigned const* s = arr->strides;
-    arr->values[i0 * s[0] + i1 * s[1] + i2 * s[2]] = val;
+    arr->values[idx.i0 * s[0] + idx.i1 * s[1] + idx.i2 * s[2]] = val;
 }
 
 static inline void array3d_fill(struct array3d* arr, double val)
@@ -31,11 +37,10 @@ static inline void array3d_fill(struct array3d* arr, double val)
         arr->values[i] = val;
 }
 
-static inline double array3d_get(struct array3d const* arr, unsigned i0, unsigned i1,
-                                 unsigned i2)
+static inline double array3d_get(struct array3d const* arr, struct array3d_idx idx)
 {
     unsigned const* s = arr->strides;
-    return arr->values[i0 * s[0] + i1 * s[1] + i2 * s[2]];
+    return arr->values[idx.i0 * s[0] + idx.i1 * s[1] + idx.i2 * s[2]];
 }
 
 static inline void array3d_destroy(struct array3d arr) { free(arr.values); }

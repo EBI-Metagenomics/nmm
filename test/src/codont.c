@@ -19,20 +19,20 @@ void test_codont_nonmarginal(void)
     struct nmm_codonp*     codonp = nmm_codonp_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'G') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'G'}) == 0);
     cass_cond(nmm_codonp_set(codonp, codon, log(0.8)) == 0);
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'T') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'T'}) == 0);
     cass_cond(nmm_codonp_set(codonp, codon, log(0.1)) == 0);
 
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     cass_cond(codont != NULL);
     nmm_codonp_destroy(codonp);
 
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'G') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'G'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.8));
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'T') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'T'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.1));
-    cass_cond(nmm_codon_set(codon, 'T', 'T', 'T') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'T', 'T', 'T'}) == 0);
     cass_cond(imm_lprob_is_zero(nmm_codont_lprob(codont, codon)));
     nmm_codon_destroy(codon);
 
@@ -48,30 +48,30 @@ void test_codont_marginal(void)
     struct nmm_codonp*     codonp = nmm_codonp_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
-    nmm_codon_set(codon, 'A', 'T', 'G');
+    nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'G'});
     nmm_codonp_set(codonp, codon, log(0.8));
-    nmm_codon_set(codon, 'A', 'T', 'T');
+    nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'T'});
     nmm_codonp_set(codonp, codon, log(0.1));
 
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     cass_cond(codont != NULL);
     nmm_codonp_destroy(codonp);
 
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'G') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'G'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.8));
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'T') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'T'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.1));
-    cass_cond(nmm_codon_set(codon, 'A', 'T', 'X') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'X'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.9));
-    cass_cond(nmm_codon_set(codon, 'A', 'X', 'X') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'X', 'X'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.9));
-    cass_cond(nmm_codon_set(codon, 'X', 'X', 'X') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'X', 'X', 'X'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.9));
-    cass_cond(nmm_codon_set(codon, 'X', 'T', 'X') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'X', 'T', 'X'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.9));
-    cass_cond(nmm_codon_set(codon, 'X', 'X', 'G') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'X', 'X', 'G'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.8));
-    cass_cond(nmm_codon_set(codon, 'X', 'X', 'T') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'X', 'X', 'T'}) == 0);
     cass_close(nmm_codont_lprob(codont, codon), log(0.1));
     nmm_codon_destroy(codon);
 

@@ -21,7 +21,7 @@ void test_codonp(void)
 
     struct nmm_codon *codon = nmm_codon_create(base);
 
-    cass_cond(nmm_codon_set(codon, 'A', 'C', 'C') == 0);
+    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'C', 'C'}) == 0);
 
     cass_cond(imm_lprob_is_zero(nmm_codonp_get(codonp, codon)));
     cass_cond(nmm_codonp_set(codonp, codon, log(0.5)) == 0);

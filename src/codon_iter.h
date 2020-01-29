@@ -20,14 +20,15 @@ static inline struct codon_iter codon_iter_begin(struct nmm_base const* base)
     return (struct codon_iter){codon, bases, 0};
 }
 
-static inline struct nmm_codon const* codon_iter_next(struct codon_iter * iter)
+static inline struct nmm_codon const* codon_iter_next(struct codon_iter* iter)
 {
     int a = (iter->pos / (NMM_BASE_SIZE * NMM_BASE_SIZE)) % NMM_BASE_SIZE;
     int b = (iter->pos / NMM_BASE_SIZE) % NMM_BASE_SIZE;
     int c = iter->pos % NMM_BASE_SIZE;
     iter->pos++;
 
-    nmm_codon_set(iter->codon, iter->bases[a], iter->bases[b], iter->bases[c]);
+    struct nmm_triplet t = {iter->bases[a], iter->bases[b], iter->bases[c]};
+    nmm_codon_set(iter->codon, t);
     return iter->codon;
 }
 

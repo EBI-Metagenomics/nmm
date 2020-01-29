@@ -40,20 +40,19 @@ int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, dou
         return 1;
     }
 
-    char a, b, c;
-    nmm_codon_get(codon, &a, &b, &c);
-    char const any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
-    if (any_symbol == a || any_symbol == b || any_symbol == c) {
+    struct nmm_triplet t = nmm_codon_get(codon);
+    char const         any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
+    if (any_symbol == t.a || any_symbol == t.b || any_symbol == t.c) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
     struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
-    unsigned              ia = (unsigned)imm_abc_symbol_idx(abc, a);
-    unsigned              ib = (unsigned)imm_abc_symbol_idx(abc, b);
-    unsigned              ic = (unsigned)imm_abc_symbol_idx(abc, c);
+    struct array3d_idx    idx = {(unsigned)imm_abc_symbol_idx(abc, t.a),
+                              (unsigned)imm_abc_symbol_idx(abc, t.b),
+                              (unsigned)imm_abc_symbol_idx(abc, t.c)};
 
-    array3d_set(&codonp->lprobs, ia, ib, ic, lprob);
+    array3d_set(&codonp->lprobs, idx, lprob);
 
     return 0;
 }
@@ -65,20 +64,19 @@ double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* c
         return imm_lprob_invalid();
     }
 
-    char a, b, c;
-    nmm_codon_get(codon, &a, &b, &c);
-    char const any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
-    if (any_symbol == a || any_symbol == b || any_symbol == c) {
+    struct nmm_triplet t = nmm_codon_get(codon);
+    char const         any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
+    if (any_symbol == t.a || any_symbol == t.b || any_symbol == t.c) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
     struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
-    unsigned              ia = (unsigned)imm_abc_symbol_idx(abc, a);
-    unsigned              ib = (unsigned)imm_abc_symbol_idx(abc, b);
-    unsigned              ic = (unsigned)imm_abc_symbol_idx(abc, c);
+    struct array3d_idx    idx = {(unsigned)imm_abc_symbol_idx(abc, t.a),
+                              (unsigned)imm_abc_symbol_idx(abc, t.b),
+                              (unsigned)imm_abc_symbol_idx(abc, t.c)};
 
-    return array3d_get(&codonp->lprobs, ia, ib, ic);
+    return array3d_get(&codonp->lprobs, idx);
 }
 
 int nmm_codonp_normalize(struct nmm_codonp* codonp)
