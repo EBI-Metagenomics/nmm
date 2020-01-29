@@ -17,8 +17,8 @@ void test_base_success(void)
     struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
     struct nmm_base const* base = nmm_base_create(abc);
     cass_cond(base != NULL);
-    imm_abc_destroy(abc);
     nmm_base_destroy(base);
+    imm_abc_destroy(abc);
 }
 
 void test_base_failure(void)
