@@ -33,14 +33,13 @@ static void set_symbol_index(struct nmm_codont* codont);
 static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp const* codonp);
 static void set_marginal_lprobs(struct nmm_codont* codont, struct nmm_base const* base);
 
-static inline void get_array_idx(struct nmm_codont const* codont,
-                                 struct nmm_codon const* codon, unsigned* ia, unsigned* ib,
-                                 unsigned* ic)
+static inline struct array3d_idx get_array_idx(struct nmm_codont const* codont,
+                                               struct nmm_codon const*  codon)
 {
-    struct nmm_triplet t = nmm_codon_get(codon);
-    *ia = codont->symbol_idx[(size_t)t.a];
-    *ib = codont->symbol_idx[(size_t)t.b];
-    *ic = codont->symbol_idx[(size_t)t.c];
+    struct nmm_triplet const t = nmm_codon_get(codon);
+    return (struct array3d_idx){codont->symbol_idx[(size_t)t.a],
+                                codont->symbol_idx[(size_t)t.b],
+                                codont->symbol_idx[(size_t)t.c]};
 }
 
 static double marginalization(struct nmm_codont const* codont, char const* symbols,
@@ -48,7 +47,7 @@ static double marginalization(struct nmm_codont const* codont, char const* symbo
 
 static inline int not_marginal(struct nmm_codon const* codon, char const any_symbol)
 {
-    struct nmm_triplet t = nmm_codon_get(codon);
+    struct nmm_triplet const t = nmm_codon_get(codon);
     return t.a != any_symbol && t.b != any_symbol && t.c != any_symbol;
 }
 
@@ -86,9 +85,7 @@ struct nmm_codont const* nmm_codont_create(struct nmm_codonp const* codonp)
  */
 double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const* codon)
 {
-    unsigned idx[3] = {0, 0, 0};
-    get_array_idx(codont, codon, idx, idx + 1, idx + 2);
-    return array3d_get(&codont->lprobs, (struct array3d_idx){idx[0], idx[1], idx[2]});
+    return array3d_get(&codont->lprobs, get_array_idx(codont, codon));
 }
 
 void nmm_codont_destroy(struct nmm_codont const* codont)
@@ -119,9 +116,7 @@ static void set_symbol_index(struct nmm_codont* codont)
 static inline void set_marginal_lprob(struct nmm_codont*      codont,
                                       struct nmm_codon const* codon, double lprob)
 {
-    unsigned idx[3] = {0, 0, 0};
-    get_array_idx(codont, codon, idx, idx + 1, idx + 2);
-    array3d_set(&codont->lprobs, (struct array3d_idx){idx[0], idx[1], idx[2]}, lprob);
+    array3d_set(&codont->lprobs, get_array_idx(codont, codon), lprob);
 }
 
 static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp const* codonp)
@@ -138,18 +133,18 @@ static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp c
 static void set_marginal_lprobs(struct nmm_codont* codont, struct nmm_base const* base)
 {
     struct imm_abc const* abc = nmm_base_get_abc(base);
-    char                  any_symbol = imm_abc_any_symbol(abc);
+    char const            any_symbol = imm_abc_any_symbol(abc);
     char const            symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
                              imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3),
                              any_symbol};
 
     struct nmm_codon* codon = nmm_codon_create(base);
 
-    for (int i0 = 0; i0 < NSYMBOLS; ++i0) {
-        for (int i1 = 0; i1 < NSYMBOLS; ++i1) {
-            for (int i2 = 0; i2 < NSYMBOLS; ++i2) {
+    for (unsigned i0 = 0; i0 < NSYMBOLS; ++i0) {
+        for (unsigned i1 = 0; i1 < NSYMBOLS; ++i1) {
+            for (unsigned i2 = 0; i2 < NSYMBOLS; ++i2) {
 
-                struct nmm_triplet t = {symbols[i0], symbols[i1], symbols[i2]};
+                struct nmm_triplet const t = {symbols[i0], symbols[i1], symbols[i2]};
                 nmm_codon_set(codon, t);
 
                 if (not_marginal(codon, any_symbol))
@@ -169,7 +164,7 @@ static double marginalization(struct nmm_codont const* codont, char const* symbo
     char const any_symbol = symbols[NSYMBOLS - 1];
 
     struct nmm_triplet t = nmm_codon_get(codon);
-    char const seq[3] = {t.a, t.b, t.c};
+    char const         seq[3] = {t.a, t.b, t.c};
 
     char const* arr[3];
     int         shape[3];
@@ -192,7 +187,7 @@ static double marginalization(struct nmm_codont const* codont, char const* symbo
                 t.a = arr[0][a];
                 t.b = arr[1][b];
                 t.c = arr[2][c];
-                nmm_codon_set(tmp,  t);
+                nmm_codon_set(tmp, t);
                 lprob = logaddexp(lprob, nmm_codont_lprob(codont, tmp));
             }
         }

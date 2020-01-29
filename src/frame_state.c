@@ -9,7 +9,7 @@
 
 struct nmm_frame_state
 {
-    struct imm_state*        interface;
+    struct imm_state const*  interface;
     struct nmm_baset const*  baset;
     struct nmm_codont const* codont;
     double                   epsilon;
@@ -19,9 +19,9 @@ struct nmm_frame_state
     char                     any_symbol;
 };
 
-static double frame_state_lprob(struct imm_state const* state, char const* seq, int seq_len);
-static int    frame_state_min_seq(struct imm_state const* state);
-static int    frame_state_max_seq(struct imm_state const* state);
+static double   frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
+static unsigned frame_state_min_seq(struct imm_state const* state);
+static unsigned frame_state_max_seq(struct imm_state const* state);
 
 static double joint_seq_len1(struct nmm_frame_state const* state, char const* seq);
 static double joint_seq_len2(struct nmm_frame_state const* state, char const* seq);
@@ -46,12 +46,15 @@ static inline double logaddexp3(double const a, double const b, double const c)
 {
     return logaddexp(logaddexp(a, b), c);
 }
-static inline double logsumexp(double const* arr, unsigned len) { return imm_lprob_sum(arr, len); }
+static inline double logsumexp(double const* arr, unsigned len)
+{
+    return imm_lprob_sum(arr, len);
+}
 
 struct nmm_frame_state* nmm_frame_state_create(char const*              name,
                                                struct nmm_baset const*  baset,
                                                struct nmm_codont const* codont,
-                                               double                   epsilon)
+                                               double const             epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
     struct imm_abc const*   abc = nmm_base_get_abc(nmm_baset_get_base(baset));
@@ -85,8 +88,7 @@ struct nmm_frame_state* nmm_frame_state_create(char const*              name,
 }
 
 double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
-                                  struct nmm_codon const* codon, char const* seq,
-                                  int const seq_len)
+                                  struct nmm_codon const* codon, struct imm_seq const* seq)
 {
     double lprob = state->zero_lprob;
 
@@ -104,8 +106,8 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
     return lprob + nmm_codont_lprob(state->codont, codon);
 }
 
-double nmm_frame_state_decode(struct nmm_frame_state const* state, char const* seq,
-                              int const seq_len, struct nmm_codon* codon)
+double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
+                              struct nmm_codon* codon)
 {
     struct imm_abc const* abc = nmm_base_get_abc(nmm_codont_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
@@ -132,7 +134,7 @@ double nmm_frame_state_decode(struct nmm_frame_state const* state, char const* s
     return max_lprob;
 }
 
-void nmm_frame_state_destroy(struct nmm_frame_state* state)
+void nmm_frame_state_destroy(struct nmm_frame_state const* state)
 {
     if (!state) {
         imm_error("state should not be NULL");
