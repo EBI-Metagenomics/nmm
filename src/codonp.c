@@ -35,34 +35,50 @@ struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
 
 int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, double lprob)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
-    int const             a = imm_abc_symbol_idx(abc, codon->a);
-    int const             b = imm_abc_symbol_idx(abc, codon->b);
-    int const             c = imm_abc_symbol_idx(abc, codon->c);
-
-    if (a < 0 || b < 0 || c < 0) {
-        imm_error("codon not found");
+    if (codonp->base != nmm_codon_get_base(codon)) {
+        imm_error("bases must be the same");
         return 1;
     }
 
-    array3d_set(&codonp->lprobs, (unsigned)a, (unsigned)b, (unsigned)c, lprob);
+    char a, b, c;
+    nmm_codon_get(codon, &a, &b, &c);
+    char const any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
+    if (any_symbol == a || any_symbol == b || any_symbol == c) {
+        imm_error("any-symbol is not allowed");
+        return 1;
+    }
+
+    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
+    unsigned              ia = (unsigned)imm_abc_symbol_idx(abc, a);
+    unsigned              ib = (unsigned)imm_abc_symbol_idx(abc, b);
+    unsigned              ic = (unsigned)imm_abc_symbol_idx(abc, c);
+
+    array3d_set(&codonp->lprobs, ia, ib, ic, lprob);
 
     return 0;
 }
 
 double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
-    int const             a = imm_abc_symbol_idx(abc, codon->a);
-    int const             b = imm_abc_symbol_idx(abc, codon->b);
-    int const             c = imm_abc_symbol_idx(abc, codon->c);
-
-    if (a < 0 || b < 0 || c < 0) {
-        imm_error("codon not found");
+    if (codonp->base != nmm_codon_get_base(codon)) {
+        imm_error("bases must be the same");
         return imm_lprob_invalid();
     }
 
-    return array3d_get(&codonp->lprobs, (unsigned)a, (unsigned)b, (unsigned)c);
+    char a, b, c;
+    nmm_codon_get(codon, &a, &b, &c);
+    char const any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
+    if (any_symbol == a || any_symbol == b || any_symbol == c) {
+        imm_error("any-symbol is not allowed");
+        return 1;
+    }
+
+    struct imm_abc const* abc = nmm_base_get_abc(codonp->base);
+    unsigned              ia = (unsigned)imm_abc_symbol_idx(abc, a);
+    unsigned              ib = (unsigned)imm_abc_symbol_idx(abc, b);
+    unsigned              ic = (unsigned)imm_abc_symbol_idx(abc, c);
+
+    return array3d_get(&codonp->lprobs, ia, ib, ic);
 }
 
 int nmm_codonp_normalize(struct nmm_codonp* codonp)

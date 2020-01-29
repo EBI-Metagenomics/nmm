@@ -2,8 +2,6 @@
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
-#define CODON(a, b, c) NMM_CODON(a, b, c)
-
 void test_codont_nonmarginal(void);
 void test_codont_marginal(void);
 
@@ -18,20 +16,26 @@ void test_codont_nonmarginal(void)
 {
     struct imm_abc const*  abc = imm_abc_create("ACGT", 'X');
     struct nmm_base const* base = nmm_base_create(abc);
+    struct nmm_codonp*     codonp = nmm_codonp_create(base);
 
-    struct nmm_codonp* codonp = nmm_codonp_create(base);
-    cass_cond(nmm_codonp_set(codonp, &CODON('A', 'T', 'G'), log(0.8)) == 0);
-    cass_cond(nmm_codonp_set(codonp, &CODON('A', 'T', 'T'), log(0.1)) == 0);
-    cass_cond(nmm_codonp_set(codonp, &CODON('A', 'H', 'T'), log(0.1)) == 1);
+    struct nmm_codon* codon = nmm_codon_create(base);
+    cass_cond(nmm_codon_set(codon, 'A', 'T', 'G') == 0);
+    cass_cond(nmm_codonp_set(codonp, codon, log(0.8)) == 0);
+    cass_cond(nmm_codon_set(codon, 'A', 'T', 'T') == 0);
+    cass_cond(nmm_codonp_set(codonp, codon, log(0.1)) == 0);
+    cass_cond(nmm_codon_set(codon, 'A', 'H', 'T') == 1);
 
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     cass_cond(codont != NULL);
     nmm_codonp_destroy(codonp);
 
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'G')), log(0.8));
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'T')), log(0.1));
-    cass_cond(imm_lprob_is_zero(nmm_codont_lprob(codont, &CODON('T', 'T', 'T'))));
-    cass_cond(!imm_lprob_is_valid(nmm_codont_lprob(codont, &CODON('H', 'T', 'T'))));
+    nmm_codon_set(codon, 'A', 'T', 'G');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.8));
+    nmm_codon_set(codon, 'A', 'T', 'T');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.1));
+    nmm_codon_set(codon, 'T', 'T', 'T');
+    cass_cond(imm_lprob_is_zero(nmm_codont_lprob(codont, codon)));
+    nmm_codon_destroy(codon);
 
     nmm_codont_destroy(codont);
     nmm_base_destroy(base);
@@ -42,24 +46,37 @@ void test_codont_marginal(void)
 {
     struct imm_abc const*  abc = imm_abc_create("ACGT", 'X');
     struct nmm_base const* base = nmm_base_create(abc);
+    struct nmm_codonp*     codonp = nmm_codonp_create(base);
 
-    struct nmm_codonp* codonp = nmm_codonp_create(base);
-    nmm_codonp_set(codonp, &NMM_CODON('A', 'T', 'G'), log(0.8));
-    nmm_codonp_set(codonp, &NMM_CODON('A', 'T', 'T'), log(0.1));
+    struct nmm_codon* codon = nmm_codon_create(base);
+    nmm_codon_set(codon, 'A', 'T', 'G');
+    nmm_codonp_set(codonp, codon, log(0.8));
+    nmm_codon_set(codon, 'A', 'T', 'T');
+    nmm_codonp_set(codonp, codon, log(0.1));
 
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     cass_cond(codont != NULL);
     nmm_codonp_destroy(codonp);
 
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'G')), log(0.8));
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'T')), log(0.1));
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'T', 'X')), log(0.9));
-    cass_close(nmm_codont_lprob(codont, &CODON('A', 'X', 'X')), log(0.9));
-    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'X')), log(0.9));
-    cass_close(nmm_codont_lprob(codont, &CODON('X', 'T', 'X')), log(0.9));
-    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'G')), log(0.8));
-    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'T')), log(0.1));
-    cass_close(nmm_codont_lprob(codont, &CODON('X', 'X', 'H')), log(0.1));
+    nmm_codon_set(codon, 'A', 'T', 'G');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.8));
+    nmm_codon_set(codon, 'A', 'T', 'T');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.1));
+    nmm_codon_set(codon, 'A', 'T', 'X');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.9));
+    nmm_codon_set(codon, 'A', 'X', 'X');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.9));
+    nmm_codon_set(codon, 'X', 'X', 'X');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.9));
+    nmm_codon_set(codon, 'X', 'T', 'X');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.9));
+    nmm_codon_set(codon, 'X', 'X', 'G');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.8));
+    nmm_codon_set(codon, 'X', 'X', 'T');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.1));
+    nmm_codon_set(codon, 'X', 'X', 'H');
+    cass_close(nmm_codont_lprob(codont, codon), log(0.1));
+    nmm_codon_destroy(codon);
 
     nmm_codont_destroy(codont);
     nmm_base_destroy(base);

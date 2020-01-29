@@ -14,9 +14,10 @@ endif()
 add_library(nmm
     src/base.c
     src/baset.c
+    src/codon.c
     src/codonp.c
     src/codont.c
-    src/frame_state.c
+    # src/frame_state.c
 )
 add_library(NMM::nmm ALIAS nmm)
 
