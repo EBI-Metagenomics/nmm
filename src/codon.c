@@ -1,28 +1,14 @@
 #include "nmm/codon.h"
+#include "codon_static.h"
 #include "free.h"
-#include "imm/imm.h"
 #include "nmm/base.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
-struct nmm_codon
-{
-    struct nmm_base const* base;
-    char                   a;
-    char                   b;
-    char                   c;
-};
-
 struct nmm_codon* nmm_codon_create(struct nmm_base const* base)
 {
     struct nmm_codon* codon = malloc(sizeof(struct nmm_codon));
-    codon->base = base;
-
-    struct imm_abc const* abc = nmm_base_get_abc(base);
-    codon->a = imm_abc_any_symbol(abc);
-    codon->b = imm_abc_any_symbol(abc);
-    codon->c = imm_abc_any_symbol(abc);
-
+    codon_init(codon, base);
     return codon;
 }
 
