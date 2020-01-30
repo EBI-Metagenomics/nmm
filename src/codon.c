@@ -41,5 +41,5 @@ int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
 
 struct nmm_triplet nmm_codon_get(struct nmm_codon const* codon)
 {
-    return (struct nmm_triplet){codon->a, codon->b, codon->c};
+    return NMM_TRIPLET(codon->a, codon->b, codon->c);
 }

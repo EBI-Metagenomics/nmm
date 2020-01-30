@@ -17,15 +17,15 @@ void test_codon(void)
 
     struct nmm_codon* codon = nmm_codon_create(base);
 
-    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'G'}) == 0);
+    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
     struct nmm_triplet t = nmm_codon_get(codon);
     cass_cond(t.a == 'A' && t.b == 'T' && t.c == 'G');
 
-    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'X', 'T', 'X'}) == 0);
+    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('X', 'T', 'X')) == 0);
     t = nmm_codon_get(codon);
     cass_cond(t.a == 'X' && t.b == 'T' && t.c == 'X');
 
-    cass_cond(nmm_codon_set(codon, (struct nmm_triplet){'A', 'T', 'L'}) == 1);
+    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'L')) == 1);
 
     nmm_codon_destroy(codon);
     nmm_base_destroy(base);
