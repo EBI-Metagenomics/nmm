@@ -1,8 +1,8 @@
 #include "array_size.h"
 #include "codon_static.h"
+#include "codont_static.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "logaddexp.h"
+#include "logsumexp.h"
 #include "nmm/nmm.h"
 #include <math.h>
 #include <stdlib.h>
@@ -53,15 +53,11 @@ static inline double logaddexp3(double const a, double const b, double const c)
 {
     return logaddexp(logaddexp(a, b), c);
 }
-static inline double logsumexp(double const* arr, unsigned len)
-{
-    return imm_lprob_sum(arr, len);
-}
 
-struct nmm_frame_state* nmm_frame_state_create(char const*              name,
-                                               struct nmm_baset const*  baset,
-                                               struct nmm_codont const* codont,
-                                               double const             epsilon)
+struct nmm_frame_state const* nmm_frame_state_create(char const*              name,
+                                                     struct nmm_baset const*  baset,
+                                                     struct nmm_codont const* codont,
+                                                     double const             epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
@@ -103,7 +99,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
     else if (length == 5)
         lprob = lprob_frag_given_codon5(state, seq, codon);
 
-    return lprob + nmm_codont_lprob(state->codont, codon);
+    return lprob + codont_lprob(state->codont, codon);
 }
 
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
@@ -172,17 +168,16 @@ static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq
     double const c = 2 * state->leps + 2 * state->l1eps;
 
     char const   nucl = imm_seq_string(seq)[0];
-    double const e0 = nmm_codont_lprob(state->codont, codon_set(&codon, nucl, _, _));
-    double const e1 = nmm_codont_lprob(state->codont, codon_set(&codon, _, nucl, _));
-    double const e2 = nmm_codont_lprob(state->codont, codon_set(&codon, _, _, nucl));
+    double const e0 = codont_lprob(state->codont, codon_set(&codon, nucl, _, _));
+    double const e1 = codont_lprob(state->codont, codon_set(&codon, _, nucl, _));
+    double const e2 = codont_lprob(state->codont, codon_set(&codon, _, _, nucl));
 
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c)                                                                           \
-    nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
@@ -204,8 +199,7 @@ static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq
 
 static double joint_seq_len3(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c)                                                                           \
-    nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
@@ -232,8 +226,7 @@ static double joint_seq_len3(struct nmm_frame_state const* state, struct imm_seq
 
 static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c)                                                                           \
-    nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], str[3], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
@@ -261,7 +254,7 @@ static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq
 
 static double joint_seq_len5(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define LPROB(codon) nmm_codont_lprob(state->codont, codon)
+#define LPROB(codon) codont_lprob(state->codont, codon)
 #define C(a, b, c) codon_set(&codon, str[a], str[b], str[c])
     char const* str = imm_seq_string(seq);
     CODON_DECL(codon, nmm_baset_get_base(state->baset));

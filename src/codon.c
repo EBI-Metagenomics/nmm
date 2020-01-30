@@ -39,7 +39,4 @@ int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
     return 0;
 }
 
-struct nmm_triplet nmm_codon_get(struct nmm_codon const* codon)
-{
-    return NMM_TRIPLET(codon->a, codon->b, codon->c);
-}
+struct nmm_triplet nmm_codon_get(struct nmm_codon const* codon) { return codon_get(codon); }

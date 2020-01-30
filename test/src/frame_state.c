@@ -36,8 +36,8 @@ void test_frame_state1(void)
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
-    struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state* s = imm_state_cast_c(state);
+    struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
+    const struct imm_state*       s = imm_state_cast_c(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -5.914503505971854);
@@ -88,8 +88,8 @@ void test_frame_state2(void)
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
-    struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state* s = imm_state_cast_c(state);
+    struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
+    const struct imm_state*       s = imm_state_cast_c(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -5.914503505971854);
@@ -161,8 +161,8 @@ void test_frame_state3(void)
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
-    struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state* s = imm_state_cast_c(state);
+    struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
+    const struct imm_state*       s = imm_state_cast_c(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -6.282228286097171);
@@ -255,7 +255,7 @@ void test_frame_state_lposterior(void)
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
-    struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
     codon_iter = cartes_create(symbols, length, 3);
 
@@ -309,7 +309,7 @@ void test_frame_state_decode(void)
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
-    struct nmm_frame_state* state = nmm_frame_state_create("State", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
 
     struct imm_seq const* seq = imm_seq_create("ATG", abc);
     cass_close(nmm_frame_state_decode(state, seq, codon), -0.902566706136);

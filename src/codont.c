@@ -1,6 +1,6 @@
 #include "nmm/codont.h"
-#include "array.h"
 #include "codon_iter.h"
+#include "codont_static.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "logaddexp.h"
@@ -13,34 +13,9 @@
  */
 #define NSYMBOLS (NMM_BASE_SIZE + 1)
 
-#define ASCII_LAST_STD 127
-
-struct nmm_codont
-{
-    struct nmm_base const* base;
-    /**
-     * Maps alphabet symbols to the indices 0, 1, 2, and 3 and the any-symbol to 4.
-     */
-    unsigned symbol_idx[ASCII_LAST_STD + 1];
-    /**
-     * Pre-computed marginalization forms of
-     * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
-     */
-    struct array3d lprobs;
-};
-
 static void set_symbol_index(struct nmm_codont* codont);
 static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp const* codonp);
 static void set_marginal_lprobs(struct nmm_codont* codont, struct nmm_base const* base);
-
-static inline struct array3d_idx get_array_idx(struct nmm_codont const* codont,
-                                               struct nmm_codon const*  codon)
-{
-    struct nmm_triplet const t = nmm_codon_get(codon);
-    return (struct array3d_idx){codont->symbol_idx[(size_t)t.a],
-                                codont->symbol_idx[(size_t)t.b],
-                                codont->symbol_idx[(size_t)t.c]};
-}
 
 static double marginalization(struct nmm_codont const* codont, char const* symbols,
                               struct nmm_codon const* codon);
@@ -85,7 +60,7 @@ struct nmm_codont const* nmm_codont_create(struct nmm_codonp const* codonp)
  */
 double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const* codon)
 {
-    return array3d_get(&codont->lprobs, get_array_idx(codont, codon));
+    return codont_lprob(codont, codon);
 }
 
 void nmm_codont_destroy(struct nmm_codont const* codont)
@@ -116,7 +91,7 @@ static void set_symbol_index(struct nmm_codont* codont)
 static inline void set_marginal_lprob(struct nmm_codont*      codont,
                                       struct nmm_codon const* codon, double lprob)
 {
-    array3d_set(&codont->lprobs, get_array_idx(codont, codon), lprob);
+    array3d_set(&codont->lprobs, codont_get_array_idx(codont, codon), lprob);
 }
 
 static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp const* codonp)

@@ -10,10 +10,10 @@ struct nmm_codon;
 struct nmm_codont;
 struct nmm_frame_state;
 
-NMM_API struct nmm_frame_state* nmm_frame_state_create(char const*              name,
-                                                       struct nmm_baset const*  baset,
-                                                       struct nmm_codont const* codont,
-                                                       double                   epsilon);
+NMM_API struct nmm_frame_state const* nmm_frame_state_create(char const*              name,
+                                                             struct nmm_baset const*  baset,
+                                                             struct nmm_codont const* codont,
+                                                             double epsilon);
 NMM_API double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
                                           struct nmm_codon const*       codon,
                                           struct imm_seq const*         seq);

@@ -1,7 +1,6 @@
 #ifndef NMM_CODON_STATIC_H
 #define NMM_CODON_STATIC_H
 
-#include "bug.h"
 #include "imm/imm.h"
 #include "nmm/base.h"
 #include "nmm/codon.h"
@@ -24,13 +23,22 @@ static inline void codon_init(struct nmm_codon* codon, struct nmm_base const* ba
     codon->c = imm_abc_any_symbol(abc);
 }
 
-#define CODON_DECL(name, base) struct nmm_codon name; codon_init(&(name), (base))
+#define CODON_DECL(name, base)                                                               \
+    struct nmm_codon name;                                                                   \
+    codon_init(&(name), (base))
 
 static inline struct nmm_codon const* codon_set(struct nmm_codon* codon, char a, char b,
                                                 char c)
 {
-    BUG(nmm_codon_set(codon, (struct nmm_triplet){a, b, c}) != 0);
+    codon->a = a;
+    codon->b = b;
+    codon->c = c;
     return codon;
+}
+
+static inline struct nmm_triplet codon_get(struct nmm_codon const* codon)
+{
+    return NMM_TRIPLET(codon->a, codon->b, codon->c);
 }
 
 #endif
