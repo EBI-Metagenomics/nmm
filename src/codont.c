@@ -167,8 +167,8 @@ static double marginalization(struct nmm_codont const* codont, char const* symbo
     char const         seq[3] = {t.a, t.b, t.c};
 
     char const* arr[3];
-    int         shape[3];
-    for (int i = 0; i < 3; ++i) {
+    unsigned    shape[3];
+    for (unsigned i = 0; i < 3; ++i) {
         if (seq[i] == any_symbol) {
             arr[i] = symbols;
             shape[i] = NMM_BASE_SIZE;
@@ -180,9 +180,9 @@ static double marginalization(struct nmm_codont const* codont, char const* symbo
 
     struct nmm_codon* tmp = nmm_codon_create(nmm_codon_get_base(codon));
     double            lprob = imm_lprob_zero();
-    for (int a = 0; a < shape[0]; ++a) {
-        for (int b = 0; b < shape[1]; ++b) {
-            for (int c = 0; c < shape[2]; ++c) {
+    for (unsigned a = 0; a < shape[0]; ++a) {
+        for (unsigned b = 0; b < shape[1]; ++b) {
+            for (unsigned c = 0; c < shape[2]; ++c) {
 
                 t.a = arr[0][a];
                 t.b = arr[1][b];
