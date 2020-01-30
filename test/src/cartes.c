@@ -5,40 +5,34 @@
 struct cartes
 {
     char const* set;
-    int         set_size;
-    int         times;
-    int         iter_idx;
+    unsigned    set_size;
+    unsigned    times;
+    unsigned    iter_idx;
     char*       item;
-    int         nitems;
+    unsigned    nitems;
 };
 
-static int ipow(int base, int exp);
+static unsigned ipow(unsigned base, unsigned exp);
 
-struct cartes* cartes_create(char const* set, int set_size, int times)
+struct cartes* cartes_create(char const* set, unsigned set_size, unsigned times)
 {
     struct cartes* cartes = malloc(sizeof(struct cartes));
 
     cartes->set = set;
     cartes->set_size = set_size;
     cartes->times = times;
-    cartes->item = malloc(sizeof(char) * (set_size + 1));
-    cartes->item[set_size] = '\0';
+    cartes->item = malloc(sizeof(char) * (times + 1));
+    cartes->item[times] = '\0';
     cartes->iter_idx = 0;
     cartes->nitems = ipow(set_size, times);
 
     return cartes;
 }
 
-void cartes_destroy(struct cartes* cartes)
+void cartes_destroy(struct cartes const* cartes)
 {
-    if (!cartes) {
-        fprintf(stderr, "cartes should not be NULL");
-        exit(1);
-        return;
-    }
-
     free(cartes->item);
-    free(cartes);
+    free((void*)cartes);
 }
 
 char const* cartes_next(struct cartes* cartes)
@@ -46,20 +40,20 @@ char const* cartes_next(struct cartes* cartes)
     if (cartes->iter_idx == cartes->nitems)
         return NULL;
 
-    char* item = cartes->item;
-    int   idx = cartes->iter_idx++;
-    int   set_size = cartes->set_size;
+    char*    item = cartes->item;
+    unsigned idx = cartes->iter_idx++;
+    unsigned set_size = cartes->set_size;
 
-    for (int i = 0; i < cartes->times; ++i) {
+    for (unsigned i = 0; i < cartes->times; ++i) {
         item[i] = cartes->set[(idx % ipow(set_size, i + 1)) / ipow(set_size, i)];
     }
 
     return item;
 }
 
-static int ipow(int base, int exp)
+static unsigned ipow(unsigned base, unsigned exp)
 {
-    int result = 1;
+    unsigned result = 1;
     for (;;) {
         if (exp & 1)
             result *= base;
