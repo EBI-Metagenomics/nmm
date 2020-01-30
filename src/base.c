@@ -1,12 +1,8 @@
 #include "nmm/base.h"
+#include "base_static.h"
 #include "free.h"
 #include "imm/imm.h"
 #include <stdlib.h>
-
-struct nmm_base
-{
-    struct imm_abc const* abc;
-};
 
 struct nmm_base const* nmm_base_create(struct imm_abc const* abc)
 {
@@ -21,4 +17,7 @@ struct nmm_base const* nmm_base_create(struct imm_abc const* abc)
 
 void nmm_base_destroy(struct nmm_base const* base) { free_c(base); }
 
-struct imm_abc const* nmm_base_get_abc(struct nmm_base const* base) { return base->abc; }
+struct imm_abc const* nmm_base_get_abc(struct nmm_base const* base)
+{
+    return base_get_abc(base);
+}

@@ -71,7 +71,7 @@ void nmm_codont_destroy(struct nmm_codont const* codont)
 
 struct nmm_base const* nmm_codont_get_base(struct nmm_codont const* codont)
 {
-    return codont->base;
+    return codont_get_base(codont);
 }
 
 static void set_symbol_index(struct nmm_codont* codont)

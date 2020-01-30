@@ -35,4 +35,9 @@ static inline double codont_lprob(struct nmm_codont const* codont,
     return array3d_get(&codont->lprobs, codont_get_array_idx(codont, codon));
 }
 
+static inline struct nmm_base const* codont_get_base(struct nmm_codont const* codont)
+{
+    return codont->base;
+}
+
 #endif
