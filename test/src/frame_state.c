@@ -64,6 +64,7 @@ void test_frame_state1(void)
     cass_cond(imm_lprob_is_zero(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
+    nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
@@ -134,6 +135,7 @@ void test_frame_state2(void)
     cass_cond(imm_lprob_is_zero(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
+    nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
@@ -211,9 +213,11 @@ void test_frame_state3(void)
     cass_close(imm_state_lprob(s, seq), -12.902301492627526);
     imm_seq_destroy(seq);
 
+    nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
+    nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
 
@@ -279,6 +283,7 @@ void test_frame_state_lposterior(void)
     }
     cartes_destroy(codon_iter);
 
+    nmm_base_destroy(base);
     nmm_frame_state_destroy(state);
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
@@ -366,6 +371,7 @@ void test_frame_state_decode(void)
     t = nmm_codon_get(codon);
     cass_cond(t.a == 'G' && t.b == 'T' && t.c == 'C');
 
+    nmm_base_destroy(base);
     nmm_frame_state_destroy(state);
     nmm_baset_destroy(baset);
     nmm_codont_destroy(codont);
