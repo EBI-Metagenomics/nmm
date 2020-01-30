@@ -3,6 +3,14 @@
 
 #include "nmm/api.h"
 
+/** @file codonp.h
+ * Codon probability module.
+ *
+ * An object of type @ref nmm_codonp is used to define the probabilities
+ * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) of emitting codon (𝚡₁,𝚡₂,𝚡₃). Its sole purpose is
+ * to be used by the constructor of the type @ref nmm_codont.
+ */
+
 struct nmm_base;
 struct nmm_codon;
 struct nmm_codonp;

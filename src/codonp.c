@@ -23,9 +23,17 @@ struct nmm_codonp
     struct array3d lprobs;
 };
 
-static inline bool nmm_triplet_has(struct nmm_triplet const triplet, char const symbol)
+static inline bool triplet_has(struct nmm_triplet const triplet, char const symbol)
 {
     return symbol == triplet.a || symbol == triplet.b || symbol == triplet.c;
+}
+
+static inline struct array3d_idx triplet_index(struct imm_abc const*    abc,
+                                               struct nmm_triplet const triplet)
+{
+    return (struct array3d_idx){(unsigned)imm_abc_symbol_idx(abc, triplet.a),
+                                (unsigned)imm_abc_symbol_idx(abc, triplet.b),
+                                (unsigned)imm_abc_symbol_idx(abc, triplet.c)};
 }
 
 struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
@@ -39,7 +47,8 @@ struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
     return codonp;
 }
 
-int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, double lprob)
+int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon,
+                   double const lprob)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
@@ -48,15 +57,12 @@ int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon, dou
 
     struct nmm_triplet const triplet = nmm_codon_get(codon);
     char const               any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
-    if (nmm_triplet_has(triplet, any_symbol)) {
+    if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
-    struct imm_abc const*    abc = nmm_base_get_abc(codonp->base);
-    struct array3d_idx const idx = {(unsigned)imm_abc_symbol_idx(abc, triplet.a),
-                                    (unsigned)imm_abc_symbol_idx(abc, triplet.b),
-                                    (unsigned)imm_abc_symbol_idx(abc, triplet.c)};
+    struct array3d_idx const idx = triplet_index(nmm_base_get_abc(codonp->base), triplet);
 
     array3d_set(&codonp->lprobs, idx, lprob);
 
@@ -72,15 +78,12 @@ double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* c
 
     struct nmm_triplet const triplet = nmm_codon_get(codon);
     char const               any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
-    if (nmm_triplet_has(triplet, any_symbol)) {
+    if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
-    struct imm_abc const*    abc = nmm_base_get_abc(codonp->base);
-    struct array3d_idx const idx = {(unsigned)imm_abc_symbol_idx(abc, triplet.a),
-                                    (unsigned)imm_abc_symbol_idx(abc, triplet.b),
-                                    (unsigned)imm_abc_symbol_idx(abc, triplet.c)};
+    struct array3d_idx const idx = triplet_index(nmm_base_get_abc(codonp->base), triplet);
 
     return array3d_get(&codonp->lprobs, idx);
 }

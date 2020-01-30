@@ -36,12 +36,13 @@ struct nmm_base const* nmm_codon_get_base(struct nmm_codon const* codon)
 int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
 {
     struct imm_abc const* abc = nmm_base_get_abc(codon->base);
-    bool ok = imm_abc_has_symbol(abc, triplet.a) || triplet.a == imm_abc_any_symbol(abc);
-    ok = ok && (imm_abc_has_symbol(abc, triplet.b) || triplet.b == imm_abc_any_symbol(abc));
-    ok = ok && (imm_abc_has_symbol(abc, triplet.c) || triplet.c == imm_abc_any_symbol(abc));
+
+    bool ok = (imm_abc_symbol_type(abc, triplet.a) != IMM_SYMBOL_UNKNOWN &&
+               imm_abc_symbol_type(abc, triplet.b) != IMM_SYMBOL_UNKNOWN &&
+               imm_abc_symbol_type(abc, triplet.c) != IMM_SYMBOL_UNKNOWN);
 
     if (!ok) {
-        imm_error("wrong codon symbol");
+        imm_error("unknown codon");
         return 1;
     }
 

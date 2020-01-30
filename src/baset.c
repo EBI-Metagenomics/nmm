@@ -1,8 +1,9 @@
 #include "nmm/baset.h"
+#include "array_size.h"
+#include "bug.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/base.h"
-#include "bug.h"
 #include <stdlib.h>
 
 struct nmm_baset
@@ -11,8 +12,8 @@ struct nmm_baset
     double                 lprobs[4];
 };
 
-struct nmm_baset const* nmm_baset_create(struct nmm_base const* base, double a, double b,
-                                         double c, double d)
+struct nmm_baset const* nmm_baset_create(struct nmm_base const* base, double const a,
+                                         double const b, double const c, double const d)
 {
     struct nmm_baset* baset = malloc(sizeof(struct nmm_baset));
     baset->base = base;
@@ -30,8 +31,9 @@ double nmm_baset_lprob(struct nmm_baset const* baset, char const nucleotide)
         imm_error("nucleotide not found");
         return imm_lprob_invalid();
     }
-    BUG(idx > 3);
-    return baset->lprobs[idx];
+    size_t i = (size_t)idx;
+    BUG(i >= ARRAY_SIZE(baset->lprobs));
+    return baset->lprobs[i];
 }
 
 void nmm_baset_destroy(struct nmm_baset const* baset) { free_c(baset); }
