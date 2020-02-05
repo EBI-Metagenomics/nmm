@@ -98,10 +98,9 @@ static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp c
 {
     struct codon_iter iter = codon_iter_begin(codont->base);
     while (!codon_iter_end(iter)) {
-        struct nmm_codon const* codon = codon_iter_next(&iter);
-        set_marginal_lprob(codont, codon, nmm_codonp_get(codonp, codon));
+        struct nmm_codon const codon = codon_iter_next(&iter);
+        set_marginal_lprob(codont, &codon, nmm_codonp_get(codonp, &codon));
     }
-    codon_iter_destroy(iter);
     return 0;
 }
 
