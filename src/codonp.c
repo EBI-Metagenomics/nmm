@@ -80,7 +80,7 @@ double nmm_codonp_get_lprob(struct nmm_codonp const* codonp, struct nmm_codon co
     char const               any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
-        return 1;
+        return imm_lprob_invalid();
     }
 
     struct array3d_idx const idx = triplet_index(nmm_base_get_abc(codonp->base), triplet);

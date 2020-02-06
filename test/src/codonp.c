@@ -30,6 +30,9 @@ void test_codonp(void)
     cass_cond(nmm_codonp_normalize(codonp) == 0);
     cass_close(nmm_codonp_get_lprob(codonp, codon), log(1.0));
 
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'C', 'X')) == 0);
+    cass_cond(!imm_lprob_is_valid(nmm_codonp_get_lprob(codonp, codon)));
+
     nmm_codon_destroy(codon);
 
     nmm_codonp_destroy(codonp);
