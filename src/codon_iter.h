@@ -29,7 +29,7 @@ static inline struct nmm_codon codon_iter_next(struct codon_iter* iter)
 
     struct nmm_triplet t = {iter->bases[a], iter->bases[b], iter->bases[c]};
     CODON_DECL(codon, iter->base);
-    nmm_codon_set(&codon, t);
+    nmm_codon_set_triplet(&codon, t);
 
     return codon;
 }

@@ -35,12 +35,12 @@ void test_hmm_frame_state_0eps(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
@@ -89,12 +89,12 @@ void test_hmm_frame_state_len1(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
@@ -151,12 +151,12 @@ void test_hmm_frame_state_len2(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
@@ -241,12 +241,12 @@ void test_hmm_frame_state_len3(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
@@ -303,12 +303,12 @@ void test_hmm_frame_state_len4(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 
@@ -351,12 +351,12 @@ void test_hmm_frame_state_len5(void)
 
     struct nmm_codonp* codonp = nmm_codonp_create(base);
     struct nmm_codon*  codon = nmm_codon_create(base);
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.8));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
-    cass_cond(nmm_codon_set(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codonp_set(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.8));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
+    cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
+    nmm_codonp_set_lprob(codonp, codon, log(0.1));
     struct nmm_codont const* codont = nmm_codont_create(codonp);
     nmm_codonp_destroy(codonp);
 

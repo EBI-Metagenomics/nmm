@@ -118,12 +118,12 @@ double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_se
             for (unsigned i2 = 0; i2 < n; ++i2) {
 
                 struct nmm_triplet triplet = {symbols[i0], symbols[i1], symbols[i2]};
-                nmm_codon_set(tmp, triplet);
+                nmm_codon_set_triplet(tmp, triplet);
                 double lprob = nmm_frame_state_lposterior(state, tmp, seq);
 
                 if (lprob >= max_lprob) {
                     max_lprob = lprob;
-                    nmm_codon_set(codon, triplet);
+                    nmm_codon_set_triplet(codon, triplet);
                 }
             }
         }

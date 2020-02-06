@@ -47,15 +47,15 @@ struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
     return codonp;
 }
 
-int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon,
-                   double const lprob)
+int nmm_codonp_set_lprob(struct nmm_codonp* codonp, struct nmm_codon const* codon,
+                         double const lprob)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
         return 1;
     }
 
-    struct nmm_triplet const triplet = nmm_codon_get(codon);
+    struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
     char const               any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
@@ -69,14 +69,14 @@ int nmm_codonp_set(struct nmm_codonp* codonp, struct nmm_codon const* codon,
     return 0;
 }
 
-double nmm_codonp_get(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
+double nmm_codonp_get_lprob(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
         return imm_lprob_invalid();
     }
 
-    struct nmm_triplet const triplet = nmm_codon_get(codon);
+    struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
     char const               any_symbol = imm_abc_any_symbol(nmm_base_get_abc(codonp->base));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");

@@ -19,7 +19,7 @@ struct nmm_base const* nmm_codon_get_base(struct nmm_codon const* codon)
     return codon->base;
 }
 
-int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
+int nmm_codon_set_triplet(struct nmm_codon* codon, struct nmm_triplet triplet)
 {
     struct imm_abc const* abc = nmm_base_get_abc(codon->base);
 
@@ -39,4 +39,7 @@ int nmm_codon_set(struct nmm_codon* codon, struct nmm_triplet triplet)
     return 0;
 }
 
-struct nmm_triplet nmm_codon_get(struct nmm_codon const* codon) { return codon_get(codon); }
+struct nmm_triplet nmm_codon_get_triplet(struct nmm_codon const* codon)
+{
+    return codon_get(codon);
+}
