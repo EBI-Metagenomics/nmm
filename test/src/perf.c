@@ -32,6 +32,7 @@ static struct nmm_codont const* create_codont(struct nmm_base const*   base,
     cass_cond(nmm_codon_set_triplet(codon, triplet) == 0);
     nmm_codonp_set_lprob(codonp, codon, lprob);
     struct nmm_codont const* codont = nmm_codont_create(codonp);
+    nmm_codon_destroy(codon);
     nmm_codonp_destroy(codonp);
     return codont;
 }
@@ -197,6 +198,7 @@ void test_perf_viterbi(void)
     nmm_codont_destroy(E_codont);
     nmm_codont_destroy(J_codont);
     nmm_baset_destroy(baset);
+    nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }
 
