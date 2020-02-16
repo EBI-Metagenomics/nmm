@@ -30,9 +30,9 @@ void test_frame_state1(void)
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.8 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, log(0.8 / 0.9));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.1 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, log(0.1 / 0.9));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -82,9 +82,9 @@ void test_frame_state2(void)
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.8 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, log(0.8 / 0.9));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.1 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, log(0.1 / 0.9));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -153,11 +153,11 @@ void test_frame_state3(void)
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.8) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.8) - log(1.3));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.1) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.1) - log(1.3));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('G', 'T', 'C'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.4) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.4) - log(1.3));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -240,16 +240,16 @@ void test_frame_state_lposterior(void)
     while ((codon_item = cartes_next(codon_iter)) != NULL) {
         nmm_codon_set_triplet(
             codon, (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
-        nmm_codon_lprob_set_lprob(codonp, codon, log(0.001));
+        nmm_codon_lprob_set(codonp, codon, log(0.001));
     }
     cartes_destroy(codon_iter);
 
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, log(0.8));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, log(0.1));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('G', 'T', 'C'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.4));
+    nmm_codon_lprob_set(codonp, codon, log(0.4));
 
     cass_cond(nmm_codon_lprob_normalize(codonp) == 0);
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
@@ -301,11 +301,11 @@ void test_frame_state_decode(void)
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.8) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.8) - log(1.3));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.1) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.1) - log(1.3));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('G', 'T', 'C'));
-    nmm_codon_lprob_set_lprob(codonp, codon, log(0.4) - log(1.3));
+    nmm_codon_lprob_set(codonp, codon, log(0.4) - log(1.3));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 

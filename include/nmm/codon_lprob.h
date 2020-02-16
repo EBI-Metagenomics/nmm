@@ -16,10 +16,10 @@ struct nmm_codon;
 struct nmm_codon_lprob;
 
 NMM_API struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base const* base);
-NMM_API int                     nmm_codon_lprob_set_lprob(struct nmm_codon_lprob* codonp,
-                                                          struct nmm_codon const* codon, double lprob);
-NMM_API double                 nmm_codon_lprob_get_lprob(struct nmm_codon_lprob const* codonp,
-                                                         struct nmm_codon const*       codon);
+NMM_API int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
+                                double lprob);
+NMM_API double                 nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
+                                                   struct nmm_codon const*       codon);
 NMM_API int                    nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp);
 NMM_API void                   nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp);
 NMM_API struct nmm_base const* nmm_codon_lprob_get_base(struct nmm_codon_lprob const* codonp);

@@ -1,9 +1,9 @@
+#include "nmm/codon_lprob.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/array.h"
 #include "nmm/base.h"
 #include "nmm/codon.h"
-#include "nmm/codon_lprob.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -47,8 +47,8 @@ struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base const* base)
     return codonp;
 }
 
-int nmm_codon_lprob_set_lprob(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
-                              double const lprob)
+int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
+                        double const lprob)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
@@ -69,8 +69,8 @@ int nmm_codon_lprob_set_lprob(struct nmm_codon_lprob* codonp, struct nmm_codon c
     return 0;
 }
 
-double nmm_codon_lprob_get_lprob(struct nmm_codon_lprob const* codonp,
-                                 struct nmm_codon const*       codon)
+double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
+                           struct nmm_codon const*       codon)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
