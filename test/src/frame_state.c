@@ -22,10 +22,10 @@ int main(void)
 
 void test_frame_state1(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.25), log(0.25), log(0.25), log(0.25));
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.25), log(0.25), log(0.25), log(0.25));
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -66,7 +66,7 @@ void test_frame_state1(void)
 
     nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
@@ -74,10 +74,10 @@ void test_frame_state1(void)
 
 void test_frame_state2(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -137,7 +137,7 @@ void test_frame_state2(void)
 
     nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
@@ -145,10 +145,10 @@ void test_frame_state2(void)
 
 void test_frame_state3(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -215,7 +215,7 @@ void test_frame_state3(void)
 
     nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
@@ -223,10 +223,10 @@ void test_frame_state3(void)
 
 void test_frame_state_lposterior(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
     char const* symbols = imm_abc_symbols(abc);
     int         length = imm_abc_length(abc);
@@ -285,7 +285,7 @@ void test_frame_state_lposterior(void)
 
     nmm_base_destroy(base);
     nmm_frame_state_destroy(state);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     imm_abc_destroy(abc);
     nmm_codon_destroy(codon);
@@ -293,10 +293,10 @@ void test_frame_state_lposterior(void)
 
 void test_frame_state_decode(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -373,7 +373,7 @@ void test_frame_state_decode(void)
 
     nmm_base_destroy(base);
     nmm_frame_state_destroy(state);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     imm_abc_destroy(abc);
     nmm_codon_destroy(codon);

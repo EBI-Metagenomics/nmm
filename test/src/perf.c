@@ -43,8 +43,8 @@ void test_perf_viterbi(void)
     double const            epsilon = 0.01;
     struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
     struct nmm_base const*  base = nmm_base_create(abc);
-    struct nmm_baset const* baset =
-        nmm_baset_create(base, log(0.25), log(0.25), log(0.45), log(0.05));
+    struct nmm_base_table const* baset =
+        nmm_base_table_create(base, log(0.25), log(0.25), log(0.45), log(0.05));
 
     struct nmm_codon_table const* M_codont =
         create_codont(base, NMM_TRIPLET('A', 'C', 'G'), log(100.0));
@@ -197,7 +197,7 @@ void test_perf_viterbi(void)
     nmm_codon_table_destroy(B_codont);
     nmm_codon_table_destroy(E_codont);
     nmm_codon_table_destroy(J_codont);
-    nmm_baset_destroy(baset);
+    nmm_base_table_destroy(baset);
     nmm_base_destroy(base);
     imm_abc_destroy(abc);
 }

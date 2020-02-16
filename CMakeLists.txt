@@ -13,7 +13,7 @@ endif()
 
 add_library(nmm
     src/base.c
-    src/baset.c
+    src/base_table.c
     src/codon.c
     src/codon_lprob.c
     src/codon_table.c

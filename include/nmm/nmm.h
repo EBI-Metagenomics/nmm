@@ -7,7 +7,7 @@ extern "C"
 #endif
 
 #include "nmm/base.h"
-#include "nmm/baset.h"
+#include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_lprob.h"
 #include "nmm/codon_table.h"

@@ -1,9 +1,8 @@
 #include "nmm/frame_state.h"
 #include "array_size.h"
-#include "baset_static.h"
 #include "free.h"
 #include "nmm/base.h"
-#include "nmm/baset.h"
+#include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
 #include <math.h>
@@ -13,7 +12,7 @@
 struct nmm_frame_state
 {
     struct imm_state const*       interface;
-    struct nmm_baset const*       baset;
+    struct nmm_base_table const*  baset;
     struct nmm_codon_table const* codont;
     double                        epsilon;
     double                        leps;
@@ -49,7 +48,7 @@ static double        lprob_frag_given_codon5(struct nmm_frame_state const* state
                                              struct nmm_codon const*       ccode);
 static inline double base_lprob(struct nmm_frame_state const* state, char id)
 {
-    return nmm_baset_lprob(state->baset, id);
+    return nmm_base_table_lprob(state->baset, id);
 }
 static inline double logaddexp3(double const a, double const b, double const c)
 {
@@ -66,13 +65,13 @@ static inline struct nmm_codon const* codon_set(struct nmm_codon* codon, char a,
 }
 
 struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
-                                                     struct nmm_baset const*       baset,
+                                                     struct nmm_base_table const*  baset,
                                                      struct nmm_codon_table const* codont,
                                                      double const                  epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (baset_get_base(baset) != nmm_codon_table_get_base(codont)) {
+    if (nmm_base_table_get_base(baset) != nmm_codon_table_get_base(codont)) {
         free_c(state);
         return NULL;
     }
@@ -83,13 +82,13 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
-    state->any_symbol = imm_abc_any_symbol(nmm_base_get_abc(baset_get_base(baset)));
+    state->any_symbol = imm_abc_any_symbol(nmm_base_get_abc(nmm_base_table_get_base(baset)));
 
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
 
-    state->interface =
-        imm_state_create(name, nmm_base_get_abc(baset_get_base(baset)), funcs, state);
+    state->interface = imm_state_create(
+        name, nmm_base_get_abc(nmm_base_table_get_base(baset)), funcs, state);
     return state;
 }
 
@@ -174,7 +173,7 @@ static unsigned frame_state_max_seq(struct imm_state const* state) { return 5; }
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
     char const _ = state->any_symbol;
-    NMM_CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_table_get_base(state->baset));
 
     double const c = 2 * state->leps + 2 * state->l1eps;
 
@@ -193,7 +192,7 @@ static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_table_get_base(state->baset));
 
     double const b_lp0 = base_lprob(state, str[0]);
     double const b_lp1 = base_lprob(state, str[1]);
@@ -216,7 +215,7 @@ static double joint_seq_len3(struct nmm_frame_state const* state, struct imm_seq
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_table_get_base(state->baset));
 
     double const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                         base_lprob(state, str[2])};
@@ -244,7 +243,7 @@ static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], str[3], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_table_get_base(state->baset));
 
     double const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                         base_lprob(state, str[2]), base_lprob(state, str[3])};
@@ -271,7 +270,7 @@ static double joint_seq_len5(struct nmm_frame_state const* state, struct imm_seq
 #define LPROB(codon) nmm_codon_table_lprob(state->codont, codon)
 #define C(a, b, c) codon_set(&codon, str[a], str[b], str[c])
     char const* str = imm_seq_string(seq);
-    NMM_CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_table_get_base(state->baset));
 
     double const b_lp0 = base_lprob(state, str[0]);
     double const b_lp1 = base_lprob(state, str[1]);

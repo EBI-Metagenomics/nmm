@@ -5,7 +5,7 @@ function(nmm_add_test name)
 endfunction()
 
 nmm_add_test(base)
-nmm_add_test(baset)
+nmm_add_test(base_table)
 nmm_add_test(codon)
 nmm_add_test(codon_lprob)
 nmm_add_test(codon_table)
