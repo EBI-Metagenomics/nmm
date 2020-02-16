@@ -1,7 +1,7 @@
 #include "nmm/frame_state.h"
-#include "array_size.h"
 #include "free.h"
-#include "nmm/base.h"
+#include "nmm/array_size.h"
+#include "nmm/base_abc.h"
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
@@ -82,13 +82,13 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
-    state->any_symbol = imm_abc_any_symbol(nmm_base_get_abc(nmm_base_table_get_base(baset)));
+    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_cast(nmm_base_table_get_base(baset)));
 
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
                                     frame_state_max_seq};
 
     state->interface = imm_state_create(
-        name, nmm_base_get_abc(nmm_base_table_get_base(baset)), funcs, state);
+        name, nmm_base_abc_cast(nmm_base_table_get_base(baset)), funcs, state);
     return state;
 }
 
@@ -115,7 +115,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
                               struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(nmm_codon_table_get_base(state->codont));
+    struct imm_abc const* abc = nmm_base_abc_cast(nmm_codon_table_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     unsigned const        n = imm_abc_length(abc);
 
@@ -383,7 +383,7 @@ static double lprob_frag_given_codon3(struct nmm_frame_state const* state,
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
-    return imm_lprob_sum(v, ARRAY_SIZE(v));
+    return imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
 }
 
 static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
@@ -433,8 +433,8 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
         log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return logaddexp(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, ARRAY_SIZE(v0)),
-                     3 * loge + log1e - log(9) + imm_lprob_sum(v1, ARRAY_SIZE(v1)));
+    return logaddexp(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, NMM_ARRAY_SIZE(v0)),
+                     3 * loge + log1e - log(9) + imm_lprob_sum(v1, NMM_ARRAY_SIZE(v1)));
 }
 
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
@@ -473,5 +473,5 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
         lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
     };
 
-    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, ARRAY_SIZE(v));
+    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
 }

@@ -21,9 +21,9 @@ static inline char*                   fmt_name(char* restrict buffer, char const
     return buffer;
 }
 
-struct nmm_codon_lprob* create_codonp(struct nmm_base const* base);
+struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
-static struct nmm_codon_table const* create_codont(struct nmm_base const*   base,
+static struct nmm_codon_table const* create_codont(struct nmm_base_abc const*   base,
                                                    struct nmm_triplet const triplet,
                                                    double const             lprob)
 {
@@ -42,7 +42,7 @@ void test_perf_viterbi(void)
     unsigned const          ncore_nodes = 1000;
     double const            epsilon = 0.01;
     struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*  base = nmm_base_create(abc);
+    struct nmm_base_abc const*  base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.45), log(0.05));
 
@@ -198,11 +198,11 @@ void test_perf_viterbi(void)
     nmm_codon_table_destroy(E_codont);
     nmm_codon_table_destroy(J_codont);
     nmm_base_table_destroy(baset);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
 }
 
-struct nmm_codon_lprob* create_codonp(struct nmm_base const* base)
+struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)
 {
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);

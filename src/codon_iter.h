@@ -8,26 +8,26 @@
 
 struct codon_iter
 {
-    struct nmm_base const* base;
-    char const*            bases;
-    int                    pos;
+    struct nmm_base_abc const* base_abc;
+    char const*                bases;
+    int                        pos;
 };
 
-static inline struct codon_iter codon_iter_begin(struct nmm_base const* base)
+static inline struct codon_iter codon_iter_begin(struct nmm_base_abc const* base)
 {
-    char const* bases = imm_abc_symbols(nmm_base_get_abc(base));
+    char const* bases = imm_abc_symbols(nmm_base_abc_cast(base));
     return (struct codon_iter){base, bases, 0};
 }
 
 static inline struct nmm_codon codon_iter_next(struct codon_iter* iter)
 {
-    int a = (iter->pos / (NMM_BASE_SIZE * NMM_BASE_SIZE)) % NMM_BASE_SIZE;
-    int b = (iter->pos / NMM_BASE_SIZE) % NMM_BASE_SIZE;
-    int c = iter->pos % NMM_BASE_SIZE;
+    int a = (iter->pos / (NMM_BASE_ABC_SIZE * NMM_BASE_ABC_SIZE)) % NMM_BASE_ABC_SIZE;
+    int b = (iter->pos / NMM_BASE_ABC_SIZE) % NMM_BASE_ABC_SIZE;
+    int c = iter->pos % NMM_BASE_ABC_SIZE;
     iter->pos++;
 
     struct nmm_triplet t = {iter->bases[a], iter->bases[b], iter->bases[c]};
-    NMM_CODON_DECL(codon, iter->base);
+    NMM_CODON_DECL(codon, iter->base_abc);
     nmm_codon_set_triplet(&codon, t);
 
     return codon;
@@ -35,7 +35,7 @@ static inline struct nmm_codon codon_iter_next(struct codon_iter* iter)
 
 static inline bool codon_iter_end(struct codon_iter const iter)
 {
-    return iter.pos >= NMM_BASE_SIZE * NMM_BASE_SIZE * NMM_BASE_SIZE;
+    return iter.pos >= NMM_BASE_ABC_SIZE * NMM_BASE_ABC_SIZE * NMM_BASE_ABC_SIZE;
 }
 
 #endif

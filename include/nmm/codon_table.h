@@ -19,7 +19,7 @@ struct nmm_codon_lprob;
 
 struct nmm_codon_table
 {
-    struct nmm_base const* base;
+    struct nmm_base_abc const* base_abc;
     /**
      * Maps alphabet symbols to the indices 0, 1, 2, and 3 and the any-symbol to 4.
      */
@@ -63,10 +63,10 @@ NMM_API static inline double nmm_codon_table_lprob(struct nmm_codon_table const*
 
 NMM_API void nmm_codon_table_destroy(struct nmm_codon_table const* codont);
 
-NMM_API static inline struct nmm_base const* nmm_codon_table_get_base(
+NMM_API static inline struct nmm_base_abc const* nmm_codon_table_get_base(
     struct nmm_codon_table const* codont)
 {
-    return codont->base;
+    return codont->base_abc;
 }
 
 #endif

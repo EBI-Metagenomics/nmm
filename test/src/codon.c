@@ -12,8 +12,8 @@ int main(void)
 
 void test_codon(void)
 {
-    struct imm_abc const*  abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const* base = nmm_base_create(abc);
+    struct imm_abc const*      abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base_abc const* base = nmm_base_abc_create(abc);
 
     struct nmm_codon* codon = nmm_codon_create(base);
 
@@ -28,6 +28,6 @@ void test_codon(void)
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'L')) == 1);
 
     nmm_codon_destroy(codon);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
 }

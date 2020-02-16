@@ -23,7 +23,7 @@ int main(void)
 void test_frame_state1(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.25), log(0.25));
 
@@ -68,14 +68,14 @@ void test_frame_state1(void)
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
 }
 
 void test_frame_state2(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -139,14 +139,14 @@ void test_frame_state2(void)
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
 }
 
 void test_frame_state3(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -217,14 +217,14 @@ void test_frame_state3(void)
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
 }
 
 void test_frame_state_lposterior(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -283,7 +283,7 @@ void test_frame_state_lposterior(void)
     }
     cartes_destroy(codon_iter);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
@@ -294,7 +294,7 @@ void test_frame_state_lposterior(void)
 void test_frame_state_decode(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -371,7 +371,7 @@ void test_frame_state_decode(void)
     t = nmm_codon_get_triplet(codon);
     cass_cond(t.a == 'G' && t.b == 'T' && t.c == 'C');
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);

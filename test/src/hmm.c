@@ -28,7 +28,7 @@ static inline struct imm_state const* cast_c(void const* s) { return imm_state_c
 void test_hmm_frame_state_0eps(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -70,7 +70,7 @@ void test_hmm_frame_state_0eps(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -82,7 +82,7 @@ void test_hmm_frame_state_0eps(void)
 void test_hmm_frame_state_len1(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -132,7 +132,7 @@ void test_hmm_frame_state_len1(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -144,7 +144,7 @@ void test_hmm_frame_state_len1(void)
 void test_hmm_frame_state_len2(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -222,7 +222,7 @@ void test_hmm_frame_state_len2(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -234,7 +234,7 @@ void test_hmm_frame_state_len2(void)
 void test_hmm_frame_state_len3(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -284,7 +284,7 @@ void test_hmm_frame_state_len3(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -296,7 +296,7 @@ void test_hmm_frame_state_len3(void)
 void test_hmm_frame_state_len4(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -332,7 +332,7 @@ void test_hmm_frame_state_len4(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
@@ -344,7 +344,7 @@ void test_hmm_frame_state_len4(void)
 void test_hmm_frame_state_len5(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*       base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -394,7 +394,7 @@ void test_hmm_frame_state_len5(void)
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);

@@ -13,7 +13,7 @@ int main(void)
 void test_baset(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base const*       base = nmm_base_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(8), log(1), zero, log(3));
@@ -25,6 +25,6 @@ void test_baset(void)
     cass_cond(!imm_lprob_is_valid(nmm_base_table_lprob(baset, 'X')));
 
     imm_abc_destroy(abc);
-    nmm_base_destroy(base);
+    nmm_base_abc_destroy(base);
     nmm_base_table_destroy(baset);
 }

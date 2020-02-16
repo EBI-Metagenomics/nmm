@@ -3,19 +3,20 @@
 #include "free.h"
 #include "imm/imm.h"
 #include "logaddexp.h"
-#include "nmm/base.h"
+#include "nmm/base_abc.h"
 #include "nmm/codon_lprob.h"
 #include <stdlib.h>
 
 /**
  * Number of bases (four) plus the special any-symbol one.
  */
-#define NSYMBOLS (NMM_BASE_SIZE + 1)
+#define NSYMBOLS (NMM_BASE_ABC_SIZE + 1)
 
 static void set_symbol_index(struct nmm_codon_table* codont);
 static int  set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
                                    struct nmm_codon_lprob const* codonp);
-static void set_marginal_lprobs(struct nmm_codon_table* codont, struct nmm_base const* base);
+static void set_marginal_lprobs(struct nmm_codon_table*    codont,
+                                struct nmm_base_abc const* base_abc);
 
 static double marginalization(struct nmm_codon_table const* codont, char const* symbols,
                               struct nmm_codon const* codon);
@@ -29,7 +30,7 @@ static inline int not_marginal(struct nmm_codon const* codon, char const any_sym
 struct nmm_codon_table const* nmm_codon_table_create(struct nmm_codon_lprob const* codonp)
 {
     struct nmm_codon_table* codont = malloc(sizeof(struct nmm_codon_table));
-    codont->base = nmm_codon_lprob_get_base(codonp);
+    codont->base_abc = nmm_codon_lprob_get_base_abc(codonp);
 
     set_symbol_index(codont);
 
@@ -41,7 +42,7 @@ struct nmm_codon_table const* nmm_codon_table_create(struct nmm_codon_lprob cons
         return NULL;
     }
 
-    set_marginal_lprobs(codont, codont->base);
+    set_marginal_lprobs(codont, codont->base_abc);
 
     return codont;
 }
@@ -54,16 +55,16 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
 
 static void set_symbol_index(struct nmm_codon_table* codont)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(codont->base);
+    struct imm_abc const* abc = nmm_base_abc_cast(codont->base_abc);
 
     char const* symbols = imm_abc_symbols(abc);
 
-    for (unsigned i = 0; i < NMM_BASE_SIZE; ++i) {
+    for (unsigned i = 0; i < NMM_BASE_ABC_SIZE; ++i) {
         size_t j = (size_t)symbols[i];
         codont->symbol_idx[j] = (unsigned)imm_abc_symbol_idx(abc, symbols[i]);
     }
 
-    codont->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_SIZE;
+    codont->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_ABC_SIZE;
 }
 
 static inline void set_marginal_lprob(struct nmm_codon_table* codont,
@@ -75,7 +76,7 @@ static inline void set_marginal_lprob(struct nmm_codon_table* codont,
 static int set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
                                   struct nmm_codon_lprob const* codonp)
 {
-    struct codon_iter iter = codon_iter_begin(codont->base);
+    struct codon_iter iter = codon_iter_begin(codont->base_abc);
     while (!codon_iter_end(iter)) {
         struct nmm_codon const codon = codon_iter_next(&iter);
         set_marginal_lprob(codont, &codon, nmm_codon_lprob_get(codonp, &codon));
@@ -83,15 +84,16 @@ static int set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
     return 0;
 }
 
-static void set_marginal_lprobs(struct nmm_codon_table* codont, struct nmm_base const* base)
+static void set_marginal_lprobs(struct nmm_codon_table*    codont,
+                                struct nmm_base_abc const* base_abc)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(base);
+    struct imm_abc const* abc = nmm_base_abc_cast(base_abc);
     char const            any_symbol = imm_abc_any_symbol(abc);
     char const            symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
                              imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3),
                              any_symbol};
 
-    struct nmm_codon* codon = nmm_codon_create(base);
+    struct nmm_codon* codon = nmm_codon_create(base_abc);
 
     for (unsigned i0 = 0; i0 < NSYMBOLS; ++i0) {
         for (unsigned i1 = 0; i1 < NSYMBOLS; ++i1) {
@@ -124,7 +126,7 @@ static double marginalization(struct nmm_codon_table const* codont, char const* 
     for (unsigned i = 0; i < 3; ++i) {
         if (seq[i] == any_symbol) {
             arr[i] = symbols;
-            shape[i] = NMM_BASE_SIZE;
+            shape[i] = NMM_BASE_ABC_SIZE;
         } else {
             arr[i] = seq + i;
             shape[i] = 1;
