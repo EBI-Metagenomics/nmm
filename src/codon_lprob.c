@@ -1,9 +1,9 @@
-#include "nmm/codonp.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/array.h"
 #include "nmm/base.h"
 #include "nmm/codon.h"
+#include "nmm/codon_lprob.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -14,7 +14,7 @@
  * This modules implements the computation of p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
  */
 
-struct nmm_codonp
+struct nmm_codon_lprob
 {
     struct nmm_base const* base;
     /**
@@ -36,9 +36,9 @@ static inline struct nmm_array3d_idx triplet_index(struct imm_abc const*    abc,
                                     (unsigned)imm_abc_symbol_idx(abc, triplet.c)};
 }
 
-struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
+struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base const* base)
 {
-    struct nmm_codonp* codonp = malloc(sizeof(struct nmm_codonp));
+    struct nmm_codon_lprob* codonp = malloc(sizeof(struct nmm_codon_lprob));
     codonp->base = base;
 
     codonp->lprobs = nmm_array3d_create(NMM_BASE_SIZE, NMM_BASE_SIZE, NMM_BASE_SIZE);
@@ -47,8 +47,8 @@ struct nmm_codonp* nmm_codonp_create(struct nmm_base const* base)
     return codonp;
 }
 
-int nmm_codonp_set_lprob(struct nmm_codonp* codonp, struct nmm_codon const* codon,
-                         double const lprob)
+int nmm_codon_lprob_set_lprob(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
+                              double const lprob)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
@@ -69,7 +69,8 @@ int nmm_codonp_set_lprob(struct nmm_codonp* codonp, struct nmm_codon const* codo
     return 0;
 }
 
-double nmm_codonp_get_lprob(struct nmm_codonp const* codonp, struct nmm_codon const* codon)
+double nmm_codon_lprob_get_lprob(struct nmm_codon_lprob const* codonp,
+                                 struct nmm_codon const*       codon)
 {
     if (codonp->base != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
@@ -88,18 +89,18 @@ double nmm_codonp_get_lprob(struct nmm_codonp const* codonp, struct nmm_codon co
     return nmm_array3d_get(&codonp->lprobs, idx);
 }
 
-int nmm_codonp_normalize(struct nmm_codonp* codonp)
+int nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp)
 {
     return nmm_array3d_normalize(&codonp->lprobs);
 }
 
-void nmm_codonp_destroy(struct nmm_codonp const* codonp)
+void nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp)
 {
     nmm_array3d_destroy(codonp->lprobs);
     free_c(codonp);
 }
 
-struct nmm_base const* nmm_codonp_get_base(struct nmm_codonp const* codonp)
+struct nmm_base const* nmm_codon_lprob_get_base(struct nmm_codon_lprob const* codonp)
 {
     return codonp->base;
 }

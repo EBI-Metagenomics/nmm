@@ -15,8 +15,8 @@ add_library(nmm
     src/base.c
     src/baset.c
     src/codon.c
-    src/codonp.c
-    src/codont.c
+    src/codon_lprob.c
+    src/codon_table.c
     src/frame_state.c
 )
 add_library(NMM::nmm ALIAS nmm)

@@ -9,8 +9,8 @@ extern "C"
 #include "nmm/base.h"
 #include "nmm/baset.h"
 #include "nmm/codon.h"
-#include "nmm/codonp.h"
-#include "nmm/codont.h"
+#include "nmm/codon_lprob.h"
+#include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
 
 #ifdef __cplusplus
