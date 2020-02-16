@@ -1,7 +1,6 @@
 #ifndef NMM_CODON_ITER_H
 #define NMM_CODON_ITER_H
 
-#include "codon_static.h"
 #include "imm/imm.h"
 #include "nmm/base.h"
 #include "nmm/codon.h"
@@ -28,7 +27,7 @@ static inline struct nmm_codon codon_iter_next(struct codon_iter* iter)
     iter->pos++;
 
     struct nmm_triplet t = {iter->bases[a], iter->bases[b], iter->bases[c]};
-    CODON_DECL(codon, iter->base);
+    NMM_CODON_DECL(codon, iter->base);
     nmm_codon_set_triplet(&codon, t);
 
     return codon;

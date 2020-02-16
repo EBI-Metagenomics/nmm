@@ -1,6 +1,5 @@
 #include "nmm/codont.h"
 #include "codon_iter.h"
-#include "codont_static.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "logaddexp.h"
@@ -33,10 +32,10 @@ struct nmm_codont const* nmm_codont_create(struct nmm_codonp const* codonp)
 
     set_symbol_index(codont);
 
-    codont->lprobs = array3d_create(NSYMBOLS, NSYMBOLS, NSYMBOLS);
+    codont->lprobs = nmm_array3d_create(NSYMBOLS, NSYMBOLS, NSYMBOLS);
 
     if (set_nonmarginal_lprobs(codont, codonp)) {
-        array3d_destroy(codont->lprobs);
+        nmm_array3d_destroy(codont->lprobs);
         free_c(codont);
         return NULL;
     }
@@ -46,32 +45,10 @@ struct nmm_codont const* nmm_codont_create(struct nmm_codonp const* codonp)
     return codont;
 }
 
-/**
- * Calculate any of the marginalization forms of
- * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
- *
- * The alphabet's any-symbol can be passed to @codon to perform marginalization over
- * the corresponding random variable. Let `"ACGT"` be set of nucleotides and let `'X`'
- * be the any-symbol of the given alphabet. The code
- *
- *     codon_lprob_get(codon_lprob, "AXG")
- *
- * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
- */
-double nmm_codont_lprob(struct nmm_codont const* codont, struct nmm_codon const* codon)
-{
-    return codont_lprob(codont, codon);
-}
-
 void nmm_codont_destroy(struct nmm_codont const* codont)
 {
-    array3d_destroy(codont->lprobs);
+    nmm_array3d_destroy(codont->lprobs);
     free_c(codont);
-}
-
-struct nmm_base const* nmm_codont_get_base(struct nmm_codont const* codont)
-{
-    return codont_get_base(codont);
 }
 
 static void set_symbol_index(struct nmm_codont* codont)
@@ -91,7 +68,7 @@ static void set_symbol_index(struct nmm_codont* codont)
 static inline void set_marginal_lprob(struct nmm_codont*      codont,
                                       struct nmm_codon const* codon, double lprob)
 {
-    array3d_set(&codont->lprobs, codont_get_array_idx(codont, codon), lprob);
+    nmm_array3d_set(&codont->lprobs, __nmm_codont_get_array_idx(codont, codon), lprob);
 }
 
 static int set_nonmarginal_lprobs(struct nmm_codont* codont, struct nmm_codonp const* codonp)

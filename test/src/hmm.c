@@ -408,7 +408,7 @@ double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
 {
     struct imm_results const* results = imm_hmm_viterbi(hmm, seq, end_state, 0);
     if (results == NULL)
-        return IMM_LPROB_INVALID;
+        return imm_lprob_invalid();
     struct imm_result const* r = imm_results_get(results, 0);
 
     struct imm_path const* src = imm_result_path(r);

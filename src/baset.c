@@ -1,8 +1,6 @@
 #include "nmm/baset.h"
 #include "array_size.h"
-#include "base_static.h"
 #include "baset_static.h"
-#include "bug.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/base.h"
@@ -22,13 +20,13 @@ struct nmm_baset const* nmm_baset_create(struct nmm_base const* base, double con
 
 double nmm_baset_lprob(struct nmm_baset const* baset, char const nucleotide)
 {
-    int idx = imm_abc_symbol_idx(base_get_abc(baset->base), nucleotide);
+    int idx = imm_abc_symbol_idx(nmm_base_get_abc(baset->base), nucleotide);
     if (idx < 0) {
         imm_error("nucleotide not found");
         return imm_lprob_invalid();
     }
     size_t i = (size_t)idx;
-    BUG(i >= ARRAY_SIZE(baset->lprobs));
+    IMM_BUG(i >= ARRAY_SIZE(baset->lprobs));
     return baset->lprobs[i];
 }
 

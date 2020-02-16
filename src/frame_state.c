@@ -1,10 +1,11 @@
+#include "nmm/frame_state.h"
 #include "array_size.h"
 #include "baset_static.h"
-#include "codon_static.h"
-#include "codont_static.h"
 #include "free.h"
-#include "logsumexp.h"
-#include "nmm/nmm.h"
+#include "nmm/base.h"
+#include "nmm/baset.h"
+#include "nmm/codon.h"
+#include "nmm/codont.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +56,15 @@ static inline double logaddexp3(double const a, double const b, double const c)
     return logaddexp(logaddexp(a, b), c);
 }
 
+static inline struct nmm_codon const* codon_set(struct nmm_codon* codon, char a, char b,
+                                                char c)
+{
+    codon->a = a;
+    codon->b = b;
+    codon->c = c;
+    return codon;
+}
+
 struct nmm_frame_state const* nmm_frame_state_create(char const*              name,
                                                      struct nmm_baset const*  baset,
                                                      struct nmm_codont const* codont,
@@ -62,7 +72,7 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*              na
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (baset_get_base(baset) != codont_get_base(codont)) {
+    if (baset_get_base(baset) != nmm_codont_get_base(codont)) {
         free_c(state);
         return NULL;
     }
@@ -100,18 +110,18 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
     else if (length == 5)
         lprob = lprob_frag_given_codon5(state, seq, codon);
 
-    return lprob + codont_lprob(state->codont, codon);
+    return lprob + nmm_codont_lprob(state->codont, codon);
 }
 
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
                               struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_base_get_abc(codont_get_base(state->codont));
+    struct imm_abc const* abc = nmm_base_get_abc(nmm_codont_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     unsigned const        n = imm_abc_length(abc);
 
     double            max_lprob = state->zero_lprob;
-    struct nmm_codon* tmp = nmm_codon_create(codont_get_base(state->codont));
+    struct nmm_codon* tmp = nmm_codon_create(nmm_codont_get_base(state->codont));
 
     for (unsigned i0 = 0; i0 < n; ++i0) {
         for (unsigned i1 = 0; i1 < n; ++i1) {
@@ -164,25 +174,25 @@ static unsigned frame_state_max_seq(struct imm_state const* state) { return 5; }
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
     char const _ = state->any_symbol;
-    CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, baset_get_base(state->baset));
 
     double const c = 2 * state->leps + 2 * state->l1eps;
 
     char const   nucl = imm_seq_string(seq)[0];
-    double const e0 = codont_lprob(state->codont, codon_set(&codon, nucl, _, _));
-    double const e1 = codont_lprob(state->codont, codon_set(&codon, _, nucl, _));
-    double const e2 = codont_lprob(state->codont, codon_set(&codon, _, _, nucl));
+    double const e0 = nmm_codont_lprob(state->codont, codon_set(&codon, nucl, _, _));
+    double const e1 = nmm_codont_lprob(state->codont, codon_set(&codon, _, nucl, _));
+    double const e2 = nmm_codont_lprob(state->codont, codon_set(&codon, _, _, nucl));
 
     return c + logaddexp3(e0, e1, e2) - log(3);
 }
 
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, baset_get_base(state->baset));
 
     double const b_lp0 = base_lprob(state, str[0]);
     double const b_lp1 = base_lprob(state, str[1]);
@@ -200,11 +210,11 @@ static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq
 
 static double joint_seq_len3(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, baset_get_base(state->baset));
 
     double const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                         base_lprob(state, str[2])};
@@ -221,17 +231,17 @@ static double joint_seq_len3(struct nmm_frame_state const* state, struct imm_seq
                          logaddexp3(C(1, _, _), C(_, 1, _), C(_, _, 1)) + B[0] + B[2],
                          logaddexp3(C(0, _, _), C(_, 0, _), C(_, _, 0)) + B[1] + B[2]};
 
-    return logaddexp3(v0, c1 + logsumexp(v1, 3), c2 + logsumexp(v2, 3));
+    return logaddexp3(v0, c1 + imm_lprob_sum(v1, 3), c2 + imm_lprob_sum(v2, 3));
 #undef C
 }
 
 static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define C(a, b, c) codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
+#define C(a, b, c) nmm_codont_lprob(state->codont, codon_set(&codon, eseq[a], eseq[b], eseq[c]))
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], str[3], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, baset_get_base(state->baset));
 
     double const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                         base_lprob(state, str[2]), base_lprob(state, str[3])};
@@ -249,16 +259,16 @@ static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq
         C(2, 3, _) + B[0] + B[1], C(1, 3, _) + B[0] + B[2], C(1, 2, _) + B[0] + B[3],
         C(0, 3, _) + B[1] + B[2], C(0, 2, _) + B[1] + B[3], C(0, 1, _) + B[2] + B[3]};
 
-    return logaddexp(c0 + logsumexp(v0, 4), c1 + logsumexp(v1, 18));
+    return logaddexp(c0 + imm_lprob_sum(v0, 4), c1 + imm_lprob_sum(v1, 18));
 #undef C
 }
 
 static double joint_seq_len5(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
-#define LPROB(codon) codont_lprob(state->codont, codon)
+#define LPROB(codon) nmm_codont_lprob(state->codont, codon)
 #define C(a, b, c) codon_set(&codon, str[a], str[b], str[c])
     char const* str = imm_seq_string(seq);
-    CODON_DECL(codon, baset_get_base(state->baset));
+    NMM_CODON_DECL(codon, baset_get_base(state->baset));
 
     double const b_lp0 = base_lprob(state, str[0]);
     double const b_lp1 = base_lprob(state, str[1]);
@@ -273,7 +283,7 @@ static double joint_seq_len5(struct nmm_frame_state const* state, struct imm_seq
         logaddexp(b_lp1 + b_lp4 + LPROB(C(0, 2, 3)), b_lp2 + b_lp3 + LPROB(C(0, 1, 4))),
         logaddexp(b_lp2 + b_lp4 + LPROB(C(0, 1, 3)), b_lp3 + b_lp4 + LPROB(C(0, 1, 2)))};
 
-    return 2 * state->leps + 2 * state->l1eps - log(10) + logsumexp(v, 5);
+    return 2 * state->leps + 2 * state->l1eps - log(10) + imm_lprob_sum(v, 5);
 #undef C
 #undef LPROB
 }
@@ -371,7 +381,7 @@ static double lprob_frag_given_codon3(struct nmm_frame_state const* state,
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
-    return logsumexp(v, ARRAY_SIZE(v));
+    return imm_lprob_sum(v, ARRAY_SIZE(v));
 }
 
 static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
@@ -421,8 +431,8 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
         log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return logaddexp(loge + log1e * 3 - log(2) + logsumexp(v0, ARRAY_SIZE(v0)),
-                     3 * loge + log1e - log(9) + logsumexp(v1, ARRAY_SIZE(v1)));
+    return logaddexp(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, ARRAY_SIZE(v0)),
+                     3 * loge + log1e - log(9) + imm_lprob_sum(v1, ARRAY_SIZE(v1)));
 }
 
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
@@ -461,5 +471,5 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
         lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
     };
 
-    return 2 * loge + 2 * log1e - log(10) + logsumexp(v, ARRAY_SIZE(v));
+    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, ARRAY_SIZE(v));
 }
