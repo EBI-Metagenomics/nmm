@@ -32,7 +32,7 @@ NMM_API static inline double nmm_base_table_lprob(struct nmm_base_table const* b
 
 NMM_API void nmm_base_table_destroy(struct nmm_base_table const* baset);
 
-NMM_API static inline struct nmm_base_abc const* nmm_base_table_get_base(
+NMM_API static inline struct nmm_base_abc const* nmm_base_table_get_base_abc(
     struct nmm_base_table const* baset)
 {
     return baset->base_abc;
