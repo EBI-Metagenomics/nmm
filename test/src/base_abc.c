@@ -15,16 +15,16 @@ int main(void)
 void test_base_abc_success(void)
 {
     struct imm_abc const*      abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const* base = nmm_base_abc_create(abc);
-    cass_cond(base != NULL);
-    nmm_base_abc_destroy(base);
+    struct nmm_base_abc const* base_abc = nmm_base_abc_create(abc);
+    cass_cond(base_abc != NULL);
+    nmm_base_abc_destroy(base_abc);
     imm_abc_destroy(abc);
 }
 
 void test_base_abc_failure(void)
 {
     struct imm_abc const*      abc = imm_abc_create("ACT", 'X');
-    struct nmm_base_abc const* base = nmm_base_abc_create(abc);
-    cass_cond(base == NULL);
+    struct nmm_base_abc const* base_abc = nmm_base_abc_create(abc);
+    cass_cond(base_abc == NULL);
     imm_abc_destroy(abc);
 }

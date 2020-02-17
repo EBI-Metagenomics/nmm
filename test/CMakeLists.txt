@@ -4,6 +4,8 @@ function(nmm_add_test name)
     add_test(NAME ${name} COMMAND test_${name})
 endfunction()
 
+nmm_add_test(amino_abc)
+nmm_add_test(amino_table)
 nmm_add_test(base_abc)
 nmm_add_test(base_table)
 nmm_add_test(codon)

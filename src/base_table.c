@@ -7,7 +7,7 @@ struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* ba
                                                    double const c, double const d)
 {
     struct nmm_base_table* baset = malloc(sizeof(struct nmm_base_table));
-    baset->base = base_abc;
+    baset->base_abc = base_abc;
     baset->lprobs[0] = a;
     baset->lprobs[1] = b;
     baset->lprobs[2] = c;

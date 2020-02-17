@@ -10,18 +10,17 @@ struct nmm_base_abc;
 
 struct nmm_base_table
 {
-    struct nmm_base_abc const* base;
-    double                     lprobs[4];
+    struct nmm_base_abc const* base_abc;
+    double                     lprobs[NMM_BASE_ABC_SIZE];
 };
 
-NMM_API struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* base,
-                                                           double a, double b, double c,
-                                                           double d);
+NMM_API struct nmm_base_table const* nmm_base_table_create(
+    struct nmm_base_abc const* base_abc, double a, double b, double c, double d);
 
 NMM_API static inline double nmm_base_table_lprob(struct nmm_base_table const* baset,
                                                   char const                   base)
 {
-    int idx = imm_abc_symbol_idx(nmm_base_abc_cast(baset->base), base);
+    int idx = imm_abc_symbol_idx(nmm_base_abc_cast(baset->base_abc), base);
     if (idx < 0) {
         imm_error("base not found");
         return imm_lprob_invalid();
@@ -36,7 +35,7 @@ NMM_API void nmm_base_table_destroy(struct nmm_base_table const* baset);
 NMM_API static inline struct nmm_base_abc const* nmm_base_table_get_base(
     struct nmm_base_table const* baset)
 {
-    return baset->base;
+    return baset->base_abc;
 }
 
 #endif
