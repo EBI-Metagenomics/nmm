@@ -12,6 +12,7 @@ extern "C"
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_lprob.h"
+#include "nmm/codon_state.h"
 #include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
 

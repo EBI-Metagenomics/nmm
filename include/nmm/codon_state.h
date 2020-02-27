@@ -1,0 +1,13 @@
+#ifndef NMM_CODON_STATE_H
+#define NMM_CODON_STATE_H
+
+#include "nmm/api.h"
+
+struct nmm_codon_lprob;
+struct nmm_codon_state;
+
+NMM_API struct nmm_codon_state const* nmm_codon_state_create(
+    char const* name, struct nmm_codon_lprob const* codonp);
+NMM_API void nmm_codon_state_destroy(struct nmm_codon_state const* state);
+
+#endif

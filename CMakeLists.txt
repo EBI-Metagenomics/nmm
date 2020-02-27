@@ -18,6 +18,7 @@ add_library(nmm
     src/base_table.c
     src/codon.c
     src/codon_lprob.c
+    src/codon_state.c
     src/codon_table.c
     src/frame_state.c
 )
