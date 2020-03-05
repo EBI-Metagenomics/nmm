@@ -2,7 +2,7 @@
 #define NMM_CODON_ITER_H
 
 #include "imm/imm.h"
-#include "nmm/base.h"
+#include "nmm/base_abc.h"
 #include "nmm/codon.h"
 #include <stdbool.h>
 
