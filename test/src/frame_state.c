@@ -229,7 +229,7 @@ void test_frame_state_lposterior(void)
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
     char const* symbols = imm_abc_symbols(abc);
-    int         length = imm_abc_length(abc);
+    unsigned    length = imm_abc_length(abc);
 
     struct cartes* codon_iter = cartes_create(symbols, length, 3);
     char const*    codon_item = NULL;
@@ -264,7 +264,7 @@ void test_frame_state_lposterior(void)
             codon, (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
 
         double total = imm_lprob_zero();
-        for (int times = 1; times < 6; ++times) {
+        for (unsigned times = 1; times < 6; ++times) {
 
             struct cartes* seq_iter = cartes_create(symbols, length, times);
             char const*    seq = NULL;

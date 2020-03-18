@@ -2,7 +2,6 @@
 #include "codon_iter.h"
 #include "free.h"
 #include "imm/imm.h"
-#include "logaddexp.h"
 #include "nmm/base_abc.h"
 #include "nmm/codon_lprob.h"
 #include <stdlib.h>
@@ -143,7 +142,7 @@ static double marginalization(struct nmm_codon_table const* codont, char const* 
                 t.b = arr[1][b];
                 t.c = arr[2][c];
                 nmm_codon_set_triplet(tmp, t);
-                lprob = logaddexp(lprob, nmm_codon_table_lprob(codont, tmp));
+                lprob = imm_lprob_add(lprob, nmm_codon_table_lprob(codont, tmp));
             }
         }
     }

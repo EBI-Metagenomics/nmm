@@ -18,7 +18,6 @@ if(CMAKE_VERSION VERSION_GREATER 3.12.0)
     set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 endif()
 
-find_package(logaddexp REQUIRED)
 find_package(imm REQUIRED)
 
 add_library(nmm
@@ -59,7 +58,6 @@ target_include_directories(nmm
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(nmm PRIVATE LOGADDEXP::logaddexp)
 target_link_libraries(nmm PUBLIC IMM::imm)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})

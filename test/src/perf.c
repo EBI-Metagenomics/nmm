@@ -15,17 +15,17 @@ static inline double                  zero(void) { return imm_lprob_zero(); }
 static inline int                     is_valid(double a) { return imm_lprob_is_valid(a); }
 static inline int                     is_zero(double a) { return imm_lprob_is_zero(a); }
 static inline struct imm_state const* cast_c(void const* s) { return imm_state_cast_c(s); }
-static inline char*                   fmt_name(char* restrict buffer, char const* name, int i)
+static inline char* fmt_name(char* restrict buffer, char const* name, unsigned i)
 {
-    sprintf(buffer, "%s%d", name, i);
+    sprintf(buffer, "%s%u", name, i);
     return buffer;
 }
 
 struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
-static struct nmm_codon_table const* create_codont(struct nmm_base_abc const*   base,
-                                                   struct nmm_triplet const triplet,
-                                                   double const             lprob)
+static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base,
+                                                   struct nmm_triplet const   triplet,
+                                                   double const               lprob)
 {
     struct nmm_codon_lprob* codonp = create_codonp(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -39,10 +39,10 @@ static struct nmm_codon_table const* create_codont(struct nmm_base_abc const*   
 
 void test_perf_viterbi(void)
 {
-    unsigned const          ncore_nodes = 1000;
-    double const            epsilon = 0.01;
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*  base = nmm_base_abc_create(abc);
+    unsigned const               ncore_nodes = 1000;
+    double const                 epsilon = 0.01;
+    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
+    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.45), log(0.05));
 
@@ -82,9 +82,9 @@ void test_perf_viterbi(void)
     imm_hmm_set_trans(hmm, cast_c(J), cast_c(B), log(0.2));
     imm_hmm_set_trans(hmm, cast_c(E), cast_c(end), log(0.2));
 
-    struct nmm_frame_state const* M[ncore_nodes];
-    struct nmm_frame_state const* I[ncore_nodes];
-    struct imm_mute_state const*  D[ncore_nodes];
+    struct nmm_frame_state const** M = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
+    struct nmm_frame_state const** I = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
+    struct imm_mute_state const**  D = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
 
     char name[10] = "\0";
     for (unsigned i = 0; i < ncore_nodes; ++i) {
@@ -169,7 +169,6 @@ void test_perf_viterbi(void)
     elapsed_end(elapsed);
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
-    struct imm_path const*   path = imm_result_path(r);
     double                   score = imm_result_loglik(r);
     cass_cond(is_valid(score) && !is_zero(score));
     cass_close(score, -1641.970511421383435);
@@ -187,7 +186,7 @@ void test_perf_viterbi(void)
     nmm_frame_state_destroy(B);
     nmm_frame_state_destroy(E);
     nmm_frame_state_destroy(J);
-    for (int i = 0; i < ncore_nodes; ++i) {
+    for (unsigned i = 0; i < ncore_nodes; ++i) {
         nmm_frame_state_destroy(M[i]);
         nmm_frame_state_destroy(I[i]);
         imm_mute_state_destroy(D[i]);
@@ -200,6 +199,9 @@ void test_perf_viterbi(void)
     nmm_base_table_destroy(baset);
     nmm_base_abc_destroy(base);
     imm_abc_destroy(abc);
+    free(M);
+    free(I);
+    free(D);
 }
 
 struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)

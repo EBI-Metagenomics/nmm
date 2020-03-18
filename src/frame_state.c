@@ -52,7 +52,7 @@ static inline double base_lprob(struct nmm_frame_state const* state, char id)
 }
 static inline double logaddexp3(double const a, double const b, double const c)
 {
-    return logaddexp(logaddexp(a, b), c);
+    return imm_lprob_add(imm_lprob_add(a, b), c);
 }
 
 static inline struct nmm_codon const* codon_set(struct nmm_codon* codon, char a, char b,
@@ -262,7 +262,7 @@ static double joint_seq_len4(struct nmm_frame_state const* state, struct imm_seq
         C(2, 3, _) + B[0] + B[1], C(1, 3, _) + B[0] + B[2], C(1, 2, _) + B[0] + B[3],
         C(0, 3, _) + B[1] + B[2], C(0, 2, _) + B[1] + B[3], C(0, 1, _) + B[2] + B[3]};
 
-    return logaddexp(c0 + imm_lprob_sum(v0, 4), c1 + imm_lprob_sum(v1, 18));
+    return imm_lprob_add(c0 + imm_lprob_sum(v0, 4), c1 + imm_lprob_sum(v1, 18));
 #undef C
 }
 
@@ -280,11 +280,11 @@ static double joint_seq_len5(struct nmm_frame_state const* state, struct imm_seq
     double const b_lp4 = base_lprob(state, str[4]);
 
     double const v[] = {
-        logaddexp(b_lp0 + b_lp1 + LPROB(C(2, 3, 4)), b_lp0 + b_lp2 + LPROB(C(1, 3, 4))),
-        logaddexp(b_lp0 + b_lp3 + LPROB(C(1, 2, 4)), b_lp0 + b_lp4 + LPROB(C(1, 2, 3))),
-        logaddexp(b_lp1 + b_lp2 + LPROB(C(0, 3, 4)), b_lp1 + b_lp3 + LPROB(C(0, 2, 4))),
-        logaddexp(b_lp1 + b_lp4 + LPROB(C(0, 2, 3)), b_lp2 + b_lp3 + LPROB(C(0, 1, 4))),
-        logaddexp(b_lp2 + b_lp4 + LPROB(C(0, 1, 3)), b_lp3 + b_lp4 + LPROB(C(0, 1, 2)))};
+        imm_lprob_add(b_lp0 + b_lp1 + LPROB(C(2, 3, 4)), b_lp0 + b_lp2 + LPROB(C(1, 3, 4))),
+        imm_lprob_add(b_lp0 + b_lp3 + LPROB(C(1, 2, 4)), b_lp0 + b_lp4 + LPROB(C(1, 2, 3))),
+        imm_lprob_add(b_lp1 + b_lp2 + LPROB(C(0, 3, 4)), b_lp1 + b_lp3 + LPROB(C(0, 2, 4))),
+        imm_lprob_add(b_lp1 + b_lp4 + LPROB(C(0, 2, 3)), b_lp2 + b_lp3 + LPROB(C(0, 1, 4))),
+        imm_lprob_add(b_lp2 + b_lp4 + LPROB(C(0, 1, 3)), b_lp3 + b_lp4 + LPROB(C(0, 1, 2)))};
 
     return 2 * state->leps + 2 * state->l1eps - log(10) + imm_lprob_sum(v, 5);
 #undef C
@@ -434,8 +434,8 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
         log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return logaddexp(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, NMM_ARRAY_SIZE(v0)),
-                     3 * loge + log1e - log(9) + imm_lprob_sum(v1, NMM_ARRAY_SIZE(v1)));
+    return imm_lprob_add(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, NMM_ARRAY_SIZE(v0)),
+                         3 * loge + log1e - log(9) + imm_lprob_sum(v1, NMM_ARRAY_SIZE(v1)));
 }
 
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
