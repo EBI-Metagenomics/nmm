@@ -11,6 +11,16 @@ if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif()
 
+# merge request fix: https://gitlab.kitware.com/cmake/cmake/-/merge_requests/1799
+if(CMAKE_VERSION VERSION_GREATER 3.12.0)
+    # Hide things by default
+    set(CMAKE_C_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+endif()
+
+find_package(logaddexp REQUIRED)
+find_package(imm REQUIRED)
+
 add_library(nmm
     src/amino_abc.c
     src/amino_table.c
@@ -24,13 +34,28 @@ add_library(nmm
 )
 add_library(NMM::nmm ALIAS nmm)
 
-find_package(logaddexp REQUIRED)
-find_package(imm REQUIRED)
+# Write out mytools_export.h to the current binary directory
+# Must include ${CMAKE_CURRENT_BINARY_DIR} in the target's
+# search path.
+include(GenerateExportHeader)
+generate_export_header(nmm BASE_NAME NMM
+    INCLUDE_GUARD_NAME NMM_EXPORT_H
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/nmm/export.h)
+
+add_library(warning INTERFACE)
+add_library(NMM::warning ALIAS warning)
+target_compile_options(warning INTERFACE
+    $<$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>:/W3>
+    $<$<NOT:$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>>:-Wall -Wextra -pedantic
+    -Wstrict-prototypes -Wshadow -Wconversion -Wmissing-prototypes
+    -Wno-unused-parameter -Wsign-conversion>
+)
 
 target_include_directories(nmm
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
@@ -42,19 +67,18 @@ target_compile_features(nmm PRIVATE c_std_11)
 set_target_properties(nmm PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(nmm PROPERTIES DEFINE_SYMBOL "NMM_EXPORTS")
 target_link_libraries(nmm INTERFACE $<$<BOOL:${UNIX}>:m>)
-target_compile_options(nmm PRIVATE
-    $<$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>:/W3 /WX>
-    $<$<NOT:$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>>:-Wall -Wextra -pedantic -Wstrict-prototypes
-        -Wshadow -Wconversion -Wmissing-prototypes -Wno-unused-parameter
-        -Wno-empty-translation-unit>
-)
+target_link_libraries(nmm PRIVATE NMM::warning)
 
 install(TARGETS nmm EXPORT nmm-targets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
 )
 install(DIRECTORY include/ DESTINATION include)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nmm/export.h
+    DESTINATION include/nmm
+)
 install(EXPORT nmm-targets
     FILE nmm-targets.cmake
     NAMESPACE NMM::
