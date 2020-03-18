@@ -60,8 +60,7 @@ notifications:
     on_failure: always
 deploy:
   provider: releases
-  api_key:
-    secure: $GITHUB_API_KEY
+  api_key: $GITHUB_API_KEY
   on:
     tags: true
     repo: EBI-Metagenomics/nmm
