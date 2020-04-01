@@ -22,7 +22,6 @@ void test_base_table(void)
     cass_close(nmm_base_table_lprob(baset, 'C'), log(1));
     cass_cond(imm_lprob_is_zero(nmm_base_table_lprob(baset, 'G')));
     cass_close(nmm_base_table_lprob(baset, 'T'), log(3));
-    cass_cond(!imm_lprob_is_valid(nmm_base_table_lprob(baset, 'X')));
 
     imm_abc_destroy(abc);
     nmm_base_abc_destroy(base_abc);

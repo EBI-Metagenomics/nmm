@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 project(nmm VERSION 0.0.3 LANGUAGES C)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Generate compile_commands.json file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -41,14 +43,13 @@ generate_export_header(nmm BASE_NAME NMM
     INCLUDE_GUARD_NAME NMM_EXPORT_H
     EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/nmm/export.h)
 
-add_library(warning INTERFACE)
-add_library(NMM::warning ALIAS warning)
-target_compile_options(warning INTERFACE
-    $<$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>:/W3>
-    $<$<NOT:$<STREQUAL:${CMAKE_C_COMPILER_ID},MSVC>>:-Wall -Wextra -pedantic
-    -Wstrict-prototypes -Wshadow -Wconversion -Wmissing-prototypes
-    -Wno-unused-parameter -Wsign-conversion>
-)
+if(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+    set(WARNING_FLAGS /W3)
+else()
+    set(WARNING_FLAGS -Wall -Wextra -pedantic -Wstrict-prototypes -Wshadow
+        -Wconversion -Wmissing-prototypes -Wno-unused-parameter -Wsign-conversion
+    )
+endif()
 
 target_include_directories(nmm
     PUBLIC
@@ -65,7 +66,7 @@ target_compile_features(nmm PRIVATE c_std_11)
 set_target_properties(nmm PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(nmm PROPERTIES DEFINE_SYMBOL "NMM_EXPORTS")
 target_link_libraries(nmm INTERFACE $<$<BOOL:${UNIX}>:m>)
-target_link_libraries(nmm PRIVATE NMM::warning)
+target_compile_options(nmm PRIVATE ${WARNING_FLAGS})
 
 install(TARGETS nmm EXPORT nmm-targets
     RUNTIME DESTINATION bin
@@ -94,3 +95,18 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/nmm-config.cmake
 
 enable_testing()
 add_subdirectory(test)
+
+option(COVERAGE "Enable coverage")
+if(COVERAGE)
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+    if(NOT ${uppercase_CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+        message(FATAL_ERROR "CMAKE_BUILD_TYPE must be set to Debug.")
+    endif()
+
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE ctest
+        DEPENDENCIES all_tests)
+endif()

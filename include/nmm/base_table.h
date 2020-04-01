@@ -19,13 +19,7 @@ NMM_EXPORT struct nmm_base_table const* nmm_base_table_create(
 
 static inline double nmm_base_table_lprob(struct nmm_base_table const* baset, char const base)
 {
-    int idx = imm_abc_symbol_idx(nmm_base_abc_cast(baset->base_abc), base);
-    if (idx < 0) {
-        imm_error("base not found");
-        return imm_lprob_invalid();
-    }
-    size_t i = (size_t)idx;
-    IMM_BUG(i >= NMM_ARRAY_SIZE(baset->lprobs));
+    unsigned i = imm_abc_symbol_idx(nmm_base_abc_cast(baset->base_abc), base);
     return baset->lprobs[i];
 }
 

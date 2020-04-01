@@ -20,13 +20,7 @@ NMM_EXPORT struct nmm_amino_table const* nmm_amino_table_create(
 static inline double nmm_amino_table_lprob(struct nmm_amino_table const* aminot,
                                            char const                    amino)
 {
-    int idx = imm_abc_symbol_idx(nmm_amino_abc_cast(aminot->amino_abc), amino);
-    if (idx < 0) {
-        imm_error("amino not found");
-        return imm_lprob_invalid();
-    }
-    size_t i = (size_t)idx;
-    IMM_BUG(i >= NMM_ARRAY_SIZE(aminot->lprobs));
+    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_cast(aminot->amino_abc), amino);
     return aminot->lprobs[i];
 }
 

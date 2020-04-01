@@ -406,7 +406,8 @@ void test_hmm_frame_state_len5(void)
 double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
                       struct imm_state const* end_state, struct imm_path* path)
 {
-    struct imm_results const* results = imm_hmm_viterbi(hmm, seq, end_state, 0);
+    struct imm_dp const* dp = imm_hmm_create_dp(hmm, end_state);
+    struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
     if (results == NULL)
         return imm_lprob_invalid();
     struct imm_result const* r = imm_results_get(results, 0);
@@ -418,6 +419,7 @@ double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
 
     double score = imm_result_loglik(r);
     imm_results_destroy(results);
+    imm_dp_destroy(dp);
 
     return score;
 }
