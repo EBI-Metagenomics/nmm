@@ -1,5 +1,5 @@
-#ifndef NMM_FREE_H
-#define NMM_FREE_H
+#ifndef FREE_H
+#define FREE_H
 
 #include <stdlib.h>
 

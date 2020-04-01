@@ -1,5 +1,5 @@
-#ifndef NMM_CODON_ITER_H
-#define NMM_CODON_ITER_H
+#ifndef CODON_ITER_H
+#define CODON_ITER_H
 
 #include "imm/imm.h"
 #include "nmm/base_abc.h"
