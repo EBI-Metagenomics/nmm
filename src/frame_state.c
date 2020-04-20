@@ -5,6 +5,7 @@
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
+#include "nmm/state_types.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,7 @@ struct nmm_frame_state
 static double   frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
 static unsigned frame_state_min_seq(struct imm_state const* state);
 static unsigned frame_state_max_seq(struct imm_state const* state);
+static int      frame_state_write(struct imm_state const* state, FILE* stream);
 
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq);
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq);
@@ -86,10 +88,11 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
         imm_abc_any_symbol(nmm_base_abc_cast(nmm_base_table_get_base_abc(baset)));
 
     struct imm_state_funcs funcs = {frame_state_lprob, frame_state_min_seq,
-                                    frame_state_max_seq};
+                                    frame_state_max_seq, frame_state_write};
 
-    state->interface = imm_state_create(
-        name, nmm_base_abc_cast(nmm_base_table_get_base_abc(baset)), funcs, state);
+    state->interface =
+        imm_state_create(name, nmm_base_abc_cast(nmm_base_table_get_base_abc(baset)), funcs,
+                         NMM_FRAME_STATE_TYPE_ID, state);
     return state;
 }
 
@@ -150,7 +153,7 @@ void nmm_frame_state_destroy(struct nmm_frame_state const* state)
 
 static double frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
-    struct nmm_frame_state const* s = imm_state_get_impl_c(state);
+    struct nmm_frame_state const* s = imm_state_get_impl(state);
     unsigned                      length = imm_seq_length(seq);
 
     if (length == 1)
@@ -476,3 +479,5 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
 
     return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
 }
+
+static int frame_state_write(struct imm_state const* state, FILE* stream) { return 0; }

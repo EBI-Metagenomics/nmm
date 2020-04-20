@@ -15,6 +15,7 @@ extern "C"
 #include "nmm/codon_state.h"
 #include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
+#include "nmm/state_types.h"
 
 #ifdef __cplusplus
 }

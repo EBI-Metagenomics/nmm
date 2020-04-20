@@ -14,7 +14,7 @@ int main(void)
 static inline double                  zero(void) { return imm_lprob_zero(); }
 static inline int                     is_valid(double a) { return imm_lprob_is_valid(a); }
 static inline int                     is_zero(double a) { return imm_lprob_is_zero(a); }
-static inline struct imm_state const* cast_c(void const* s) { return imm_state_cast_c(s); }
+static inline struct imm_state const* cast(void const* s) { return imm_state_cast(s); }
 static inline char* fmt_name(char* restrict buffer, char const* name, unsigned i)
 {
     sprintf(buffer, "%s%u", name, i);
@@ -60,27 +60,27 @@ void test_perf_viterbi(void)
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
     struct imm_mute_state const* start = imm_mute_state_create("START", abc);
-    imm_hmm_add_state(hmm, cast_c(start), log(1.0));
+    imm_hmm_add_state(hmm, cast(start), log(1.0));
 
     struct imm_mute_state const* end = imm_mute_state_create("END", abc);
-    imm_hmm_add_state(hmm, cast_c(end), zero());
+    imm_hmm_add_state(hmm, cast(end), zero());
 
     struct nmm_frame_state const* B = nmm_frame_state_create("B", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, cast_c(B), zero());
+    imm_hmm_add_state(hmm, cast(B), zero());
 
     struct nmm_frame_state const* E = nmm_frame_state_create("E", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, cast_c(E), zero());
+    imm_hmm_add_state(hmm, cast(E), zero());
 
     struct nmm_frame_state const* J = nmm_frame_state_create("J", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, cast_c(J), zero());
+    imm_hmm_add_state(hmm, cast(J), zero());
 
-    imm_hmm_set_trans(hmm, cast_c(start), cast_c(B), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(B), cast_c(B), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(E), cast_c(E), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(J), cast_c(J), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(E), cast_c(J), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(J), cast_c(B), log(0.2));
-    imm_hmm_set_trans(hmm, cast_c(E), cast_c(end), log(0.2));
+    imm_hmm_set_trans(hmm, cast(start), cast(B), log(0.2));
+    imm_hmm_set_trans(hmm, cast(B), cast(B), log(0.2));
+    imm_hmm_set_trans(hmm, cast(E), cast(E), log(0.2));
+    imm_hmm_set_trans(hmm, cast(J), cast(J), log(0.2));
+    imm_hmm_set_trans(hmm, cast(E), cast(J), log(0.2));
+    imm_hmm_set_trans(hmm, cast(J), cast(B), log(0.2));
+    imm_hmm_set_trans(hmm, cast(E), cast(end), log(0.2));
 
     struct nmm_frame_state const** M = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
     struct nmm_frame_state const** I = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
@@ -92,29 +92,29 @@ void test_perf_viterbi(void)
         I[i] = nmm_frame_state_create(fmt_name(name, "I", i), baset, I_codont, epsilon);
         D[i] = imm_mute_state_create(fmt_name(name, "D", i), abc);
 
-        imm_hmm_add_state(hmm, cast_c(M[i]), zero());
-        imm_hmm_add_state(hmm, cast_c(I[i]), zero());
-        imm_hmm_add_state(hmm, cast_c(D[i]), zero());
+        imm_hmm_add_state(hmm, cast(M[i]), zero());
+        imm_hmm_add_state(hmm, cast(I[i]), zero());
+        imm_hmm_add_state(hmm, cast(D[i]), zero());
 
         if (i == 0)
-            imm_hmm_set_trans(hmm, cast_c(B), cast_c(M[0]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(B), cast(M[0]), log(0.2));
 
-        imm_hmm_set_trans(hmm, cast_c(M[i]), cast_c(I[i]), log(0.2));
-        imm_hmm_set_trans(hmm, cast_c(I[i]), cast_c(I[i]), log(0.2));
+        imm_hmm_set_trans(hmm, cast(M[i]), cast(I[i]), log(0.2));
+        imm_hmm_set_trans(hmm, cast(I[i]), cast(I[i]), log(0.2));
 
         if (i > 0) {
-            imm_hmm_set_trans(hmm, cast_c(M[i - 1]), cast_c(M[i]), log(0.2));
-            imm_hmm_set_trans(hmm, cast_c(D[i - 1]), cast_c(M[i]), log(0.2));
-            imm_hmm_set_trans(hmm, cast_c(I[i - 1]), cast_c(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(M[i - 1]), cast(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(D[i - 1]), cast(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(I[i - 1]), cast(M[i]), log(0.2));
 
-            imm_hmm_set_trans(hmm, cast_c(M[i - 1]), cast_c(D[i]), log(0.2));
-            imm_hmm_set_trans(hmm, cast_c(D[i - 1]), cast_c(D[i]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(M[i - 1]), cast(D[i]), log(0.2));
+            imm_hmm_set_trans(hmm, cast(D[i - 1]), cast(D[i]), log(0.2));
         }
 
         if (i == ncore_nodes - 1) {
-            imm_hmm_set_trans(hmm, cast_c(M[i]), cast_c(E), log(0.2));
-            imm_hmm_set_trans(hmm, cast_c(D[i]), cast_c(E), log(0.2));
-            imm_hmm_set_trans(hmm, cast_c(I[i]), cast_c(E), log(0.2));
+            imm_hmm_set_trans(hmm, cast(M[i]), cast(E), log(0.2));
+            imm_hmm_set_trans(hmm, cast(D[i]), cast(E), log(0.2));
+            imm_hmm_set_trans(hmm, cast(I[i]), cast(E), log(0.2));
         }
     }
 
@@ -163,8 +163,8 @@ void test_perf_viterbi(void)
 
     cass_cond(imm_seq_length(seq) == 2000);
 
-    struct elapsed* elapsed = elapsed_create();
-    struct imm_dp const* dp = imm_hmm_create_dp(hmm, cast_c(end));
+    struct elapsed*      elapsed = elapsed_create();
+    struct imm_dp const* dp = imm_hmm_create_dp(hmm, cast(end));
 
     elapsed_start(elapsed);
     struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);

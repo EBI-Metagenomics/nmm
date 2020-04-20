@@ -12,9 +12,9 @@ int main(void)
 
 void test_codon_state1(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct imm_abc const*        another_abc = imm_abc_create("AUT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct imm_abc const*      abc = imm_abc_create("ACGT", 'X');
+    struct imm_abc const*      another_abc = imm_abc_create("AUT", 'X');
+    struct nmm_base_abc const* base = nmm_base_abc_create(abc);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -25,7 +25,7 @@ void test_codon_state1(void)
     nmm_codon_lprob_set(codonp, codon, log(0.1 / 0.9));
 
     struct nmm_codon_state const* state = nmm_codon_state_create("State", codonp);
-    const struct imm_state*       s = imm_state_cast_c(state);
+    const struct imm_state*       s = imm_state_cast(state);
 
     struct imm_seq const* seq = imm_seq_create("ATG", abc);
     cass_close(imm_state_lprob(s, seq), log(0.8 / 0.9));

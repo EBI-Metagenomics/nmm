@@ -1,0 +1,7 @@
+#ifndef NMM_STATE_TYPES_H
+#define NMM_STATE_TYPES_H
+
+#define NMM_CODON_STATE_TYPE_ID 0x10
+#define NMM_FRAME_STATE_TYPE_ID 0x11
+
+#endif
