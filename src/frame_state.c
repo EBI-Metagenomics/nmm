@@ -146,12 +146,21 @@ void nmm_frame_state_destroy(struct nmm_frame_state const* state)
 {
     struct imm_state const* parent = state->parent;
     frame_state_destroy(parent);
-    imm_state_destroy_parent(parent);
+    __imm_state_destroy_parent(parent);
 }
 
 struct imm_state const* nmm_frame_state_parent(struct nmm_frame_state const* state)
 {
     return state->parent;
+}
+
+struct nmm_frame_state const* nmm_frame_state_child(struct imm_state const* state)
+{
+    if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID) {
+        imm_error("could not cast to frame_state");
+        return NULL;
+    }
+    return __imm_state_child(state);
 }
 
 static uint8_t frame_state_type_id(struct imm_state const* state)
@@ -161,7 +170,7 @@ static uint8_t frame_state_type_id(struct imm_state const* state)
 
 static double frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
-    struct nmm_frame_state const* s = imm_state_child(state);
+    struct nmm_frame_state const* s = __imm_state_child(state);
     unsigned                      length = imm_seq_length(seq);
 
     if (length == 1)
@@ -482,6 +491,6 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
 
 static int frame_state_write(struct imm_state const* state, FILE* stream) { return 0; }
 
-static void frame_state_destroy(struct imm_state const* state) { free_c(imm_state_child(state)); }
+static void frame_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
 
 struct imm_state const* frame_state_read(FILE* stream) { return NULL; }

@@ -64,6 +64,10 @@ void test_frame_state1(void)
     cass_cond(imm_lprob_is_zero(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
+    struct imm_state const* parent = nmm_frame_state_parent(state);
+    cass_cond(nmm_codon_state_child(parent) == NULL);
+    cass_cond((state = nmm_frame_state_child(parent)) != NULL);
+
     nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
@@ -238,8 +242,8 @@ void test_frame_state_lposterior(void)
 
     struct nmm_codon* codon = nmm_codon_create(base);
     while ((codon_item = cartes_next(codon_iter)) != NULL) {
-        nmm_codon_set_triplet(
-            codon, (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
+        nmm_codon_set_triplet(codon,
+                              (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
         nmm_codon_lprob_set(codonp, codon, log(0.001));
     }
     cartes_destroy(codon_iter);
@@ -260,8 +264,8 @@ void test_frame_state_lposterior(void)
     codon_iter = cartes_create(symbols, length, 3);
 
     while ((codon_item = cartes_next(codon_iter)) != NULL) {
-        nmm_codon_set_triplet(
-            codon, (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
+        nmm_codon_set_triplet(codon,
+                              (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
 
         double total = imm_lprob_zero();
         for (unsigned times = 1; times < 6; ++times) {

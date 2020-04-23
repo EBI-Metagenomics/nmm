@@ -39,6 +39,10 @@ void test_codon_state1(void)
     cass_cond(!imm_lprob_is_valid(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
+    struct imm_state const* parent = nmm_codon_state_parent(state);
+    cass_cond(nmm_frame_state_child(parent) == NULL);
+    cass_cond((state = nmm_codon_state_child(parent)) != NULL);
+
     nmm_codon_destroy(codon);
     nmm_codon_state_destroy(state);
     nmm_codon_lprob_destroy(codonp);

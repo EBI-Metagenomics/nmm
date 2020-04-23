@@ -13,7 +13,7 @@ struct nmm_base_abc
 };
 
 NMM_EXPORT struct nmm_base_abc const* nmm_base_abc_create(struct imm_abc const* abc);
-NMM_EXPORT void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc);
+NMM_EXPORT void                       nmm_base_abc_destroy(struct nmm_base_abc const* base_abc);
 
 static inline struct imm_abc const* nmm_base_abc_cast(struct nmm_base_abc const* base_abc)
 {

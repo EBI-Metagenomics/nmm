@@ -20,5 +20,6 @@ NMM_EXPORT double                  nmm_frame_state_decode(struct nmm_frame_state
                                                           struct imm_seq const* seq, struct nmm_codon* codon);
 NMM_EXPORT void                    nmm_frame_state_destroy(struct nmm_frame_state const* state);
 NMM_EXPORT struct imm_state const* nmm_frame_state_parent(struct nmm_frame_state const* state);
+NMM_EXPORT struct nmm_frame_state const* nmm_frame_state_child(struct imm_state const* state);
 
 #endif

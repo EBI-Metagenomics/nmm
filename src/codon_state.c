@@ -43,12 +43,21 @@ void nmm_codon_state_destroy(struct nmm_codon_state const* state)
 {
     struct imm_state const* parent = state->parent;
     codon_state_destroy(parent);
-    imm_state_destroy_parent(parent);
+    __imm_state_destroy_parent(parent);
 }
 
 struct imm_state const* nmm_codon_state_parent(struct nmm_codon_state const* state)
 {
     return state->parent;
+}
+
+struct nmm_codon_state const* nmm_codon_state_child(struct imm_state const* state)
+{
+    if (imm_state_type_id(state) != NMM_CODON_STATE_TYPE_ID) {
+        imm_error("could not cast to codon_state");
+        return NULL;
+    }
+    return __imm_state_child(state);
 }
 
 static uint8_t codon_state_type_id(struct imm_state const* state)
@@ -58,7 +67,7 @@ static uint8_t codon_state_type_id(struct imm_state const* state)
 
 static double codon_state_lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
-    struct nmm_codon_state const* s = imm_state_child(state);
+    struct nmm_codon_state const* s = __imm_state_child(state);
     unsigned                      length = imm_seq_length(seq);
 
     if (length != 3)
@@ -80,9 +89,6 @@ static unsigned codon_state_max_seq(struct imm_state const* state) { return 3; }
 
 static int codon_state_write(struct imm_state const* state, FILE* stream) { return 0; }
 
-static void codon_state_destroy(struct imm_state const* state)
-{
-    free_c(imm_state_child(state));
-}
+static void codon_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
 
 struct imm_state const* codon_state_read(FILE* stream) { return NULL; }

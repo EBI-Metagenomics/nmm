@@ -48,6 +48,8 @@ if(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
 else()
     set(WARNING_FLAGS -Wall -Wextra -pedantic -Wstrict-prototypes -Wshadow
         -Wconversion -Wmissing-prototypes -Wno-unused-parameter -Wsign-conversion
+        -Wno-unused-function # TODO: added only to please clangd for now
+        -Wno-empty-translation-unit # TODO: added only to please clangd for now
     )
 endif()
 
