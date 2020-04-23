@@ -24,7 +24,5 @@ void test_base_abc_success(void)
 void test_base_abc_failure(void)
 {
     struct nmm_base_abc const* base_abc = nmm_base_abc_create("ACT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base_abc);
     cass_cond(base_abc == NULL);
-    imm_abc_destroy(abc);
 }

@@ -38,4 +38,9 @@ static uint8_t base_abc_type_id(struct imm_abc const* abc) { return NMM_BASE_ABC
 
 static void base_abc_destroy(struct imm_abc const* abc) { free_c(__imm_abc_child(abc)); }
 
-static struct imm_abc const* base_abc_clone(struct imm_abc const* abc) {}
+static struct imm_abc const* base_abc_clone(struct imm_abc const* abc)
+{
+    struct nmm_base_abc* base_abc = malloc(sizeof(struct nmm_base_abc));
+    base_abc->parent = __imm_abc_clone_parent(abc);
+    return base_abc->parent;
+}
