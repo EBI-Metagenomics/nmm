@@ -23,8 +23,6 @@ int main(void)
     return cass_status();
 }
 
-static inline struct imm_state const* cast(void const* s) { return imm_state_cast(s); }
-
 void test_hmm_frame_state_0eps(void)
 {
     struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
@@ -48,10 +46,10 @@ void test_hmm_frame_state_0eps(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.0);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 3));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 3));
     struct imm_seq const* seq = imm_seq_create("ATT", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -2.3025850930);
     imm_seq_destroy(seq);
@@ -64,7 +62,7 @@ void test_hmm_frame_state_0eps(void)
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 2));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 2));
     seq = imm_seq_create("AT", abc);
     cass_cond(imm_lprob_is_zero(imm_hmm_likelihood(hmm, seq, path)));
     imm_seq_destroy(seq);
@@ -102,17 +100,17 @@ void test_hmm_frame_state_len1(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 1));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 1));
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -6.0198640216);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 1));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 1));
     seq = imm_seq_create("C", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -7.118476310297789);
     imm_seq_destroy(seq);
@@ -120,14 +118,14 @@ void test_hmm_frame_state_len1(void)
 
     path = imm_path_create();
     seq = imm_seq_create("A", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -6.0198640216);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -6.0198640216);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -6.0198640216);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("C", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -7.1184763103);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -7.1184763103);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -7.1184763103);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
@@ -164,31 +162,31 @@ void test_hmm_frame_state_len2(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 2));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 2));
     struct imm_seq const* seq = imm_seq_create("AA", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -8.910235779525845);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 2));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 2));
     seq = imm_seq_create("TG", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -3.2434246977896133);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 2));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 2));
     seq = imm_seq_create("CC", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -4.225022885864217);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 2));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 2));
     seq = imm_seq_create("TT", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -5.326716841069734);
     imm_seq_destroy(seq);
@@ -196,28 +194,28 @@ void test_hmm_frame_state_len2(void)
 
     path = imm_path_create();
     seq = imm_seq_create("AA", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -8.910235779525845);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -8.910235779525845);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -8.910235779525845);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("TG", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -3.2434246977896133);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -3.2434246977896133);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -3.2434246977896133);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("CC", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -4.225022885864217);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -4.225022885864217);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -4.225022885864217);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("TT", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -5.326716841069734);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -5.326716841069734);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -5.326716841069734);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
@@ -254,17 +252,17 @@ void test_hmm_frame_state_len3(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 3));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 3));
     struct imm_seq const* seq = imm_seq_create("ATC", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -7.012344487235739);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 3));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 3));
     seq = imm_seq_create("ATG", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -0.639793371602465);
     imm_seq_destroy(seq);
@@ -272,14 +270,14 @@ void test_hmm_frame_state_len3(void)
 
     path = imm_path_create();
     seq = imm_seq_create("ATC", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -7.012344487235739);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -7.012344487235739);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -7.012344487235739);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("ATG", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -0.639793371602465);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -0.639793371602465);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -0.639793371602465);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
@@ -316,10 +314,10 @@ void test_hmm_frame_state_len4(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 4));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 4));
     struct imm_seq const* seq = imm_seq_create("ATCC", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -11.982929094215963);
     imm_seq_destroy(seq);
@@ -327,7 +325,7 @@ void test_hmm_frame_state_len4(void)
 
     path = imm_path_create();
     seq = imm_seq_create("ATCC", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -11.982929094215963);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -11.982929094215963);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -11.982929094215963);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
@@ -364,17 +362,17 @@ void test_hmm_frame_state_len5(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, cast(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_parent(state), log(1.0));
 
     struct imm_path* path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 5));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 5));
     struct imm_seq const* seq = imm_seq_create("ACGTA", abc);
     cass_cond(imm_lprob_is_zero(imm_hmm_likelihood(hmm, seq, path)));
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
-    imm_path_append(path, imm_step_create(cast(state), 5));
+    imm_path_append(path, imm_step_create(nmm_frame_state_parent(state), 5));
     seq = imm_seq_create("ACTAG", abc);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -10.11420858385178);
     imm_seq_destroy(seq);
@@ -382,14 +380,14 @@ void test_hmm_frame_state_len5(void)
 
     path = imm_path_create();
     seq = imm_seq_create("ACGTA", abc);
-    cass_cond(!imm_lprob_is_valid(single_viterbi(hmm, seq, cast(state), path)));
+    cass_cond(!imm_lprob_is_valid(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path)));
     cass_cond(!imm_lprob_is_valid(imm_hmm_likelihood(hmm, seq, path)));
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     seq = imm_seq_create("ACTAG", abc);
-    cass_close(single_viterbi(hmm, seq, cast(state), path), -10.11420858385178);
+    cass_close(single_viterbi(hmm, seq, nmm_frame_state_parent(state), path), -10.11420858385178);
     cass_close(imm_hmm_likelihood(hmm, seq, path), -10.11420858385178);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
@@ -413,8 +411,7 @@ double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
     struct imm_result const* r = imm_results_get(results, 0);
 
     struct imm_path const* src = imm_result_path(r);
-    for (struct imm_step const* step = imm_path_first(src); step;
-         step = imm_path_next(src, step))
+    for (struct imm_step const* step = imm_path_first(src); step; step = imm_path_next(src, step))
         imm_path_append(path, imm_step_create(imm_step_state(step), imm_step_seq_len(step)));
 
     double score = imm_result_loglik(r);
