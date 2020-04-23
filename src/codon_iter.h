@@ -15,7 +15,7 @@ struct codon_iter
 
 static inline struct codon_iter codon_iter_begin(struct nmm_base_abc const* base)
 {
-    char const* bases = imm_abc_symbols(nmm_base_abc_cast(base));
+    char const* bases = imm_abc_symbols(nmm_base_abc_parent(base));
     return (struct codon_iter){base, bases, 0};
 }
 

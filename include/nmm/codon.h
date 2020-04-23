@@ -29,17 +29,16 @@ static inline struct nmm_triplet nmm_codon_get_triplet(struct nmm_codon const* c
     return NMM_TRIPLET(codon->a, codon->b, codon->c);
 }
 
-static inline void nmm_codon_init(struct nmm_codon*          codon,
-                                  struct nmm_base_abc const* base_abc)
+static inline void nmm_codon_init(struct nmm_codon* codon, struct nmm_base_abc const* base_abc)
 {
     codon->base_abc = base_abc;
-    codon->a = imm_abc_any_symbol(nmm_base_abc_cast(base_abc));
-    codon->b = imm_abc_any_symbol(nmm_base_abc_cast(base_abc));
-    codon->c = imm_abc_any_symbol(nmm_base_abc_cast(base_abc));
+    codon->a = imm_abc_any_symbol(nmm_base_abc_parent(base_abc));
+    codon->b = imm_abc_any_symbol(nmm_base_abc_parent(base_abc));
+    codon->c = imm_abc_any_symbol(nmm_base_abc_parent(base_abc));
 }
 
-#define NMM_CODON_DECL(name, base)                                                           \
-    struct nmm_codon name;                                                                   \
+#define NMM_CODON_DECL(name, base)                                                                 \
+    struct nmm_codon name;                                                                         \
     nmm_codon_init(&(name), (base))
 
 #endif

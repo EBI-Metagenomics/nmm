@@ -34,7 +34,7 @@ struct nmm_codon_state const* nmm_codon_state_create(char const*                
     state->codonp = codonp;
     state->base_abc = nmm_codon_lprob_get_base_abc(codonp);
 
-    struct imm_abc const* abc = nmm_base_abc_cast(nmm_codon_lprob_get_base_abc(codonp));
+    struct imm_abc const* abc = nmm_base_abc_parent(nmm_codon_lprob_get_base_abc(codonp));
     state->parent = imm_state_create(name, abc, vtable, state);
     return state;
 }

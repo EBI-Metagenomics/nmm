@@ -41,8 +41,7 @@ struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base_abc const* base_a
     struct nmm_codon_lprob* codonp = malloc(sizeof(struct nmm_codon_lprob));
     codonp->base_abc = base_abc;
 
-    codonp->lprobs =
-        nmm_array3d_create(NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE);
+    codonp->lprobs = nmm_array3d_create(NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE);
     nmm_array3d_fill(&codonp->lprobs, imm_lprob_zero());
 
     return codonp;
@@ -57,22 +56,21 @@ int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* 
     }
 
     struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
-    char const any_symbol = imm_abc_any_symbol(nmm_base_abc_cast(codonp->base_abc));
+    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(codonp->base_abc));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
     struct nmm_array3d_idx const idx =
-        triplet_index(nmm_base_abc_cast(codonp->base_abc), triplet);
+        triplet_index(nmm_base_abc_parent(codonp->base_abc), triplet);
 
     nmm_array3d_set(&codonp->lprobs, idx, lprob);
 
     return 0;
 }
 
-double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
-                           struct nmm_codon const*       codon)
+double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_codon const* codon)
 {
     if (codonp->base_abc != nmm_codon_get_base(codon)) {
         imm_error("bases must be the same");
@@ -80,14 +78,14 @@ double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
     }
 
     struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
-    char const any_symbol = imm_abc_any_symbol(nmm_base_abc_cast(codonp->base_abc));
+    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(codonp->base_abc));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return imm_lprob_invalid();
     }
 
     struct nmm_array3d_idx const idx =
-        triplet_index(nmm_base_abc_cast(codonp->base_abc), triplet);
+        triplet_index(nmm_base_abc_parent(codonp->base_abc), triplet);
 
     return nmm_array3d_get(&codonp->lprobs, idx);
 }

@@ -25,8 +25,8 @@ int main(void)
 
 void test_hmm_frame_state_0eps(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -79,8 +79,8 @@ void test_hmm_frame_state_0eps(void)
 
 void test_hmm_frame_state_len1(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -141,8 +141,8 @@ void test_hmm_frame_state_len1(void)
 
 void test_hmm_frame_state_len2(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -231,8 +231,8 @@ void test_hmm_frame_state_len2(void)
 
 void test_hmm_frame_state_len3(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -293,8 +293,8 @@ void test_hmm_frame_state_len3(void)
 
 void test_hmm_frame_state_len4(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
@@ -341,8 +341,8 @@ void test_hmm_frame_state_len4(void)
 
 void test_hmm_frame_state_len5(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);

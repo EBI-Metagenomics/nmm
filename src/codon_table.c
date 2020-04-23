@@ -54,7 +54,7 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
 
 static void set_symbol_index(struct nmm_codon_table* codont)
 {
-    struct imm_abc const* abc = nmm_base_abc_cast(codont->base_abc);
+    struct imm_abc const* abc = nmm_base_abc_parent(codont->base_abc);
 
     char const* symbols = imm_abc_symbols(abc);
 
@@ -66,8 +66,8 @@ static void set_symbol_index(struct nmm_codon_table* codont)
     codont->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_ABC_SIZE;
 }
 
-static inline void set_marginal_lprob(struct nmm_codon_table* codont,
-                                      struct nmm_codon const* codon, double lprob)
+static inline void set_marginal_lprob(struct nmm_codon_table* codont, struct nmm_codon const* codon,
+                                      double lprob)
 {
     nmm_array3d_set(&codont->lprobs, __nmm_codon_table_get_array_idx(codont, codon), lprob);
 }
@@ -83,14 +83,12 @@ static int set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
     return 0;
 }
 
-static void set_marginal_lprobs(struct nmm_codon_table*    codont,
-                                struct nmm_base_abc const* base_abc)
+static void set_marginal_lprobs(struct nmm_codon_table* codont, struct nmm_base_abc const* base_abc)
 {
-    struct imm_abc const* abc = nmm_base_abc_cast(base_abc);
+    struct imm_abc const* abc = nmm_base_abc_parent(base_abc);
     char const            any_symbol = imm_abc_any_symbol(abc);
     char const            symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
-                             imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3),
-                             any_symbol};
+                             imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3), any_symbol};
 
     struct nmm_codon* codon = nmm_codon_create(base_abc);
 

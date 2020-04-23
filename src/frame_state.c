@@ -86,9 +86,9 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
-    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_cast(nmm_base_table_get_base_abc(baset)));
+    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(nmm_base_table_get_base_abc(baset)));
 
-    struct imm_abc const* abc = nmm_base_abc_cast(nmm_base_table_get_base_abc(baset));
+    struct imm_abc const* abc = nmm_base_abc_parent(nmm_base_table_get_base_abc(baset));
     state->parent = imm_state_create(name, abc, vtable, state);
     return state;
 }
@@ -116,7 +116,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
                               struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_base_abc_cast(nmm_codon_table_get_base(state->codont));
+    struct imm_abc const* abc = nmm_base_abc_parent(nmm_codon_table_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     unsigned const        n = imm_abc_length(abc);
 

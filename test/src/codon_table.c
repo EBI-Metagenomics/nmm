@@ -14,9 +14,9 @@ int main(void)
 
 void test_codont_nonmarginal(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*  base = nmm_base_abc_create(abc);
-    struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
+    struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*      abc = nmm_base_abc_parent(base);
+    struct nmm_codon_lprob*    codonp = nmm_codon_lprob_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
@@ -43,9 +43,9 @@ void test_codont_nonmarginal(void)
 
 void test_codont_marginal(void)
 {
-    struct imm_abc const*   abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*  base = nmm_base_abc_create(abc);
-    struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
+    struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*      abc = nmm_base_abc_parent(base);
+    struct nmm_codon_lprob*    codonp = nmm_codon_lprob_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));

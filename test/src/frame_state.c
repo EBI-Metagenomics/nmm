@@ -22,8 +22,8 @@ int main(void)
 
 void test_frame_state1(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.25), log(0.25));
 
@@ -78,8 +78,8 @@ void test_frame_state1(void)
 
 void test_frame_state2(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -149,8 +149,8 @@ void test_frame_state2(void)
 
 void test_frame_state3(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -227,8 +227,8 @@ void test_frame_state3(void)
 
 void test_frame_state_lposterior(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 
@@ -297,8 +297,8 @@ void test_frame_state_lposterior(void)
 
 void test_frame_state_decode(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.1), log(0.2), log(0.3), log(0.4));
 

@@ -12,8 +12,8 @@ int main(void)
 
 void test_base_table(void)
 {
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base_abc = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base_abc = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base_abc);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base_abc, log(8), log(1), zero, log(3));

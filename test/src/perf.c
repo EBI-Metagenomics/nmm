@@ -48,8 +48,8 @@ void test_perf_viterbi(void)
 {
     unsigned const               ncore_nodes = 1000;
     double const                 epsilon = 0.01;
-    struct imm_abc const*        abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const*   base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*        abc = nmm_base_abc_parent(base);
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.45), log(0.05));
 

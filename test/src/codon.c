@@ -12,8 +12,8 @@ int main(void)
 
 void test_codon(void)
 {
-    struct imm_abc const*      abc = imm_abc_create("ACGT", 'X');
-    struct nmm_base_abc const* base = nmm_base_abc_create(abc);
+    struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*      abc = nmm_base_abc_parent(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
 
