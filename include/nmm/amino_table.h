@@ -17,10 +17,9 @@ struct nmm_amino_table
 NMM_EXPORT struct nmm_amino_table const* nmm_amino_table_create(
     struct nmm_amino_abc const* amino_abc, double const* lprobs);
 
-static inline double nmm_amino_table_lprob(struct nmm_amino_table const* aminot,
-                                           char const                    amino)
+static inline double nmm_amino_table_lprob(struct nmm_amino_table const* aminot, char const amino)
 {
-    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_cast(aminot->amino_abc), amino);
+    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_parent(aminot->amino_abc), amino);
     return aminot->lprobs[i];
 }
 

@@ -15,7 +15,6 @@ int main(void)
 void test_codont_nonmarginal(void)
 {
     struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base);
     struct nmm_codon_lprob*    codonp = nmm_codon_lprob_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
@@ -38,13 +37,11 @@ void test_codont_nonmarginal(void)
 
     nmm_codon_table_destroy(codont);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }
 
 void test_codont_marginal(void)
 {
     struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base);
     struct nmm_codon_lprob*    codonp = nmm_codon_lprob_create(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
@@ -77,5 +74,4 @@ void test_codont_marginal(void)
 
     nmm_codon_table_destroy(codont);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }

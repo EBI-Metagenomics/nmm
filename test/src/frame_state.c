@@ -73,7 +73,6 @@ void test_frame_state1(void)
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }
 
 void test_frame_state2(void)
@@ -144,7 +143,6 @@ void test_frame_state2(void)
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }
 
 void test_frame_state3(void)
@@ -222,7 +220,6 @@ void test_frame_state3(void)
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }
 
 void test_frame_state_lposterior(void)
@@ -291,7 +288,6 @@ void test_frame_state_lposterior(void)
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
-    imm_abc_destroy(abc);
     nmm_codon_destroy(codon);
 }
 
@@ -379,6 +375,5 @@ void test_frame_state_decode(void)
     nmm_frame_state_destroy(state);
     nmm_base_table_destroy(baset);
     nmm_codon_table_destroy(codont);
-    imm_abc_destroy(abc);
     nmm_codon_destroy(codon);
 }

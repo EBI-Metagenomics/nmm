@@ -9,7 +9,7 @@ static uint8_t               base_abc_type_id(struct imm_abc const* abc);
 static void                  base_abc_destroy(struct imm_abc const* abc);
 static struct imm_abc const* base_abc_clone(struct imm_abc const* abc);
 
-static struct imm_abc_vtable const __vtable = {base_abc_type_id, NULL, base_abc_clone};
+static struct imm_abc_vtable const __vtable = {base_abc_type_id, base_abc_destroy, base_abc_clone};
 
 struct nmm_base_abc const* nmm_base_abc_create(char const* symbols, char const any_symbol)
 {
@@ -23,7 +23,12 @@ struct nmm_base_abc const* nmm_base_abc_create(char const* symbols, char const a
     return base_abc;
 }
 
-void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc) { free_c(base_abc); }
+void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc)
+{
+    struct imm_abc const* parent = base_abc->parent;
+    base_abc_destroy(parent);
+    __imm_abc_destroy_parent(parent);
+}
 
 struct nmm_base_abc const* nmm_base_abc_child(struct imm_abc const* abc)
 {

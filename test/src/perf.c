@@ -207,7 +207,6 @@ void test_perf_viterbi(void)
     nmm_codon_table_destroy(J_codont);
     nmm_base_table_destroy(baset);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
     imm_dp_destroy(dp);
     free(M);
     free(I);

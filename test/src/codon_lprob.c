@@ -13,7 +13,6 @@ int main(void)
 void test_codonp(void)
 {
     struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base);
     struct nmm_codon_lprob*    codonp = nmm_codon_lprob_create(base);
     cass_cond(codonp != NULL);
 
@@ -37,5 +36,4 @@ void test_codonp(void)
 
     nmm_codon_lprob_destroy(codonp);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }

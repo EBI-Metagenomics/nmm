@@ -13,7 +13,6 @@ int main(void)
 void test_codon(void)
 {
     struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base);
 
     struct nmm_codon* codon = nmm_codon_create(base);
 
@@ -29,5 +28,4 @@ void test_codon(void)
 
     nmm_codon_destroy(codon);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
 }

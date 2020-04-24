@@ -12,15 +12,9 @@ int main(void)
 
 void test_codon_state1(void)
 {
-    struct nmm_base_abc const*  base_abc = nmm_base_abc_create("ACGT", 'X');
-    struct nmm_amino_abc const* amino_abc = nmm_amino_abc_create("AUT", 'X');
-
-    struct imm_abc const* abc = nmm_base_abc_parent(base_abc);
-    struct imm_abc const* another_abc = nmm_amino_abc_parent(amino_abc);
-
-    /* struct imm_abc const*      abc = imm_abc_create("ACGT", 'X'); */
-    /* struct nmm_base_abc const* base = nmm_base_abc_create("AUT", 'X'); */
-    /* struct imm_abc const*      another_abc = nmm_base_abc_parent(base); */
+    struct imm_abc const*      another_abc = imm_abc_create("AUT", 'X');
+    struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
+    struct imm_abc const*      abc = nmm_base_abc_parent(base);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -45,14 +39,9 @@ void test_codon_state1(void)
     cass_cond(!imm_lprob_is_valid(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
-    struct imm_state const* parent = nmm_codon_state_parent(state);
-    cass_cond(nmm_frame_state_child(parent) == NULL);
-    cass_cond((state = nmm_codon_state_child(parent)) != NULL);
-
     nmm_codon_destroy(codon);
     nmm_codon_state_destroy(state);
     nmm_codon_lprob_destroy(codonp);
     nmm_base_abc_destroy(base);
-    imm_abc_destroy(abc);
     imm_abc_destroy(another_abc);
 }

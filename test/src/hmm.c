@@ -74,7 +74,6 @@ void test_hmm_frame_state_0eps(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 void test_hmm_frame_state_len1(void)
@@ -136,7 +135,6 @@ void test_hmm_frame_state_len1(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 void test_hmm_frame_state_len2(void)
@@ -226,7 +224,6 @@ void test_hmm_frame_state_len2(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 void test_hmm_frame_state_len3(void)
@@ -288,7 +285,6 @@ void test_hmm_frame_state_len3(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 void test_hmm_frame_state_len4(void)
@@ -336,7 +332,6 @@ void test_hmm_frame_state_len4(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 void test_hmm_frame_state_len5(void)
@@ -398,7 +393,6 @@ void test_hmm_frame_state_len5(void)
     nmm_frame_state_destroy(state);
     nmm_codon_table_destroy(codont);
     nmm_base_table_destroy(baset);
-    imm_abc_destroy(abc);
 }
 
 double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
