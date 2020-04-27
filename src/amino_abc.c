@@ -61,7 +61,10 @@ struct imm_abc const* amino_abc_read(FILE* stream)
 
 static uint8_t amino_abc_type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
 
-static int amino_write(struct imm_abc const* abc, FILE* stream) { return 0; }
+static int amino_write(struct imm_abc const* abc, FILE* stream)
+{
+    return __imm_abc_write_parent(abc, stream);
+}
 
 static void amino_abc_destroy(struct imm_abc const* abc) { free_c(__imm_abc_child(abc)); }
 

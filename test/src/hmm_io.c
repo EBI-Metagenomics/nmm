@@ -2,6 +2,8 @@
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
+#define TMP_FOLDER "test_hmm_io.tmp"
+
 void test_hmm_io(void);
 
 int main(void)
@@ -61,6 +63,12 @@ void test_hmm_io(void)
     cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_seq_destroy(seq);
     imm_results_destroy(results);
+
+    struct nmm_io const* io = nmm_io_create(hmm, dp);
+    FILE*                file = fopen(TMP_FOLDER "/two_states.imm", "w");
+    cass_cond(file != NULL);
+    cass_equal_int(nmm_io_write(io, file), 0);
+    fclose(file);
 
     nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);

@@ -7,7 +7,7 @@
 
 struct nmm_io
 {
-    struct imm_io* parent;
+    struct imm_io const* parent;
 };
 
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id);
@@ -20,7 +20,12 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 
     struct nmm_io* io = malloc(sizeof(*io));
 
-    __imm_io_create_parent(hmm, dp, __vtable, io);
+    io->parent = __imm_io_create_parent(hmm, dp, __vtable, io);
+    if (!io->parent) {
+        imm_error("could not io_create_parent");
+        free_c(io);
+        return NULL;
+    }
 
     return io;
 }

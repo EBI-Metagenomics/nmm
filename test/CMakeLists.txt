@@ -6,6 +6,10 @@ function(nmm_add_test name)
     target_link_libraries(test_${name} PRIVATE NMM::nmm)
     target_compile_options(test_${name} PRIVATE ${WARNING_FLAGS})
     add_test(NAME ${name} COMMAND test_${name})
+
+    add_custom_command(TARGET test_${name} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/test_${name}.tmp"
+    )
 endfunction()
 
 nmm_add_test(amino_abc)
