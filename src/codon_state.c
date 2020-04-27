@@ -92,3 +92,8 @@ static int codon_state_write(struct imm_state const* state, FILE* stream) { retu
 static void codon_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
 
 struct imm_state const* codon_state_read(FILE* stream) { return NULL; }
+
+struct nmm_codon_lprob const* codon_state_codonp(struct nmm_codon_state const* state)
+{
+    return state->codonp;
+}
