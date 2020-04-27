@@ -1,4 +1,5 @@
 #include "nmm/amino_abc.h"
+#include "amino_abc.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/abc_types.h"
@@ -6,10 +7,11 @@
 #include <string.h>
 
 static uint8_t               amino_abc_type_id(struct imm_abc const* abc);
+static int                   amino_write(struct imm_abc const* abc, FILE* stream);
 static void                  amino_abc_destroy(struct imm_abc const* abc);
 static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc);
 
-static struct imm_abc_vtable const __vtable = {amino_abc_type_id, amino_abc_destroy,
+static struct imm_abc_vtable const __vtable = {amino_abc_type_id, amino_write, amino_abc_destroy,
                                                amino_abc_clone};
 
 struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const any_symbol)
@@ -40,7 +42,26 @@ struct nmm_amino_abc const* nmm_amino_abc_child(struct imm_abc const* abc)
     return __imm_abc_child(abc);
 }
 
+struct imm_abc const* amino_abc_read(FILE* stream)
+{
+    struct nmm_amino_abc* amino_abc = malloc(sizeof(*amino_abc));
+
+    struct imm_abc* abc = __imm_abc_read_parent(stream);
+    if (!abc) {
+        imm_error("could not read amino_abc");
+        free_c(amino_abc);
+        return NULL;
+    }
+
+    abc->vtable = __vtable;
+    abc->child = amino_abc;
+
+    return abc;
+}
+
 static uint8_t amino_abc_type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
+
+static int amino_write(struct imm_abc const* abc, FILE* stream) { return 0; }
 
 static void amino_abc_destroy(struct imm_abc const* abc) { free_c(__imm_abc_child(abc)); }
 
