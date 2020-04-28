@@ -7,7 +7,6 @@
 #include <string.h>
 
 static uint8_t               base_abc_type_id(struct imm_abc const* abc);
-static int                   base_write(struct imm_abc const* abc, FILE* stream);
 static void                  base_abc_destroy(struct imm_abc const* abc);
 static struct imm_abc const* base_abc_clone(struct imm_abc const* abc);
 
@@ -29,11 +28,6 @@ struct nmm_base_abc const* nmm_base_abc_create(char const* symbols, char const a
     return base_abc;
 }
 
-void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc)
-{
-    base_abc->super->vtable.destroy(base_abc->super);
-}
-
 struct nmm_base_abc const* nmm_base_abc_derived(struct imm_abc const* abc)
 {
     if (imm_abc_type_id(abc) != NMM_BASE_ABC_TYPE_ID) {
@@ -41,6 +35,11 @@ struct nmm_base_abc const* nmm_base_abc_derived(struct imm_abc const* abc)
         return NULL;
     }
     return __imm_abc_derived(abc);
+}
+
+void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc)
+{
+    base_abc->super->vtable.destroy(base_abc->super);
 }
 
 struct imm_abc const* base_abc_read(FILE* stream)

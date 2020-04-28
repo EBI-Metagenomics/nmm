@@ -7,7 +7,6 @@
 #include <string.h>
 
 static uint8_t               amino_abc_type_id(struct imm_abc const* abc);
-static int                   amino_write(struct imm_abc const* abc, FILE* stream);
 static void                  amino_abc_destroy(struct imm_abc const* abc);
 static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc);
 
@@ -29,11 +28,6 @@ struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const
     return amino_abc;
 }
 
-void nmm_amino_abc_destroy(struct nmm_amino_abc const* amino_abc)
-{
-    amino_abc->super->vtable.destroy(amino_abc->super);
-}
-
 struct nmm_amino_abc const* nmm_amino_abc_derived(struct imm_abc const* abc)
 {
     if (imm_abc_type_id(abc) != NMM_AMINO_ABC_TYPE_ID) {
@@ -41,6 +35,11 @@ struct nmm_amino_abc const* nmm_amino_abc_derived(struct imm_abc const* abc)
         return NULL;
     }
     return __imm_abc_derived(abc);
+}
+
+void nmm_amino_abc_destroy(struct nmm_amino_abc const* amino_abc)
+{
+    amino_abc->super->vtable.destroy(amino_abc->super);
 }
 
 struct imm_abc const* amino_abc_read(FILE* stream)
