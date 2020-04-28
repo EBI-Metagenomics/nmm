@@ -56,14 +56,13 @@ int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* 
     }
 
     struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
-    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(codonp->base_abc));
+    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_super(codonp->base_abc));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return 1;
     }
 
-    struct nmm_array3d_idx const idx =
-        triplet_index(nmm_base_abc_parent(codonp->base_abc), triplet);
+    struct nmm_array3d_idx const idx = triplet_index(nmm_base_abc_super(codonp->base_abc), triplet);
 
     nmm_array3d_set(&codonp->lprobs, idx, lprob);
 
@@ -78,14 +77,13 @@ double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_codo
     }
 
     struct nmm_triplet const triplet = nmm_codon_get_triplet(codon);
-    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(codonp->base_abc));
+    char const               any_symbol = imm_abc_any_symbol(nmm_base_abc_super(codonp->base_abc));
     if (triplet_has(triplet, any_symbol)) {
         imm_error("any-symbol is not allowed");
         return imm_lprob_invalid();
     }
 
-    struct nmm_array3d_idx const idx =
-        triplet_index(nmm_base_abc_parent(codonp->base_abc), triplet);
+    struct nmm_array3d_idx const idx = triplet_index(nmm_base_abc_super(codonp->base_abc), triplet);
 
     return nmm_array3d_get(&codonp->lprobs, idx);
 }

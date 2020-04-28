@@ -54,7 +54,7 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
 
 static void set_symbol_index(struct nmm_codon_table* codont)
 {
-    struct imm_abc const* abc = nmm_base_abc_parent(codont->base_abc);
+    struct imm_abc const* abc = nmm_base_abc_super(codont->base_abc);
 
     char const* symbols = imm_abc_symbols(abc);
 
@@ -85,7 +85,7 @@ static int set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
 
 static void set_marginal_lprobs(struct nmm_codon_table* codont, struct nmm_base_abc const* base_abc)
 {
-    struct imm_abc const* abc = nmm_base_abc_parent(base_abc);
+    struct imm_abc const* abc = nmm_base_abc_super(base_abc);
     char const            any_symbol = imm_abc_any_symbol(abc);
     char const            symbols[5] = {imm_abc_symbol_id(abc, 0), imm_abc_symbol_id(abc, 1),
                              imm_abc_symbol_id(abc, 2), imm_abc_symbol_id(abc, 3), any_symbol};

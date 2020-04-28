@@ -14,7 +14,7 @@ void test_codon_state1(void)
 {
     struct imm_abc const*      another_abc = imm_abc_create("AUT", 'X');
     struct nmm_base_abc const* base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*      abc = nmm_base_abc_parent(base);
+    struct imm_abc const*      abc = nmm_base_abc_super(base);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);

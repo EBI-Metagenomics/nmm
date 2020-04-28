@@ -20,7 +20,7 @@ NMM_EXPORT struct nmm_base_table const* nmm_base_table_create(struct nmm_base_ab
 
 static inline double nmm_base_table_lprob(struct nmm_base_table const* baset, char const base)
 {
-    unsigned i = imm_abc_symbol_idx(nmm_base_abc_parent(baset->base_abc), base);
+    unsigned i = imm_abc_symbol_idx(nmm_base_abc_super(baset->base_abc), base);
     return baset->lprobs[i];
 }
 

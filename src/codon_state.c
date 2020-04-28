@@ -19,8 +19,8 @@ static uint8_t  codon_state_type_id(struct imm_state const* state);
 static double   codon_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
 static unsigned codon_state_min_seq(struct imm_state const* state);
 static unsigned codon_state_max_seq(struct imm_state const* state);
-static int      codon_state_write(struct imm_state const* state, FILE* stream);
-static void     codon_state_destroy(struct imm_state const* state);
+static int  codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
+static void codon_state_destroy(struct imm_state const* state);
 
 static struct imm_state_vtable const vtable = {codon_state_type_id, codon_state_lprob,
                                                codon_state_min_seq, codon_state_max_seq,
@@ -34,7 +34,7 @@ struct nmm_codon_state const* nmm_codon_state_create(char const*                
     state->codonp = codonp;
     state->base_abc = nmm_codon_lprob_get_base_abc(codonp);
 
-    struct imm_abc const* abc = nmm_base_abc_parent(nmm_codon_lprob_get_base_abc(codonp));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_lprob_get_base_abc(codonp));
     state->parent = imm_state_create(name, abc, vtable, state);
     return state;
 }
@@ -87,7 +87,10 @@ static unsigned codon_state_min_seq(struct imm_state const* state) { return 3; }
 
 static unsigned codon_state_max_seq(struct imm_state const* state) { return 3; }
 
-static int codon_state_write(struct imm_state const* state, FILE* stream) { return 0; }
+static int codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
+{
+    return 0;
+}
 
 static void codon_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
 

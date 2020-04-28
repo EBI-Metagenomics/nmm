@@ -25,7 +25,7 @@ void test_amino_abc_success2(void)
 {
     struct nmm_amino_abc const* amino_abc = nmm_amino_abc_create("ACDEFGHIKLMNPQRSTVWY", 'X');
     cass_cond(amino_abc != NULL);
-    struct imm_abc const* abc = nmm_amino_abc_parent(amino_abc);
+    struct imm_abc const* abc = nmm_amino_abc_super(amino_abc);
     cass_cond(abc != NULL);
     imm_abc_destroy(abc);
 }

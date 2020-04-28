@@ -11,8 +11,8 @@ static int                   amino_write(struct imm_abc const* abc, FILE* stream
 static void                  amino_abc_destroy(struct imm_abc const* abc);
 static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc);
 
-static struct imm_abc_vtable const __vtable = {amino_abc_type_id, amino_write, amino_abc_destroy,
-                                               amino_abc_clone};
+static struct imm_abc_vtable const __vtable = {amino_abc_type_id, __imm_abc_write,
+                                               amino_abc_destroy, amino_abc_clone};
 
 struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const any_symbol)
 {
@@ -21,32 +21,33 @@ struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const
         return NULL;
     }
 
-    struct nmm_amino_abc* amino_abc = malloc(sizeof(struct nmm_amino_abc));
-    amino_abc->parent = __imm_abc_create_parent(symbols, any_symbol, __vtable, amino_abc);
+    struct nmm_amino_abc* amino_abc = malloc(sizeof(*amino_abc));
+    struct imm_abc*       super = __imm_abc_create(symbols, any_symbol, amino_abc);
+    amino_abc->super = super;
+    super->vtable = __vtable;
+
     return amino_abc;
 }
 
 void nmm_amino_abc_destroy(struct nmm_amino_abc const* amino_abc)
 {
-    struct imm_abc const* parent = amino_abc->parent;
-    amino_abc_destroy(parent);
-    __imm_abc_destroy_parent(parent);
+    amino_abc->super->vtable.destroy(amino_abc->super);
 }
 
-struct nmm_amino_abc const* nmm_amino_abc_child(struct imm_abc const* abc)
+struct nmm_amino_abc const* nmm_amino_abc_derived(struct imm_abc const* abc)
 {
     if (imm_abc_type_id(abc) != NMM_AMINO_ABC_TYPE_ID) {
         imm_error("could not cast to amino_abc");
         return NULL;
     }
-    return __imm_abc_child(abc);
+    return __imm_abc_derived(abc);
 }
 
 struct imm_abc const* amino_abc_read(FILE* stream)
 {
     struct nmm_amino_abc* amino_abc = malloc(sizeof(*amino_abc));
 
-    struct imm_abc* abc = __imm_abc_read_parent(stream);
+    struct imm_abc* abc = __imm_abc_read(stream);
     if (!abc) {
         imm_error("could not read amino_abc");
         free_c(amino_abc);
@@ -54,23 +55,23 @@ struct imm_abc const* amino_abc_read(FILE* stream)
     }
 
     abc->vtable = __vtable;
-    abc->child = amino_abc;
+    abc->derived = amino_abc;
 
     return abc;
 }
 
 static uint8_t amino_abc_type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
 
-static int amino_write(struct imm_abc const* abc, FILE* stream)
+static void amino_abc_destroy(struct imm_abc const* abc)
 {
-    return __imm_abc_write_parent(abc, stream);
+    struct nmm_amino_abc const* amino_abc = __imm_abc_derived(abc);
+    __imm_abc_destroy(abc);
+    free_c(amino_abc);
 }
-
-static void amino_abc_destroy(struct imm_abc const* abc) { free_c(__imm_abc_child(abc)); }
 
 static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc)
 {
-    struct nmm_amino_abc* amino_abc = malloc(sizeof(struct nmm_amino_abc));
-    amino_abc->parent = __imm_abc_clone_parent(abc);
-    return amino_abc->parent;
+    struct nmm_amino_abc* amino_abc = malloc(sizeof(*amino_abc));
+    amino_abc->super = __imm_abc_clone(abc);
+    return amino_abc->super;
 }

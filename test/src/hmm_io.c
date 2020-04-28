@@ -15,7 +15,7 @@ int main(void)
 void test_hmm_io(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
-    struct imm_abc const*        abc = nmm_base_abc_parent(base);
+    struct imm_abc const*        abc = nmm_base_abc_super(base);
     double const                 zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);

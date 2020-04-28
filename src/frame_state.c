@@ -27,8 +27,8 @@ static uint8_t  frame_state_type_id(struct imm_state const* state);
 static double   frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
 static unsigned frame_state_min_seq(struct imm_state const* state);
 static unsigned frame_state_max_seq(struct imm_state const* state);
-static int      frame_state_write(struct imm_state const* state, FILE* stream);
-static void     frame_state_destroy(struct imm_state const* state);
+static int  frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
+static void frame_state_destroy(struct imm_state const* state);
 
 static struct imm_state_vtable const vtable = {frame_state_type_id, frame_state_lprob,
                                                frame_state_min_seq, frame_state_max_seq,
@@ -86,9 +86,9 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->leps = log(epsilon);
     state->l1eps = log(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
-    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_parent(nmm_base_table_get_base_abc(baset)));
+    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_get_base_abc(baset)));
 
-    struct imm_abc const* abc = nmm_base_abc_parent(nmm_base_table_get_base_abc(baset));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_base_table_get_base_abc(baset));
     state->parent = imm_state_create(name, abc, vtable, state);
     return state;
 }
@@ -116,7 +116,7 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
                               struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_base_abc_parent(nmm_codon_table_get_base(state->codont));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_table_get_base(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     unsigned const        n = imm_abc_length(abc);
 
@@ -489,7 +489,10 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
     return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
 }
 
-static int frame_state_write(struct imm_state const* state, FILE* stream) { return 0; }
+static int frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
+{
+    return 0;
+}
 
 static void frame_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
 
