@@ -25,7 +25,7 @@ void test_codon_state1(void)
     nmm_codon_lprob_set(codonp, codon, log(0.1 / 0.9));
 
     struct nmm_codon_state const* state = nmm_codon_state_create("State", codonp);
-    const struct imm_state*       s = nmm_codon_state_parent(state);
+    const struct imm_state*       s = nmm_codon_state_super(state);
 
     struct imm_seq const* seq = imm_seq_create("ATG", abc);
     cass_close(imm_state_lprob(s, seq), log(0.8 / 0.9));

@@ -19,45 +19,47 @@ KHASH_MAP_INIT_PTR(codonp, struct codonp_node*)
 
 struct nmm_io
 {
-    struct imm_io const* parent;
+    struct imm_io* super;
 
     khash_t(codonp) * codonp_map;
 };
 
+static void                  create_codon_lprobs(struct nmm_io* io);
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id);
 static void                  destroy(struct imm_io const* io);
-void                         create_codon_lprobs(struct nmm_io* io);
+static int                   write(struct imm_io const* io, FILE* stream);
 
-struct imm_io_vtable const __vtable = {read_abc, destroy};
+struct imm_io_vtable const __vtable = {read_abc, destroy, write};
 
 struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
-
     struct nmm_io* io = malloc(sizeof(*io));
     io->codonp_map = NULL;
 
-    io->parent = __imm_io_create_parent(hmm, dp, __vtable, io);
-    if (!io->parent) {
-        imm_error("could not io_create_parent");
+    io->super = __imm_io_create(hmm, dp, io);
+    if (!io->super) {
+        imm_error("could not __imm_io_create");
         free_c(io);
         return NULL;
     }
 
     create_codon_lprobs(io);
 
+    *__imm_io_vtable(io->super) = __vtable;
+
     return io;
 }
 
-void create_codon_lprobs(struct nmm_io* io)
+static void create_codon_lprobs(struct nmm_io* io)
 {
     khash_t(codonp)* map = io->codonp_map = kh_init(codonp);
 
     uint32_t idx = 0;
-    for (uint32_t i = 0; i < imm_io_nstates(io->parent); ++i) {
-        struct imm_state const* state = imm_io_state(io->parent, i);
+    for (uint32_t i = 0; i < imm_io_nstates(io->super); ++i) {
+        struct imm_state const* state = imm_io_state(io->super, i);
         if (imm_state_type_id(state) == NMM_CODON_STATE_TYPE_ID) {
 
-            struct nmm_codon_state const* s = nmm_codon_state_child(state);
+            struct nmm_codon_state const* s = nmm_codon_state_derived(state);
             struct nmm_codon_lprob const* codonp = codon_state_codonp(s);
             khint_t                       k = kh_get(codonp, map, codonp);
             if (k != kh_end(map))
@@ -75,14 +77,12 @@ void create_codon_lprobs(struct nmm_io* io)
     }
 }
 
-void nmm_io_destroy(struct nmm_io const* io)
-{
-    struct imm_io const* parent = io->parent;
-    destroy(parent);
-    __imm_io_destroy_parent(parent);
-}
+void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
 
-int nmm_io_write(struct nmm_io const* io, FILE* stream) { return imm_io_write(io->parent, stream); }
+int nmm_io_write(struct nmm_io const* io, FILE* stream)
+{
+    return __imm_io_vtable(io->super)->write(io->super, stream);
+}
 
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)
 {
@@ -111,7 +111,7 @@ static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)
 
 static void destroy(struct imm_io const* io)
 {
-    struct nmm_io* this = __imm_io_child(io);
+    struct nmm_io* this = __imm_io_derived(io);
     if (this->codonp_map) {
         for (khint_t k = kh_begin(this->codonp_map); k < kh_end(this->codonp_map); ++k)
             if (kh_exist(this->codonp_map, k)) {
@@ -120,4 +120,8 @@ static void destroy(struct imm_io const* io)
             }
         kh_destroy(codonp, this->codonp_map);
     }
+
+    __imm_io_destroy(io);
 }
+
+static int write(struct imm_io const* io, FILE* stream) { return __imm_io_write(io, stream); }

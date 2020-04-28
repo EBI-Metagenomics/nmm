@@ -37,7 +37,7 @@ void test_frame_state1(void)
     nmm_codon_lprob_destroy(codonp);
 
     struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state*       s = nmm_frame_state_parent(state);
+    const struct imm_state*       s = nmm_frame_state_super(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -5.914503505971854);
@@ -64,9 +64,9 @@ void test_frame_state1(void)
     cass_cond(imm_lprob_is_zero(imm_state_lprob(s, seq)));
     imm_seq_destroy(seq);
 
-    struct imm_state const* parent = nmm_frame_state_parent(state);
-    cass_cond(nmm_codon_state_child(parent) == NULL);
-    cass_cond((state = nmm_frame_state_child(parent)) != NULL);
+    struct imm_state const* super = nmm_frame_state_super(state);
+    cass_cond(nmm_codon_state_derived(super) == NULL);
+    cass_cond((state = nmm_frame_state_derived(super)) != NULL);
 
     nmm_codon_destroy(codon);
     nmm_frame_state_destroy(state);
@@ -92,7 +92,7 @@ void test_frame_state2(void)
     nmm_codon_lprob_destroy(codonp);
 
     struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state*       s = nmm_frame_state_parent(state);
+    const struct imm_state*       s = nmm_frame_state_super(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -5.914503505971854);
@@ -164,7 +164,7 @@ void test_frame_state3(void)
     nmm_codon_lprob_destroy(codonp);
 
     struct nmm_frame_state const* state = nmm_frame_state_create("State", baset, codont, 0.1);
-    const struct imm_state*       s = nmm_frame_state_parent(state);
+    const struct imm_state*       s = nmm_frame_state_super(state);
 
     struct imm_seq const* seq = imm_seq_create("A", abc);
     cass_close(imm_state_lprob(s, seq), -6.282228286097171);

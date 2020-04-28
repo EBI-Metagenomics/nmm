@@ -6,12 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-static uint8_t               amino_abc_type_id(struct imm_abc const* abc);
-static void                  amino_abc_destroy(struct imm_abc const* abc);
-static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc);
+static uint8_t               type_id(struct imm_abc const* abc);
+static void                  destroy(struct imm_abc const* abc);
+static struct imm_abc const* clone(struct imm_abc const* abc);
 
-static struct imm_abc_vtable const __vtable = {amino_abc_type_id, __imm_abc_write,
-                                               amino_abc_destroy, amino_abc_clone};
+static struct imm_abc_vtable const __vtable = {type_id, __imm_abc_write, destroy, clone};
 
 struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const any_symbol)
 {
@@ -59,16 +58,16 @@ struct imm_abc const* amino_abc_read(FILE* stream)
     return abc;
 }
 
-static uint8_t amino_abc_type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
+static uint8_t type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
 
-static void amino_abc_destroy(struct imm_abc const* abc)
+static void destroy(struct imm_abc const* abc)
 {
     struct nmm_amino_abc const* amino_abc = __imm_abc_derived(abc);
     __imm_abc_destroy(abc);
     free_c(amino_abc);
 }
 
-static struct imm_abc const* amino_abc_clone(struct imm_abc const* abc)
+static struct imm_abc const* clone(struct imm_abc const* abc)
 {
     struct nmm_amino_abc* amino_abc = malloc(sizeof(*amino_abc));
     amino_abc->super = __imm_abc_clone(abc);

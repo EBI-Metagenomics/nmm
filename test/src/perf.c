@@ -19,13 +19,13 @@ static inline char*  fmt_name(char* restrict buffer, char const* name, unsigned 
     sprintf(buffer, "%s%u", name, i);
     return buffer;
 }
-static inline struct imm_state const* frame_parent(struct nmm_frame_state const* state)
+static inline struct imm_state const* frame_super(struct nmm_frame_state const* state)
 {
-    return nmm_frame_state_parent(state);
+    return nmm_frame_state_super(state);
 }
-static inline struct imm_state const* mute_parent(struct imm_mute_state const* state)
+static inline struct imm_state const* mute_super(struct imm_mute_state const* state)
 {
-    return imm_mute_state_parent(state);
+    return imm_mute_state_super(state);
 }
 
 struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
@@ -67,27 +67,27 @@ void test_perf_viterbi(void)
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
     struct imm_mute_state const* start = imm_mute_state_create("START", abc);
-    imm_hmm_add_state(hmm, mute_parent(start), log(1.0));
+    imm_hmm_add_state(hmm, mute_super(start), log(1.0));
 
     struct imm_mute_state const* end = imm_mute_state_create("END", abc);
-    imm_hmm_add_state(hmm, mute_parent(end), zero());
+    imm_hmm_add_state(hmm, mute_super(end), zero());
 
     struct nmm_frame_state const* B = nmm_frame_state_create("B", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, frame_parent(B), zero());
+    imm_hmm_add_state(hmm, frame_super(B), zero());
 
     struct nmm_frame_state const* E = nmm_frame_state_create("E", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, frame_parent(E), zero());
+    imm_hmm_add_state(hmm, frame_super(E), zero());
 
     struct nmm_frame_state const* J = nmm_frame_state_create("J", baset, B_codont, epsilon);
-    imm_hmm_add_state(hmm, frame_parent(J), zero());
+    imm_hmm_add_state(hmm, frame_super(J), zero());
 
-    imm_hmm_set_trans(hmm, mute_parent(start), frame_parent(B), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(B), frame_parent(B), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(E), frame_parent(E), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(J), frame_parent(J), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(E), frame_parent(J), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(J), frame_parent(B), log(0.2));
-    imm_hmm_set_trans(hmm, frame_parent(E), mute_parent(end), log(0.2));
+    imm_hmm_set_trans(hmm, mute_super(start), frame_super(B), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(B), frame_super(B), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(E), frame_super(E), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(J), frame_super(J), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(E), frame_super(J), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(J), frame_super(B), log(0.2));
+    imm_hmm_set_trans(hmm, frame_super(E), mute_super(end), log(0.2));
 
     struct nmm_frame_state const** M = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
     struct nmm_frame_state const** I = malloc(sizeof(struct nmm_frame_state*) * ncore_nodes);
@@ -99,29 +99,29 @@ void test_perf_viterbi(void)
         I[i] = nmm_frame_state_create(fmt_name(name, "I", i), baset, I_codont, epsilon);
         D[i] = imm_mute_state_create(fmt_name(name, "D", i), abc);
 
-        imm_hmm_add_state(hmm, frame_parent(M[i]), zero());
-        imm_hmm_add_state(hmm, frame_parent(I[i]), zero());
-        imm_hmm_add_state(hmm, mute_parent(D[i]), zero());
+        imm_hmm_add_state(hmm, frame_super(M[i]), zero());
+        imm_hmm_add_state(hmm, frame_super(I[i]), zero());
+        imm_hmm_add_state(hmm, mute_super(D[i]), zero());
 
         if (i == 0)
-            imm_hmm_set_trans(hmm, frame_parent(B), frame_parent(M[0]), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(B), frame_super(M[0]), log(0.2));
 
-        imm_hmm_set_trans(hmm, frame_parent(M[i]), frame_parent(I[i]), log(0.2));
-        imm_hmm_set_trans(hmm, frame_parent(I[i]), frame_parent(I[i]), log(0.2));
+        imm_hmm_set_trans(hmm, frame_super(M[i]), frame_super(I[i]), log(0.2));
+        imm_hmm_set_trans(hmm, frame_super(I[i]), frame_super(I[i]), log(0.2));
 
         if (i > 0) {
-            imm_hmm_set_trans(hmm, frame_parent(M[i - 1]), frame_parent(M[i]), log(0.2));
-            imm_hmm_set_trans(hmm, mute_parent(D[i - 1]), frame_parent(M[i]), log(0.2));
-            imm_hmm_set_trans(hmm, frame_parent(I[i - 1]), frame_parent(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(M[i - 1]), frame_super(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, mute_super(D[i - 1]), frame_super(M[i]), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(I[i - 1]), frame_super(M[i]), log(0.2));
 
-            imm_hmm_set_trans(hmm, frame_parent(M[i - 1]), mute_parent(D[i]), log(0.2));
-            imm_hmm_set_trans(hmm, mute_parent(D[i - 1]), mute_parent(D[i]), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(M[i - 1]), mute_super(D[i]), log(0.2));
+            imm_hmm_set_trans(hmm, mute_super(D[i - 1]), mute_super(D[i]), log(0.2));
         }
 
         if (i == ncore_nodes - 1) {
-            imm_hmm_set_trans(hmm, frame_parent(M[i]), frame_parent(E), log(0.2));
-            imm_hmm_set_trans(hmm, mute_parent(D[i]), frame_parent(E), log(0.2));
-            imm_hmm_set_trans(hmm, frame_parent(I[i]), frame_parent(E), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(M[i]), frame_super(E), log(0.2));
+            imm_hmm_set_trans(hmm, mute_super(D[i]), frame_super(E), log(0.2));
+            imm_hmm_set_trans(hmm, frame_super(I[i]), frame_super(E), log(0.2));
         }
     }
 
@@ -170,7 +170,7 @@ void test_perf_viterbi(void)
     cass_cond(imm_seq_length(seq) == 2000);
 
     struct elapsed*      elapsed = elapsed_create();
-    struct imm_dp const* dp = imm_hmm_create_dp(hmm, mute_parent(end));
+    struct imm_dp const* dp = imm_hmm_create_dp(hmm, mute_super(end));
 
     elapsed_start(elapsed);
     struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);

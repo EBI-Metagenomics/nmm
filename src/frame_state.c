@@ -13,7 +13,7 @@
 
 struct nmm_frame_state
 {
-    struct imm_state const*       parent;
+    struct imm_state const*       super;
     struct nmm_base_table const*  baset;
     struct nmm_codon_table const* codont;
     double                        epsilon;
@@ -28,11 +28,11 @@ static double   frame_state_lprob(struct imm_state const* state, struct imm_seq 
 static unsigned frame_state_min_seq(struct imm_state const* state);
 static unsigned frame_state_max_seq(struct imm_state const* state);
 static int  frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
-static void frame_state_destroy(struct imm_state const* state);
+static void destroy(struct imm_state const* state);
 
 static struct imm_state_vtable const vtable = {frame_state_type_id, frame_state_lprob,
                                                frame_state_min_seq, frame_state_max_seq,
-                                               frame_state_write,   frame_state_destroy};
+                                               frame_state_write,   destroy};
 
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq);
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq);
@@ -89,7 +89,7 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_get_base_abc(baset)));
 
     struct imm_abc const* abc = nmm_base_abc_super(nmm_base_table_get_base_abc(baset));
-    state->parent = imm_state_create(name, abc, vtable, state);
+    state->super = imm_state_create(name, abc, vtable, state);
     return state;
 }
 
@@ -144,23 +144,21 @@ double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_se
 
 void nmm_frame_state_destroy(struct nmm_frame_state const* state)
 {
-    struct imm_state const* parent = state->parent;
-    frame_state_destroy(parent);
-    __imm_state_destroy_parent(parent);
+    state->super->vtable.destroy(state->super);
 }
 
-struct imm_state const* nmm_frame_state_parent(struct nmm_frame_state const* state)
+struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* state)
 {
-    return state->parent;
+    return state->super;
 }
 
-struct nmm_frame_state const* nmm_frame_state_child(struct imm_state const* state)
+struct nmm_frame_state const* nmm_frame_state_derived(struct imm_state const* state)
 {
     if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID) {
         imm_error("could not cast to frame_state");
         return NULL;
     }
-    return __imm_state_child(state);
+    return __imm_state_derived(state);
 }
 
 static uint8_t frame_state_type_id(struct imm_state const* state)
@@ -170,7 +168,7 @@ static uint8_t frame_state_type_id(struct imm_state const* state)
 
 static double frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
-    struct nmm_frame_state const* s = __imm_state_child(state);
+    struct nmm_frame_state const* s = __imm_state_derived(state);
     unsigned                      length = imm_seq_length(seq);
 
     if (length == 1)
@@ -491,9 +489,15 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
 
 static int frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
 {
+    /* TODO: __imm_state */
     return 0;
 }
 
-static void frame_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
+static void destroy(struct imm_state const* state)
+{
+    struct nmm_frame_state const* s = __imm_state_derived(state);
+    free_c(s);
+    __imm_state_destroy(state);
+}
 
 struct imm_state const* frame_state_read(FILE* stream) { return NULL; }

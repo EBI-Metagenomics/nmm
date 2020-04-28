@@ -10,7 +10,7 @@
 
 struct nmm_codon_state
 {
-    struct imm_state const*       parent;
+    struct imm_state const*       super;
     struct nmm_codon_lprob const* codonp;
     struct nmm_base_abc const*    base_abc;
 };
@@ -20,11 +20,11 @@ static double   codon_state_lprob(struct imm_state const* state, struct imm_seq 
 static unsigned codon_state_min_seq(struct imm_state const* state);
 static unsigned codon_state_max_seq(struct imm_state const* state);
 static int  codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
-static void codon_state_destroy(struct imm_state const* state);
+static void destroy(struct imm_state const* state);
 
 static struct imm_state_vtable const vtable = {codon_state_type_id, codon_state_lprob,
                                                codon_state_min_seq, codon_state_max_seq,
-                                               codon_state_write,   codon_state_destroy};
+                                               codon_state_write,   destroy};
 
 struct nmm_codon_state const* nmm_codon_state_create(char const*                   name,
                                                      struct nmm_codon_lprob const* codonp)
@@ -35,29 +35,27 @@ struct nmm_codon_state const* nmm_codon_state_create(char const*                
     state->base_abc = nmm_codon_lprob_get_base_abc(codonp);
 
     struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_lprob_get_base_abc(codonp));
-    state->parent = imm_state_create(name, abc, vtable, state);
+    state->super = imm_state_create(name, abc, vtable, state);
     return state;
 }
 
 void nmm_codon_state_destroy(struct nmm_codon_state const* state)
 {
-    struct imm_state const* parent = state->parent;
-    codon_state_destroy(parent);
-    __imm_state_destroy_parent(parent);
+    state->super->vtable.destroy(state->super);
 }
 
-struct imm_state const* nmm_codon_state_parent(struct nmm_codon_state const* state)
+struct imm_state const* nmm_codon_state_super(struct nmm_codon_state const* state)
 {
-    return state->parent;
+    return state->super;
 }
 
-struct nmm_codon_state const* nmm_codon_state_child(struct imm_state const* state)
+struct nmm_codon_state const* nmm_codon_state_derived(struct imm_state const* state)
 {
     if (imm_state_type_id(state) != NMM_CODON_STATE_TYPE_ID) {
         imm_error("could not cast to codon_state");
         return NULL;
     }
-    return __imm_state_child(state);
+    return __imm_state_derived(state);
 }
 
 static uint8_t codon_state_type_id(struct imm_state const* state)
@@ -67,7 +65,7 @@ static uint8_t codon_state_type_id(struct imm_state const* state)
 
 static double codon_state_lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
-    struct nmm_codon_state const* s = __imm_state_child(state);
+    struct nmm_codon_state const* s = __imm_state_derived(state);
     unsigned                      length = imm_seq_length(seq);
 
     if (length != 3)
@@ -92,7 +90,12 @@ static int codon_state_write(struct imm_state const* state, struct imm_io const*
     return 0;
 }
 
-static void codon_state_destroy(struct imm_state const* state) { free_c(__imm_state_child(state)); }
+static void destroy(struct imm_state const* state)
+{
+    struct nmm_codon_state const* s = __imm_state_derived(state);
+    free_c(s);
+    __imm_state_destroy(state);
+}
 
 struct imm_state const* codon_state_read(FILE* stream) { return NULL; }
 
