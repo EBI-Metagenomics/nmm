@@ -23,7 +23,7 @@ struct nmm_codon_table
     /**
      * Maps alphabet symbols to the indices 0, 1, 2, and 3 and the any-symbol to 4.
      */
-    unsigned symbol_idx[NMM_ASCII_LAST_STD + 1];
+    uint8_t symbol_idx[NMM_ASCII_LAST_STD + 1];
     /**
      * Pre-computed marginalization forms of
      * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).

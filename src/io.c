@@ -4,6 +4,7 @@
 #include "base_table.h"
 #include "codon_lprob.h"
 #include "codon_state.h"
+#include "codon_table.h"
 #include "frame_state.h"
 #include "free.h"
 #include "imm/imm.h"
@@ -52,6 +53,7 @@ static void                  destroy(struct imm_io const* io);
 static int                   write(struct imm_io const* io, FILE* stream);
 static int                   write_baset(struct nmm_io const* io, FILE* stream);
 static int                   write_codonp(struct nmm_io const* io, FILE* stream);
+static int                   write_codont(struct nmm_io const* io, FILE* stream);
 
 struct imm_io_vtable const __vtable = {read_abc, destroy, write};
 
@@ -257,6 +259,11 @@ static int write(struct imm_io const* io, FILE* stream)
         return 1;
     }
 
+    if (write_codont(nmm_io_derived(io), stream)) {
+        imm_error("could not write_codont");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -288,6 +295,23 @@ static int write_codonp(struct nmm_io const* io, FILE* stream)
         struct codonp_node const* node = kh_val(map, i);
 
         if (codon_lprob_write(node->codonp, stream))
+            return 1;
+    }
+
+    return 0;
+}
+
+static int write_codont(struct nmm_io const* io, FILE* stream)
+{
+    khash_t(codont)* map = io->codont_map;
+
+    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
+        if (!kh_exist(map, i))
+            continue;
+
+        struct codont_node const* node = kh_val(map, i);
+
+        if (codon_table_write(node->codont, stream))
             return 1;
     }
 

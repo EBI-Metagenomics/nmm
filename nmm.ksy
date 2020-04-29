@@ -11,6 +11,8 @@ seq:
     type: baset
   - id: codonp
     type: codonp
+  - id: codont
+    type: codont
 enums:
   state_type:
     0: mute
@@ -201,8 +203,15 @@ types:
         type: f8
         repeat: expr
         repeat-expr: 4
-
   codonp:
     seq:
+      - id: lprobs
+        type: array3d
+  codont:
+    seq:
+      - id: symbol_idx
+        type: u1
+        repeat: expr
+        repeat-expr: 128
       - id: lprobs
         type: array3d

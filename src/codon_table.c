@@ -1,9 +1,10 @@
-#include "nmm/codon_table.h"
+#include "codon_table.h"
 #include "codon_iter.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/base_abc.h"
 #include "nmm/codon_lprob.h"
+#include "nmm/codon_table.h"
 #include <stdlib.h>
 
 /**
@@ -52,6 +53,22 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
     free_c(codont);
 }
 
+int codon_table_write(struct nmm_codon_table const* codont, FILE* stream)
+{
+    if (fwrite(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
+        NMM_ASCII_LAST_STD + 1) {
+        imm_error("could not write symbol_idx");
+        return 1;
+    }
+
+    if (nmm_array3d_write(&codont->lprobs, stream)) {
+        imm_error("could not write lprobs");
+        return 1;
+    }
+
+    return 0;
+}
+
 static void set_symbol_index(struct nmm_codon_table* codont)
 {
     struct imm_abc const* abc = nmm_base_abc_super(codont->base_abc);
@@ -60,7 +77,7 @@ static void set_symbol_index(struct nmm_codon_table* codont)
 
     for (unsigned i = 0; i < NMM_BASE_ABC_SIZE; ++i) {
         size_t j = (size_t)symbols[i];
-        codont->symbol_idx[j] = (unsigned)imm_abc_symbol_idx(abc, symbols[i]);
+        codont->symbol_idx[j] = imm_abc_symbol_idx(abc, symbols[i]);
     }
 
     codont->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_ABC_SIZE;

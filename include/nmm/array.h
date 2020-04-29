@@ -8,8 +8,8 @@
 
 struct nmm_array3d
 {
-    double*  values;
     unsigned strides[3];
+    double*  values;
 };
 
 struct nmm_array3d_idx
@@ -27,7 +27,7 @@ static inline unsigned nmm_array3d_length(struct nmm_array3d const* arr)
 static inline struct nmm_array3d nmm_array3d_create(unsigned dim0, unsigned dim1, unsigned dim2)
 {
     unsigned           len = dim0 * dim1 * dim2;
-    struct nmm_array3d arr = {malloc(sizeof(double) * len), {dim1 * dim2, dim2, 1}};
+    struct nmm_array3d arr = {{dim1 * dim2, dim2, 1}, malloc(sizeof(double) * len)};
     return arr;
 }
 
