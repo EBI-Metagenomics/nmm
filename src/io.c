@@ -50,12 +50,13 @@ static void                  create_codonp_map(struct nmm_io* io);
 static void                  create_codont_map(struct nmm_io* io);
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id);
 static void                  destroy(struct imm_io const* io);
+static void                  destroy_on_read_failure(struct imm_io const* io);
 static int                   write(struct imm_io const* io, FILE* stream);
 static int                   write_baset(struct nmm_io const* io, FILE* stream);
 static int                   write_codonp(struct nmm_io const* io, FILE* stream);
 static int                   write_codont(struct nmm_io const* io, FILE* stream);
 
-struct imm_io_vtable const __vtable = {read_abc, destroy, write};
+struct imm_io_vtable const __vtable = {read_abc, destroy, write, destroy_on_read_failure};
 
 struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
@@ -77,6 +78,16 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 
     return io;
 }
+
+struct nmm_io const* nmm_io_create_from_file(FILE* stream)
+{
+    struct nmm_io* io = malloc(sizeof(*io));
+    io->super = __imm_io_new(io);
+    __imm_io_read(io->super, stream);
+    return io;
+}
+
+/* struct imm_io* __imm_io_new(void* derived) */
 
 void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
 
@@ -242,13 +253,13 @@ static void destroy(struct imm_io const* io)
     __imm_io_destroy(io);
 }
 
+static void destroy_on_read_failure(struct imm_io const* io)
+{
+    __imm_io_destroy_on_read_failure(io);
+}
+
 static int write(struct imm_io const* io, FILE* stream)
 {
-    if (__imm_io_write(io, stream)) {
-        imm_error("coould not imm_io_write");
-        return 1;
-    }
-
     if (write_baset(nmm_io_derived(io), stream)) {
         imm_error("could not write_baset");
         return 1;
@@ -264,12 +275,24 @@ static int write(struct imm_io const* io, FILE* stream)
         return 1;
     }
 
+    if (__imm_io_write(io, stream)) {
+        imm_error("coould not imm_io_write");
+        return 1;
+    }
+
     return 0;
 }
 
 static int write_baset(struct nmm_io const* io, FILE* stream)
 {
     khash_t(baset)* map = io->baset_map;
+    IMM_BUG(kh_size(map) > UINT32_MAX);
+    uint32_t n = (uint32_t)kh_size(map);
+
+    if (fwrite(&n, sizeof(n), 1, stream) < 1) {
+        imm_error("could not write nbaset");
+        return 1;
+    }
 
     for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
         if (!kh_exist(map, i))
@@ -287,6 +310,13 @@ static int write_baset(struct nmm_io const* io, FILE* stream)
 static int write_codonp(struct nmm_io const* io, FILE* stream)
 {
     khash_t(codonp)* map = io->codonp_map;
+    IMM_BUG(kh_size(map) > UINT32_MAX);
+    uint32_t n = (uint32_t)kh_size(map);
+
+    if (fwrite(&n, sizeof(n), 1, stream) < 1) {
+        imm_error("could not write ncodonp");
+        return 1;
+    }
 
     for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
         if (!kh_exist(map, i))
@@ -304,6 +334,13 @@ static int write_codonp(struct nmm_io const* io, FILE* stream)
 static int write_codont(struct nmm_io const* io, FILE* stream)
 {
     khash_t(codont)* map = io->codont_map;
+    IMM_BUG(kh_size(map) > UINT32_MAX);
+    uint32_t n = (uint32_t)kh_size(map);
+
+    if (fwrite(&n, sizeof(n), 1, stream) < 1) {
+        imm_error("could not write ncodont");
+        return 1;
+    }
 
     for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
         if (!kh_exist(map, i))

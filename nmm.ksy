@@ -3,16 +3,28 @@ meta:
   file-extension: nmm
   endian: le
 seq:
+  - id: nbaset
+    type: u4
+  - id: baset
+    type: baset
+    repeat: expr
+    repeat-expr: nbaset
+  - id: ncodonp
+    type: u4
+  - id: codonp
+    type: codonp
+    repeat: expr
+    repeat-expr: ncodonp
+  - id: ncodont
+    type: u4
+  - id: codont
+    type: codont
+    repeat: expr
+    repeat-expr: ncodont
   - id: hmm
     type: hmm
   - id: dp
     type: dp
-  - id: baset
-    type: baset
-  - id: codonp
-    type: codonp
-  - id: codont
-    type: codont
 enums:
   state_type:
     0: mute
