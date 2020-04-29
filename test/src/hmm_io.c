@@ -67,7 +67,7 @@ void test_hmm_io(void)
     imm_results_destroy(results);
 
     struct nmm_io const* io = nmm_io_create(hmm, dp);
-    FILE*                file = fopen(TMP_FOLDER "/two_states.imm", "w");
+    FILE*                file = fopen(TMP_FOLDER "/two_states.nmm", "w");
     cass_cond(file != NULL);
     cass_equal_int(nmm_io_write(io, file), 0);
     fclose(file);

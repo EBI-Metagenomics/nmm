@@ -1,10 +1,12 @@
 #include "codon_state.h"
 #include "free.h"
 #include "imm/imm.h"
+#include "io.h"
 #include "nmm/base_abc.h"
 #include "nmm/codon.h"
 #include "nmm/codon_lprob.h"
 #include "nmm/codon_state.h"
+#include "nmm/io.h"
 #include "nmm/state_types.h"
 #include <stdlib.h>
 
@@ -87,6 +89,19 @@ static unsigned codon_state_max_seq(struct imm_state const* state) { return 3; }
 
 static int codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
 {
+    struct nmm_codon_state const* s = nmm_codon_state_derived(state);
+    uint32_t                      index = io_codonp_index(nmm_io_derived(io), s->codonp);
+
+    if (__imm_state_write(state, stream)) {
+        imm_error("could not write super state");
+        return 1;
+    }
+
+    if (fwrite(&index, sizeof(index), 1, stream) < 1) {
+        imm_error("could not write codonp index");
+        return 1;
+    }
+
     return 0;
 }
 

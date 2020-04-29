@@ -1,30 +1,50 @@
-#include "nmm/io.h"
+#include "io.h"
 #include "amino_abc.h"
 #include "base_abc.h"
 #include "codon_state.h"
+#include "frame_state.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "lib/khash_ptr.h"
 #include "nmm/abc_types.h"
 #include "nmm/codon_state.h"
+#include "nmm/frame_state.h"
+#include "nmm/io.h"
 #include "nmm/state_types.h"
+
+struct baset_node
+{
+    uint32_t                     index;
+    struct nmm_base_table const* baset;
+};
+KHASH_MAP_INIT_PTR(baset, struct baset_node*)
 
 struct codonp_node
 {
     uint32_t                      index;
     struct nmm_codon_lprob const* codonp;
 };
-
 KHASH_MAP_INIT_PTR(codonp, struct codonp_node*)
+
+struct codont_node
+{
+    uint32_t                      index;
+    struct nmm_codon_table const* codont;
+};
+KHASH_MAP_INIT_PTR(codont, struct codont_node*)
 
 struct nmm_io
 {
     struct imm_io* super;
 
+    khash_t(baset) * baset_map;
     khash_t(codonp) * codonp_map;
+    khash_t(codont) * codont_map;
 };
 
-static void                  create_codon_lprobs(struct nmm_io* io);
+static void                  create_baset_map(struct nmm_io* io);
+static void                  create_codonp_map(struct nmm_io* io);
+static void                  create_codont_map(struct nmm_io* io);
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id);
 static void                  destroy(struct imm_io const* io);
 static int                   write(struct imm_io const* io, FILE* stream);
@@ -43,38 +63,43 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
         return NULL;
     }
 
-    create_codon_lprobs(io);
+    create_baset_map(io);
+    create_codonp_map(io);
+    create_codont_map(io);
 
     *__imm_io_vtable(io->super) = __vtable;
 
     return io;
 }
 
-static void create_codon_lprobs(struct nmm_io* io)
+uint32_t io_baset_index(struct nmm_io const* io, struct nmm_base_table const* baset)
 {
-    khash_t(codonp)* map = io->codonp_map = kh_init(codonp);
+    khiter_t i = kh_get(baset, io->baset_map, baset);
+    IMM_BUG(i == kh_end(io->baset_map));
 
-    uint32_t idx = 0;
-    for (uint32_t i = 0; i < imm_io_nstates(io->super); ++i) {
-        struct imm_state const* state = imm_io_state(io->super, i);
-        if (imm_state_type_id(state) == NMM_CODON_STATE_TYPE_ID) {
+    struct baset_node* node = kh_val(io->baset_map, i);
 
-            struct nmm_codon_state const* s = nmm_codon_state_derived(state);
-            struct nmm_codon_lprob const* codonp = codon_state_codonp(s);
-            khint_t                       k = kh_get(codonp, map, codonp);
-            if (k != kh_end(map))
-                continue;
+    return node->index;
+}
 
-            struct codonp_node* node = malloc(sizeof(*node));
-            node->index = idx++;
-            node->codonp = codonp;
-            int      ret = 0;
-            khiter_t iter = kh_put(codonp, map, node->codonp, &ret);
-            IMM_BUG(ret == -1 || ret == 0);
-            kh_key(map, iter) = node->codonp;
-            kh_val(map, iter) = node;
-        }
-    }
+uint32_t io_codonp_index(struct nmm_io const* io, struct nmm_codon_lprob const* codonp)
+{
+    khiter_t i = kh_get(codonp, io->codonp_map, codonp);
+    IMM_BUG(i == kh_end(io->codonp_map));
+
+    struct codonp_node* node = kh_val(io->codonp_map, i);
+
+    return node->index;
+}
+
+uint32_t io_codont_index(struct nmm_io const* io, struct nmm_codon_table const* codont)
+{
+    khiter_t i = kh_get(codont, io->codont_map, codont);
+    IMM_BUG(i == kh_end(io->codont_map));
+
+    struct codont_node* node = kh_val(io->codont_map, i);
+
+    return node->index;
 }
 
 void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
@@ -82,6 +107,93 @@ void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destr
 int nmm_io_write(struct nmm_io const* io, FILE* stream)
 {
     return __imm_io_vtable(io->super)->write(io->super, stream);
+}
+
+struct nmm_io const* nmm_io_derived(struct imm_io const* io)
+{
+    /* TODO: add type info to check its validity? */
+    return __imm_io_derived(io);
+}
+
+static void create_baset_map(struct nmm_io* io)
+{
+    khash_t(baset)* map = io->baset_map = kh_init(baset);
+
+    uint32_t idx = 0;
+    for (uint32_t i = 0; i < imm_io_nstates(io->super); ++i) {
+        struct imm_state const* state = imm_io_state(io->super, i);
+        if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
+            continue;
+
+        struct nmm_frame_state const* s = nmm_frame_state_derived(state);
+        struct nmm_base_table const*  baset = frame_state_baset(s);
+        khiter_t                      k = kh_get(baset, map, baset);
+        if (k != kh_end(map))
+            continue;
+
+        struct baset_node* node = malloc(sizeof(*node));
+        node->index = idx++;
+        node->baset = baset;
+        int      ret = 0;
+        khiter_t iter = kh_put(baset, map, node->baset, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(map, iter) = node->baset;
+        kh_val(map, iter) = node;
+    }
+}
+
+static void create_codonp_map(struct nmm_io* io)
+{
+    khash_t(codonp)* map = io->codonp_map = kh_init(codonp);
+
+    uint32_t idx = 0;
+    for (uint32_t i = 0; i < imm_io_nstates(io->super); ++i) {
+        struct imm_state const* state = imm_io_state(io->super, i);
+        if (imm_state_type_id(state) != NMM_CODON_STATE_TYPE_ID)
+            continue;
+
+        struct nmm_codon_state const* s = nmm_codon_state_derived(state);
+        struct nmm_codon_lprob const* codonp = codon_state_codonp(s);
+        khiter_t                      k = kh_get(codonp, map, codonp);
+        if (k != kh_end(map))
+            continue;
+
+        struct codonp_node* node = malloc(sizeof(*node));
+        node->index = idx++;
+        node->codonp = codonp;
+        int      ret = 0;
+        khiter_t iter = kh_put(codonp, map, node->codonp, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(map, iter) = node->codonp;
+        kh_val(map, iter) = node;
+    }
+}
+
+static void create_codont_map(struct nmm_io* io)
+{
+    khash_t(codont)* map = io->codont_map = kh_init(codont);
+
+    uint32_t idx = 0;
+    for (uint32_t i = 0; i < imm_io_nstates(io->super); ++i) {
+        struct imm_state const* state = imm_io_state(io->super, i);
+        if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
+            continue;
+
+        struct nmm_frame_state const* s = nmm_frame_state_derived(state);
+        struct nmm_codon_table const* codont = frame_state_codont(s);
+        khiter_t                      k = kh_get(codont, map, codont);
+        if (k != kh_end(map))
+            continue;
+
+        struct codont_node* node = malloc(sizeof(*node));
+        node->index = idx++;
+        node->codont = codont;
+        int      ret = 0;
+        khiter_t iter = kh_put(codont, map, node->codont, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(map, iter) = node->codont;
+        kh_val(map, iter) = node;
+    }
 }
 
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)

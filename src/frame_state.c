@@ -1,11 +1,13 @@
 #include "frame_state.h"
 #include "free.h"
+#include "io.h"
 #include "nmm/array_size.h"
 #include "nmm/base_abc.h"
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
+#include "nmm/io.h"
 #include "nmm/state_types.h"
 #include <math.h>
 #include <stdlib.h>
@@ -160,6 +162,18 @@ struct nmm_frame_state const* nmm_frame_state_derived(struct imm_state const* st
     }
     return __imm_state_derived(state);
 }
+
+struct nmm_base_table const* frame_state_baset(struct nmm_frame_state const* state)
+{
+    return state->baset;
+}
+
+struct nmm_codon_table const* frame_state_codont(struct nmm_frame_state const* state)
+{
+    return state->codont;
+}
+
+struct imm_state const* frame_state_read(FILE* stream) { return NULL; }
 
 static uint8_t frame_state_type_id(struct imm_state const* state)
 {
@@ -489,7 +503,30 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
 
 static int frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
 {
-    /* TODO: __imm_state */
+    struct nmm_frame_state const* s = nmm_frame_state_derived(state);
+    uint32_t                      baset_idx = io_baset_index(nmm_io_derived(io), s->baset);
+    uint32_t                      codont_idx = io_codont_index(nmm_io_derived(io), s->codont);
+
+    if (__imm_state_write(state, stream)) {
+        imm_error("could not write super state");
+        return 1;
+    }
+
+    if (fwrite(&baset_idx, sizeof(baset_idx), 1, stream) < 1) {
+        imm_error("could not write baset_idx index");
+        return 1;
+    }
+
+    if (fwrite(&codont_idx, sizeof(codont_idx), 1, stream) < 1) {
+        imm_error("could not write codont_idx index");
+        return 1;
+    }
+
+    if (fwrite(&s->epsilon, sizeof(s->epsilon), 1, stream) < 1) {
+        imm_error("could not write epsilon");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -499,5 +536,3 @@ static void destroy(struct imm_state const* state)
     free_c(s);
     __imm_state_destroy(state);
 }
-
-struct imm_state const* frame_state_read(FILE* stream) { return NULL; }
