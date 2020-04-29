@@ -1,9 +1,10 @@
-#include "nmm/codon_lprob.h"
+#include "codon_lprob.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "nmm/array.h"
 #include "nmm/base_abc.h"
 #include "nmm/codon.h"
+#include "nmm/codon_lprob.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -102,4 +103,14 @@ void nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp)
 struct nmm_base_abc const* nmm_codon_lprob_get_base_abc(struct nmm_codon_lprob const* codonp)
 {
     return codonp->base_abc;
+}
+
+int codon_lprob_write(struct nmm_codon_lprob const* codonp, FILE* stream)
+{
+    if (nmm_array3d_write(&codonp->lprobs, stream)) {
+        imm_error("could not write lprobs");
+        return 1;
+    }
+
+    return 0;
 }

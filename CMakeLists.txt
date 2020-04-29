@@ -25,6 +25,7 @@ find_package(imm REQUIRED)
 add_library(nmm
     src/amino_abc.c
     src/amino_table.c
+    src/array.c
     src/base_abc.c
     src/base_table.c
     src/codon.c

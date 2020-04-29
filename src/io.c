@@ -1,6 +1,8 @@
 #include "io.h"
 #include "amino_abc.h"
 #include "base_abc.h"
+#include "base_table.h"
+#include "codon_lprob.h"
 #include "codon_state.h"
 #include "frame_state.h"
 #include "free.h"
@@ -48,6 +50,8 @@ static void                  create_codont_map(struct nmm_io* io);
 static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id);
 static void                  destroy(struct imm_io const* io);
 static int                   write(struct imm_io const* io, FILE* stream);
+static int                   write_baset(struct nmm_io const* io, FILE* stream);
+static int                   write_codonp(struct nmm_io const* io, FILE* stream);
 
 struct imm_io_vtable const __vtable = {read_abc, destroy, write};
 
@@ -70,6 +74,19 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
     *__imm_io_vtable(io->super) = __vtable;
 
     return io;
+}
+
+void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
+
+int nmm_io_write(struct nmm_io const* io, FILE* stream)
+{
+    return __imm_io_vtable(io->super)->write(io->super, stream);
+}
+
+struct nmm_io const* nmm_io_derived(struct imm_io const* io)
+{
+    /* TODO: add type info to check its validity? */
+    return __imm_io_derived(io);
 }
 
 uint32_t io_baset_index(struct nmm_io const* io, struct nmm_base_table const* baset)
@@ -100,19 +117,6 @@ uint32_t io_codont_index(struct nmm_io const* io, struct nmm_codon_table const* 
     struct codont_node* node = kh_val(io->codont_map, i);
 
     return node->index;
-}
-
-void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
-
-int nmm_io_write(struct nmm_io const* io, FILE* stream)
-{
-    return __imm_io_vtable(io->super)->write(io->super, stream);
-}
-
-struct nmm_io const* nmm_io_derived(struct imm_io const* io)
-{
-    /* TODO: add type info to check its validity? */
-    return __imm_io_derived(io);
 }
 
 static void create_baset_map(struct nmm_io* io)
@@ -236,4 +240,56 @@ static void destroy(struct imm_io const* io)
     __imm_io_destroy(io);
 }
 
-static int write(struct imm_io const* io, FILE* stream) { return __imm_io_write(io, stream); }
+static int write(struct imm_io const* io, FILE* stream)
+{
+    if (__imm_io_write(io, stream)) {
+        imm_error("coould not imm_io_write");
+        return 1;
+    }
+
+    if (write_baset(nmm_io_derived(io), stream)) {
+        imm_error("could not write_baset");
+        return 1;
+    }
+
+    if (write_codonp(nmm_io_derived(io), stream)) {
+        imm_error("could not write_codonp");
+        return 1;
+    }
+
+    return 0;
+}
+
+static int write_baset(struct nmm_io const* io, FILE* stream)
+{
+    khash_t(baset)* map = io->baset_map;
+
+    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
+        if (!kh_exist(map, i))
+            continue;
+
+        struct baset_node const* node = kh_val(map, i);
+
+        if (base_table_write(node->baset, stream))
+            return 1;
+    }
+
+    return 0;
+}
+
+static int write_codonp(struct nmm_io const* io, FILE* stream)
+{
+    khash_t(codonp)* map = io->codonp_map;
+
+    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
+        if (!kh_exist(map, i))
+            continue;
+
+        struct codonp_node const* node = kh_val(map, i);
+
+        if (codon_lprob_write(node->codonp, stream))
+            return 1;
+    }
+
+    return 0;
+}

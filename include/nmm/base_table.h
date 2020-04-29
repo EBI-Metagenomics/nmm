@@ -5,6 +5,7 @@
 #include "nmm/array_size.h"
 #include "nmm/base_abc.h"
 #include "nmm/export.h"
+#include <stdio.h>
 
 struct nmm_base_abc;
 

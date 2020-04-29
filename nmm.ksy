@@ -7,6 +7,10 @@ seq:
     type: hmm
   - id: dp
     type: dp
+  - id: baset
+    type: baset
+  - id: codonp
+    type: codonp
 enums:
   state_type:
     0: mute
@@ -181,3 +185,24 @@ types:
         repeat-expr: nstates
       - id: end_state
         type: u4
+  array3d:
+    seq:
+      - id: strides
+        type: u2
+        repeat: expr
+        repeat-expr: 3
+      - id: values
+        type: f8
+        repeat: expr
+        repeat-expr: strides[0] * strides[1] * strides[2]
+  baset:
+    seq:
+      - id: lprobs
+        type: f8
+        repeat: expr
+        repeat-expr: 4
+
+  codonp:
+    seq:
+      - id: lprobs
+        type: array3d
