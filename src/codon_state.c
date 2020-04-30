@@ -87,6 +87,47 @@ static unsigned codon_state_min_seq(struct imm_state const* state) { return 3; }
 
 static unsigned codon_state_max_seq(struct imm_state const* state) { return 3; }
 
+struct imm_state const* codon_state_read(FILE* stream, struct nmm_io const* io)
+{
+    struct imm_abc const* abc = imm_io_abc(nmm_io_super(io));
+    struct imm_state*     state = __imm_state_read(stream, abc);
+    if (!state) {
+        imm_error("could not state_read");
+        return NULL;
+    }
+
+    state->vtable = vtable;
+
+    struct nmm_codon_state* codon_state = malloc(sizeof(*codon_state));
+    codon_state->super = state;
+    state->derived = codon_state;
+
+    if (!(codon_state->base_abc = nmm_base_abc_derived(abc))) {
+        imm_error("expected base_abc");
+        goto err;
+    }
+
+    uint32_t index = 0;
+    if (fread(&index, sizeof(index), 1, stream) < 1) {
+        imm_error("could not read codonp index");
+        goto err;
+    }
+
+    struct nmm_codon_lprob const* codonp = io_get_codonp(io, index);
+    if (!codonp) {
+        imm_error("could not get codonp");
+        goto err;
+    }
+    codon_state->codonp = codonp;
+
+    return state;
+
+err:
+    free_c(codon_state);
+    __imm_state_destroy(state);
+    return NULL;
+}
+
 static int codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
 {
     struct nmm_codon_state const* s = nmm_codon_state_derived(state);
@@ -111,8 +152,6 @@ static void destroy(struct imm_state const* state)
     free_c(s);
     __imm_state_destroy(state);
 }
-
-struct imm_state const* codon_state_read(FILE* stream) { return NULL; }
 
 struct nmm_codon_lprob const* codon_state_codonp(struct nmm_codon_state const* state)
 {

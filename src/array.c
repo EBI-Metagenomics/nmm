@@ -15,7 +15,7 @@ int nmm_array3d_read(struct nmm_array3d* arr, FILE* stream)
     arr->strides[2] = strides[2];
 
     unsigned len = nmm_array3d_length(arr);
-    arr->values = malloc(sizeof(*arr->values));
+    arr->values = malloc(sizeof(*arr->values) * len);
     if (fread(arr->values, sizeof(*arr->values), len, stream) < len) {
         imm_error("could not read array values");
         free_c(arr->values);

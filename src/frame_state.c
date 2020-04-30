@@ -32,9 +32,9 @@ static unsigned frame_state_max_seq(struct imm_state const* state);
 static int  frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
 static void destroy(struct imm_state const* state);
 
-static struct imm_state_vtable const vtable = {frame_state_type_id, frame_state_lprob,
-                                               frame_state_min_seq, frame_state_max_seq,
-                                               frame_state_write,   destroy};
+static struct imm_state_vtable const __vtable = {frame_state_type_id, frame_state_lprob,
+                                                 frame_state_min_seq, frame_state_max_seq,
+                                                 frame_state_write,   destroy};
 
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq);
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq);
@@ -91,7 +91,7 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_get_base_abc(baset)));
 
     struct imm_abc const* abc = nmm_base_abc_super(nmm_base_table_get_base_abc(baset));
-    state->super = imm_state_create(name, abc, vtable, state);
+    state->super = imm_state_create(name, abc, __vtable, state);
     return state;
 }
 
@@ -173,7 +173,65 @@ struct nmm_codon_table const* frame_state_codont(struct nmm_frame_state const* s
     return state->codont;
 }
 
-struct imm_state const* frame_state_read(FILE* stream) { return NULL; }
+struct imm_state const* frame_state_read(FILE* stream, struct nmm_io const* io)
+{
+    struct imm_abc const* abc = imm_io_abc(nmm_io_super(io));
+    struct imm_state*     state = __imm_state_read(stream, abc);
+    if (!state) {
+        imm_error("could not state_read");
+        return NULL;
+    }
+
+    state->vtable = __vtable;
+
+    struct nmm_frame_state* frame_state = malloc(sizeof(*frame_state));
+    frame_state->super = state;
+    state->derived = frame_state;
+
+    uint32_t index = 0;
+    if (fread(&index, sizeof(index), 1, stream) < 1) {
+        imm_error("could not read baset index");
+        goto err;
+    }
+
+    struct nmm_base_table const* baset = io_get_baset(io, index);
+    if (!baset) {
+        imm_error("could not get baset");
+        goto err;
+    }
+    frame_state->baset = baset;
+
+    index = 0;
+    if (fread(&index, sizeof(index), 1, stream) < 1) {
+        imm_error("could not read codont index");
+        goto err;
+    }
+
+    struct nmm_codon_table const* codont = io_get_codont(io, index);
+    if (!codont) {
+        imm_error("could not get codont");
+        goto err;
+    }
+    frame_state->codont = codont;
+
+    if (fread(&frame_state->epsilon, sizeof(frame_state->epsilon), 1, stream) < 1) {
+        imm_error("could not read epsilon");
+        goto err;
+    }
+
+    frame_state->leps = log(frame_state->epsilon);
+    frame_state->l1eps = log(1 - frame_state->epsilon);
+    frame_state->zero_lprob = imm_lprob_zero();
+    frame_state->any_symbol =
+        imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_get_base_abc(baset)));
+
+    return state;
+
+err:
+    free_c(frame_state);
+    __imm_state_destroy(state);
+    return NULL;
+}
 
 static uint8_t frame_state_type_id(struct imm_state const* state)
 {

@@ -83,9 +83,42 @@ void test_hmm_io(void)
     imm_dp_destroy(dp);
     nmm_codon_lprob_destroy(codonp);
 
-    /* file = fopen(TMP_FOLDER "/two_states.nmm", "r"); */
-    /* io = nmm_io_create_from_file(file); */
-    /* cass_cond(io != NULL); */
-    /* cass_cond(file != NULL); */
-    /* fclose(file); */
+    file = fopen(TMP_FOLDER "/two_states.nmm", "r");
+    io = nmm_io_create_from_file(file);
+    cass_cond(io != NULL);
+    cass_cond(file != NULL);
+    fclose(file);
+
+    cass_equal_uint64(imm_io_nstates(nmm_io_super(io)), 2);
+
+    abc = imm_io_abc(nmm_io_super(io));
+    hmm = imm_io_hmm(nmm_io_super(io));
+    dp = imm_io_dp(nmm_io_super(io));
+
+    seq = imm_seq_create("A", abc);
+    results = imm_dp_viterbi(dp, seq, 0);
+    cass_cond(results != NULL);
+    cass_cond(imm_results_size(results) == 1);
+    r = imm_results_get(results, 0);
+    cass_close(imm_result_loglik(r), -6.0198640216);
+    cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
+    imm_results_destroy(results);
+
+    for (uint32_t i = 0; i < imm_io_nstates(nmm_io_super(io)); ++i)
+        imm_state_destroy(imm_io_state(nmm_io_super(io), i));
+
+    for (uint32_t i = 0; i < nmm_io_nbase_tables(io); ++i)
+        nmm_base_table_destroy(nmm_io_base_table(io, i));
+
+    for (uint32_t i = 0; i < nmm_io_ncodon_tables(io); ++i)
+        nmm_codon_table_destroy(nmm_io_codon_table(io, i));
+
+    for (uint32_t i = 0; i < nmm_io_ncodon_lprobs(io); ++i)
+        nmm_codon_lprob_destroy(nmm_io_codon_lprob(io, i));
+
+    imm_seq_destroy(seq);
+    imm_abc_destroy(abc);
+    imm_hmm_destroy(hmm);
+    imm_dp_destroy(dp);
+    nmm_io_destroy(io);
 }

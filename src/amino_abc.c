@@ -54,6 +54,7 @@ struct imm_abc const* amino_abc_read(FILE* stream)
 
     abc->vtable = __vtable;
     abc->derived = amino_abc;
+    amino_abc->super = abc;
 
     return abc;
 }
