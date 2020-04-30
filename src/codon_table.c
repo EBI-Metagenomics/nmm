@@ -53,6 +53,27 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
     free_c(codont);
 }
 
+struct nmm_codon_table const* codon_table_read(FILE* stream, struct nmm_base_abc const* base_abc)
+{
+    struct nmm_codon_table* codont = malloc(sizeof(*codont));
+    codont->base_abc = base_abc;
+
+    if (fread(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
+        NMM_ASCII_LAST_STD + 1) {
+        imm_error("could not read symbol_idx");
+        free_c(codont);
+        return NULL;
+    }
+
+    if (nmm_array3d_read(&codont->lprobs, stream)) {
+        imm_error("could not read lprobs");
+        free_c(codont);
+        return NULL;
+    }
+
+    return codont;
+}
+
 int codon_table_write(struct nmm_codon_table const* codont, FILE* stream)
 {
     if (fwrite(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <

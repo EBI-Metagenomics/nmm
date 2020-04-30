@@ -56,6 +56,7 @@ static inline int nmm_array3d_normalize(struct nmm_array3d const* arr)
     return imm_lprob_normalize(arr->values, nmm_array3d_length(arr));
 }
 
+NMM_EXPORT int nmm_array3d_read(struct nmm_array3d* arr, FILE* stream);
 NMM_EXPORT int nmm_array3d_write(struct nmm_array3d const* arr, FILE* stream);
 
 #endif

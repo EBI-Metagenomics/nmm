@@ -18,10 +18,19 @@ struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* ba
 
 void nmm_base_table_destroy(struct nmm_base_table const* baset) { free_c(baset); }
 
-int base_table_read(FILE* stream, struct nmm_base_abc const* base_abc)
+struct nmm_base_table const* base_table_read(FILE* stream, struct nmm_base_abc const* base_abc)
 {
     struct nmm_base_table* baset = malloc(sizeof(*baset));
-    return 0;
+    baset->base_abc = base_abc;
+
+    if (fread(baset->lprobs, sizeof(*baset->lprobs), NMM_BASE_ABC_SIZE, stream) <
+        NMM_BASE_ABC_SIZE) {
+        imm_error("could not read lprobs");
+        free_c(baset);
+        return NULL;
+    }
+
+    return baset;
 }
 
 int base_table_write(struct nmm_base_table const* baset, FILE* stream)

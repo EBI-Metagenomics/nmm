@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 
+struct nmm_base_abc;
 struct nmm_codon_table;
 
-int codon_table_write(struct nmm_codon_table const* codont, FILE* stream);
+struct nmm_codon_table const* codon_table_read(FILE* stream, struct nmm_base_abc const* base_abc);
+int                           codon_table_write(struct nmm_codon_table const* codont, FILE* stream);
 
 #endif

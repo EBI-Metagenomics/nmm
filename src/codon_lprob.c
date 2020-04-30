@@ -39,7 +39,7 @@ static inline struct nmm_array3d_idx triplet_index(struct imm_abc const*    abc,
 
 struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base_abc const* base_abc)
 {
-    struct nmm_codon_lprob* codonp = malloc(sizeof(struct nmm_codon_lprob));
+    struct nmm_codon_lprob* codonp = malloc(sizeof(*codonp));
     codonp->base_abc = base_abc;
 
     codonp->lprobs = nmm_array3d_create(NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE, NMM_BASE_ABC_SIZE);
@@ -103,6 +103,20 @@ void nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp)
 struct nmm_base_abc const* nmm_codon_lprob_get_base_abc(struct nmm_codon_lprob const* codonp)
 {
     return codonp->base_abc;
+}
+
+struct nmm_codon_lprob const* codon_lprob_read(FILE* stream, struct nmm_base_abc const* base_abc)
+{
+    struct nmm_codon_lprob* codonp = malloc(sizeof(*codonp));
+    codonp->base_abc = base_abc;
+
+    if (nmm_array3d_read(&codonp->lprobs, stream)) {
+        imm_error("could not read lprobs");
+        free_c(codonp);
+        return NULL;
+    }
+
+    return codonp;
 }
 
 int codon_lprob_write(struct nmm_codon_lprob const* codonp, FILE* stream)

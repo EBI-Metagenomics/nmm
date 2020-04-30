@@ -82,4 +82,10 @@ void test_hmm_io(void)
     nmm_base_table_destroy(baset);
     imm_dp_destroy(dp);
     nmm_codon_lprob_destroy(codonp);
+
+    /* file = fopen(TMP_FOLDER "/two_states.nmm", "r"); */
+    /* io = nmm_io_create_from_file(file); */
+    /* cass_cond(io != NULL); */
+    /* cass_cond(file != NULL); */
+    /* fclose(file); */
 }
