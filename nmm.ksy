@@ -3,6 +3,8 @@ meta:
   file-extension: nmm
   endian: le
 seq:
+  - id: abc
+    type: abc
   - id: nbaset
     type: u4
   - id: baset
@@ -35,8 +37,6 @@ enums:
 types:
   hmm:
     seq:
-      - id: abc
-        type: abc
       - id: nstates
         type: u4
       - id: states

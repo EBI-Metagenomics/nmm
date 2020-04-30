@@ -7,7 +7,7 @@ struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* ba
                                                    double const a, double const b, double const c,
                                                    double const d)
 {
-    struct nmm_base_table* baset = malloc(sizeof(struct nmm_base_table));
+    struct nmm_base_table* baset = malloc(sizeof(*baset));
     baset->base_abc = base_abc;
     baset->lprobs[0] = a;
     baset->lprobs[1] = b;
@@ -17,6 +17,12 @@ struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* ba
 }
 
 void nmm_base_table_destroy(struct nmm_base_table const* baset) { free_c(baset); }
+
+int base_table_read(FILE* stream, struct nmm_base_abc const* base_abc)
+{
+    struct nmm_base_table* baset = malloc(sizeof(*baset));
+    return 0;
+}
 
 int base_table_write(struct nmm_base_table const* baset, FILE* stream)
 {

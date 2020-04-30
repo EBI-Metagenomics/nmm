@@ -40,6 +40,10 @@ struct nmm_io
 {
     struct imm_io* super;
 
+    struct nmm_base_table**  baset_ptrs;
+    struct nmm_codon_lprob** codonp_ptrs;
+    struct nmm_codon_table** codont_ptrs;
+
     khash_t(baset) * baset_map;
     khash_t(codonp) * codonp_map;
     khash_t(codont) * codont_map;
@@ -56,12 +60,19 @@ static int                   write_baset(struct nmm_io const* io, FILE* stream);
 static int                   write_codonp(struct nmm_io const* io, FILE* stream);
 static int                   write_codont(struct nmm_io const* io, FILE* stream);
 
-struct imm_io_vtable const __vtable = {read_abc, destroy, write, destroy_on_read_failure};
+struct imm_io_vtable const __vtable = {destroy, write, destroy_on_read_failure};
 
 struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
     struct nmm_io* io = malloc(sizeof(*io));
+
+    io->baset_map = NULL;
     io->codonp_map = NULL;
+    io->codont_map = NULL;
+
+    io->baset_ptrs = NULL;
+    io->codonp_ptrs = NULL;
+    io->codont_ptrs = NULL;
 
     io->super = __imm_io_create(hmm, dp, io);
     if (!io->super) {
@@ -82,9 +93,30 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 struct nmm_io const* nmm_io_create_from_file(FILE* stream)
 {
     struct nmm_io* io = malloc(sizeof(*io));
+    io->baset_ptrs = NULL;
+    io->codonp_ptrs = NULL;
+    io->codont_ptrs = NULL;
     io->super = __imm_io_new(io);
+    /* TODO: finish this */
+
+    uint32_t nbaset = 0;
+    if (fread(&nbaset, sizeof(nbaset), 1, stream) < 1) {
+        imm_error("could not read nbaset");
+        goto err;
+    }
+    io->baset_ptrs = malloc(sizeof(*io->baset_ptrs) * nbaset);
+    for (uint32_t i = 0; i < nbaset; ++i)
+        io->baset_ptrs[i] = NULL;
+
+    for (uint32_t i = 0; i < nbaset; ++i)
+        io->baset_ptrs[i] = base_table_read(stream, NULL);
+
     __imm_io_read(io->super, stream);
     return io;
+
+err:
+
+    return NULL;
 }
 
 /* struct imm_io* __imm_io_new(void* derived) */
@@ -260,6 +292,11 @@ static void destroy_on_read_failure(struct imm_io const* io)
 
 static int write(struct imm_io const* io, FILE* stream)
 {
+    if (__imm_io_write_abc(io, stream)) {
+        imm_error("could not write abc");
+        return 1;
+    }
+
     if (write_baset(nmm_io_derived(io), stream)) {
         imm_error("could not write_baset");
         return 1;
@@ -275,8 +312,13 @@ static int write(struct imm_io const* io, FILE* stream)
         return 1;
     }
 
-    if (__imm_io_write(io, stream)) {
-        imm_error("coould not imm_io_write");
+    if (__imm_io_write_hmm(io, stream)) {
+        imm_error("could not write hmm");
+        return 1;
+    }
+
+    if (__imm_io_write_dp(io, stream)) {
+        imm_error("could not write dp");
         return 1;
     }
 
