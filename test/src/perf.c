@@ -3,6 +3,8 @@
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
+#define TMP_FOLDER "test_perf.tmp"
+
 void test_perf_viterbi(void);
 
 int main(void)
@@ -28,7 +30,7 @@ static inline struct imm_state const* mute_super(struct imm_mute_state const* st
     return imm_mute_state_super(state);
 }
 
-struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
+static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
 static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base,
                                                    struct nmm_triplet const   triplet,
@@ -43,6 +45,47 @@ static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* ba
     nmm_codon_lprob_destroy(codonp);
     return codont;
 }
+
+static char const __seq[] = "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
+                            "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
+                            "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC";
 
 void test_perf_viterbi(void)
 {
@@ -125,47 +168,7 @@ void test_perf_viterbi(void)
         }
     }
 
-    struct imm_seq const* seq = imm_seq_create("AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC"
-                                               "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
-                                               "AAAACGCGTGTCGACGACGAACGCGTACGTTTACGACGAGTACGACGCCC",
-                                               abc);
+    struct imm_seq const* seq = imm_seq_create(__seq, abc);
 
     cass_cond(imm_seq_length(seq) == 2000);
 
@@ -189,6 +192,14 @@ void test_perf_viterbi(void)
 #endif
 
     elapsed_destroy(elapsed);
+
+    struct nmm_io const* io = nmm_io_create(hmm, dp);
+    FILE*                file = fopen(TMP_FOLDER "/perf.nmm", "w");
+    cass_cond(file != NULL);
+    cass_equal_int(nmm_io_write(io, file), 0);
+    fclose(file);
+    nmm_io_destroy(io);
+
     imm_hmm_destroy(hmm);
     imm_mute_state_destroy(start);
     imm_mute_state_destroy(end);
@@ -211,9 +222,48 @@ void test_perf_viterbi(void)
     free(M);
     free(I);
     free(D);
+
+    file = fopen(TMP_FOLDER "/perf.nmm", "r");
+    io = nmm_io_create_from_file(file);
+    cass_cond(io != NULL);
+    cass_cond(file != NULL);
+    fclose(file);
+
+    cass_equal_uint64(imm_io_nstates(nmm_io_super(io)), 3 * ncore_nodes + 5);
+
+    abc = imm_io_abc(nmm_io_super(io));
+    hmm = imm_io_hmm(nmm_io_super(io));
+    dp = imm_io_dp(nmm_io_super(io));
+
+    seq = imm_seq_create(__seq, abc);
+    results = imm_dp_viterbi(dp, seq, 0);
+    cass_cond(imm_results_size(results) == 1);
+    r = imm_results_get(results, 0);
+    score = imm_result_loglik(r);
+    cass_cond(is_valid(score) && !is_zero(score));
+    cass_close(score, -1641.970511421383435);
+    imm_results_destroy(results);
+    imm_seq_destroy(seq);
+
+    for (uint32_t i = 0; i < imm_io_nstates(nmm_io_super(io)); ++i)
+        imm_state_destroy(imm_io_state(nmm_io_super(io), i));
+
+    for (uint32_t i = 0; i < nmm_io_nbase_tables(io); ++i)
+        nmm_base_table_destroy(nmm_io_base_table(io, i));
+
+    for (uint32_t i = 0; i < nmm_io_ncodon_tables(io); ++i)
+        nmm_codon_table_destroy(nmm_io_codon_table(io, i));
+
+    for (uint32_t i = 0; i < nmm_io_ncodon_lprobs(io); ++i)
+        nmm_codon_lprob_destroy(nmm_io_codon_lprob(io, i));
+
+    imm_abc_destroy(abc);
+    imm_hmm_destroy(hmm);
+    imm_dp_destroy(dp);
+    nmm_io_destroy(io);
 }
 
-struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)
+static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)
 {
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
