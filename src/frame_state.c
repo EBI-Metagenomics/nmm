@@ -25,10 +25,10 @@ struct nmm_frame_state
     char                          any_symbol;
 };
 
-static uint8_t  frame_state_type_id(struct imm_state const* state);
-static double   frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
-static unsigned frame_state_min_seq(struct imm_state const* state);
-static unsigned frame_state_max_seq(struct imm_state const* state);
+static uint8_t frame_state_type_id(struct imm_state const* state);
+static double  frame_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
+static uint8_t frame_state_min_seq(struct imm_state const* state);
+static uint8_t frame_state_max_seq(struct imm_state const* state);
 static int  frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
 static void destroy(struct imm_state const* state);
 
@@ -257,9 +257,9 @@ static double frame_state_lprob(struct imm_state const* state, struct imm_seq co
     return s->zero_lprob;
 }
 
-static unsigned frame_state_min_seq(struct imm_state const* state) { return 1; }
+static uint8_t frame_state_min_seq(struct imm_state const* state) { return 1; }
 
-static unsigned frame_state_max_seq(struct imm_state const* state) { return 5; }
+static uint8_t frame_state_max_seq(struct imm_state const* state) { return 5; }
 
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {

@@ -17,10 +17,10 @@ struct nmm_codon_state
     struct nmm_base_abc const*    base_abc;
 };
 
-static uint8_t  codon_state_type_id(struct imm_state const* state);
-static double   codon_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
-static unsigned codon_state_min_seq(struct imm_state const* state);
-static unsigned codon_state_max_seq(struct imm_state const* state);
+static uint8_t codon_state_type_id(struct imm_state const* state);
+static double  codon_state_lprob(struct imm_state const* state, struct imm_seq const* seq);
+static uint8_t codon_state_min_seq(struct imm_state const* state);
+static uint8_t codon_state_max_seq(struct imm_state const* state);
 static int  codon_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
 static void destroy(struct imm_state const* state);
 
@@ -83,9 +83,9 @@ static double codon_state_lprob(struct imm_state const* state, struct imm_seq co
     return nmm_codon_lprob_get(s->codonp, &codon);
 }
 
-static unsigned codon_state_min_seq(struct imm_state const* state) { return 3; }
+static uint8_t codon_state_min_seq(struct imm_state const* state) { return 3; }
 
-static unsigned codon_state_max_seq(struct imm_state const* state) { return 3; }
+static uint8_t codon_state_max_seq(struct imm_state const* state) { return 3; }
 
 struct imm_state const* codon_state_read(FILE* stream, struct nmm_io const* io)
 {
