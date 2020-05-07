@@ -25,9 +25,9 @@ static inline void               nmm_array3d_fill(struct nmm_array3d* arr, doubl
 static inline double   nmm_array3d_get(struct nmm_array3d const* arr, struct nmm_array3d_idx idx);
 static inline unsigned nmm_array3d_length(struct nmm_array3d const* arr);
 static inline int      nmm_array3d_normalize(struct nmm_array3d const* arr);
-NMM_API int         nmm_array3d_read(struct nmm_array3d* arr, FILE* stream);
+NMM_API int            nmm_array3d_read(struct nmm_array3d* arr, FILE* stream);
 static inline void nmm_array3d_set(struct nmm_array3d* arr, struct nmm_array3d_idx idx, double val);
-NMM_API int     nmm_array3d_write(struct nmm_array3d const* arr, FILE* stream);
+NMM_API int        nmm_array3d_write(struct nmm_array3d const* arr, FILE* stream);
 
 static inline struct nmm_array3d nmm_array3d_create(unsigned dim0, unsigned dim1, unsigned dim2)
 {
