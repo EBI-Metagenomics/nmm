@@ -43,6 +43,7 @@ add_library(NMM::nmm ALIAS nmm)
 include(GenerateExportHeader)
 generate_export_header(nmm BASE_NAME NMM
     INCLUDE_GUARD_NAME NMM_EXPORT_H
+    EXPORT_MACRO_NAME NMM_API
     EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/nmm/export.h)
 
 if(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
