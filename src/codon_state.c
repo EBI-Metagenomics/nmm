@@ -34,9 +34,9 @@ struct nmm_codon_state const* nmm_codon_state_create(char const*                
     struct nmm_codon_state* state = malloc(sizeof(struct nmm_codon_state));
 
     state->codonp = codonp;
-    state->base_abc = nmm_codon_lprob_get_base_abc(codonp);
+    state->base_abc = nmm_codon_lprob_abc(codonp);
 
-    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_lprob_get_base_abc(codonp));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_lprob_abc(codonp));
     state->super = imm_state_create(name, abc, vtable, state);
     return state;
 }

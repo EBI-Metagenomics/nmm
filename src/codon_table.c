@@ -30,7 +30,7 @@ static inline int not_marginal(struct nmm_codon const* codon, char const any_sym
 struct nmm_codon_table const* nmm_codon_table_create(struct nmm_codon_lprob const* codonp)
 {
     struct nmm_codon_table* codont = malloc(sizeof(struct nmm_codon_table));
-    codont->base_abc = nmm_codon_lprob_get_base_abc(codonp);
+    codont->base_abc = nmm_codon_lprob_abc(codonp);
 
     set_symbol_index(codont);
 

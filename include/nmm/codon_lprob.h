@@ -15,15 +15,13 @@ struct nmm_base_abc;
 struct nmm_codon;
 struct nmm_codon_lprob;
 
-NMM_EXPORT struct nmm_codon_lprob* nmm_codon_lprob_create(
-    struct nmm_base_abc const* base_abc);
-NMM_EXPORT int    nmm_codon_lprob_set(struct nmm_codon_lprob* codonp,
-                                      struct nmm_codon const* codon, double lprob);
-NMM_EXPORT double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
-                                      struct nmm_codon const*       codon);
-NMM_EXPORT int    nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp);
-NMM_EXPORT void   nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp);
-NMM_EXPORT struct nmm_base_abc const* nmm_codon_lprob_get_base_abc(
-    struct nmm_codon_lprob const* codonp);
+NMM_EXPORT struct nmm_base_abc const* nmm_codon_lprob_abc(struct nmm_codon_lprob const* codonp);
+NMM_EXPORT struct nmm_codon_lprob*    nmm_codon_lprob_create(struct nmm_base_abc const* abc);
+NMM_EXPORT void                       nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp);
+NMM_EXPORT double                     nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp,
+                                                          struct nmm_codon const*       codon);
+NMM_EXPORT int                        nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp);
+NMM_EXPORT int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
+                                   double lprob);
 
 #endif
