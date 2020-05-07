@@ -80,7 +80,7 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
 {
     struct nmm_frame_state* state = malloc(sizeof(struct nmm_frame_state));
 
-    if (nmm_base_table_abc(baset) != nmm_codon_table_get_base(codont)) {
+    if (nmm_base_table_abc(baset) != nmm_codon_table_abc(codont)) {
         free_c(state);
         return NULL;
     }
@@ -121,12 +121,12 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 double nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
                               struct nmm_codon* codon)
 {
-    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_table_get_base(state->codont));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_codon_table_abc(state->codont));
     char const*           symbols = imm_abc_symbols(abc);
     unsigned const        n = imm_abc_length(abc);
 
     double            max_lprob = state->zero_lprob;
-    struct nmm_codon* tmp = nmm_codon_create(nmm_codon_table_get_base(state->codont));
+    struct nmm_codon* tmp = nmm_codon_create(nmm_codon_table_abc(state->codont));
 
     for (unsigned i0 = 0; i0 < n; ++i0) {
         for (unsigned i1 = 0; i1 < n; ++i1) {

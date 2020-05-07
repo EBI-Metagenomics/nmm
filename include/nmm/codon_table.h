@@ -31,18 +31,14 @@ struct nmm_codon_table
     struct nmm_array3d lprobs;
 };
 
-static inline struct nmm_array3d_idx __nmm_codon_table_get_array_idx(
-    struct nmm_codon_table const* codont, struct nmm_codon const* codon)
-{
-    struct nmm_triplet const t = nmm_codon_get_triplet(codon);
-    return (struct nmm_array3d_idx){codont->symbol_idx[(size_t)t.a],
-                                    codont->symbol_idx[(size_t)t.b],
-                                    codont->symbol_idx[(size_t)t.c]};
-}
+static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_table const* codont);
+NMM_EXPORT struct nmm_codon_table const* nmm_codon_table_create(struct nmm_codon_lprob const* prob);
+NMM_EXPORT void      nmm_codon_table_destroy(struct nmm_codon_table const* codont);
+static inline double nmm_codon_table_lprob(struct nmm_codon_table const* codont,
+                                           struct nmm_codon const*       codon);
 
-NMM_EXPORT struct nmm_codon_table const* nmm_codon_table_create(
-    struct nmm_codon_lprob const* codonp);
-
+static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codon_table const* tbl,
+                                                                 struct nmm_codon const* codon);
 /**
  * Calculate any of the marginalization forms of
  * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
@@ -55,18 +51,24 @@ NMM_EXPORT struct nmm_codon_table const* nmm_codon_table_create(
  *
  * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
  */
+
+static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_table const* codont)
+{
+    return codont->base_abc;
+}
+
 static inline double nmm_codon_table_lprob(struct nmm_codon_table const* codont,
                                            struct nmm_codon const*       codon)
 {
-    return nmm_array3d_get(&codont->lprobs, __nmm_codon_table_get_array_idx(codont, codon));
+    return nmm_array3d_get(&codont->lprobs, __nmm_codon_table_array_idx(codont, codon));
 }
 
-NMM_EXPORT void nmm_codon_table_destroy(struct nmm_codon_table const* codont);
-
-static inline struct nmm_base_abc const* nmm_codon_table_get_base(
-    struct nmm_codon_table const* codont)
+static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codon_table const* tbl,
+                                                                 struct nmm_codon const* codon)
 {
-    return codont->base_abc;
+    struct nmm_triplet const t = nmm_codon_get_triplet(codon);
+    return (struct nmm_array3d_idx){tbl->symbol_idx[(size_t)t.a], tbl->symbol_idx[(size_t)t.b],
+                                    tbl->symbol_idx[(size_t)t.c]};
 }
 
 #endif
