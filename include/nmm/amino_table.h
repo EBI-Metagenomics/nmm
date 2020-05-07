@@ -14,21 +14,21 @@ struct nmm_amino_table
     double                      lprobs[NMM_AMINO_ABC_SIZE];
 };
 
-NMM_EXPORT struct nmm_amino_table const* nmm_amino_table_create(
-    struct nmm_amino_abc const* amino_abc, double const* lprobs);
+NMM_EXPORT struct nmm_amino_table const* nmm_amino_table_create(struct nmm_amino_abc const* abc,
+                                                                double const*               lprobs);
+NMM_EXPORT void                          nmm_amino_table_destroy(struct nmm_amino_table const* tbl);
+static inline struct nmm_amino_abc const* nmm_amino_table_abc(struct nmm_amino_table const* tbl);
+static inline double nmm_amino_table_lprob(struct nmm_amino_table const* tbl, char const amino);
 
-static inline double nmm_amino_table_lprob(struct nmm_amino_table const* aminot, char const amino)
+static inline struct nmm_amino_abc const* nmm_amino_table_abc(struct nmm_amino_table const* tbl)
 {
-    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_super(aminot->amino_abc), amino);
-    return aminot->lprobs[i];
+    return tbl->amino_abc;
 }
 
-NMM_EXPORT void nmm_amino_table_destroy(struct nmm_amino_table const* aminot);
-
-static inline struct nmm_amino_abc const* nmm_amino_table_get_amino_abc(
-    struct nmm_amino_table const* aminot)
+static inline double nmm_amino_table_lprob(struct nmm_amino_table const* tbl, char const amino)
 {
-    return aminot->amino_abc;
+    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_super(tbl->amino_abc), amino);
+    return tbl->lprobs[i];
 }
 
 #endif
