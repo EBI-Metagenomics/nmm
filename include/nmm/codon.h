@@ -14,15 +14,17 @@ struct nmm_codon
     char                       c;
 };
 
-NMM_EXPORT struct nmm_codon* nmm_codon_create(struct nmm_base_abc const* base);
-NMM_EXPORT void              nmm_codon_destroy(struct nmm_codon const* codon);
+static inline struct nmm_base_abc const* nmm_codon_abc(struct nmm_codon const* codon);
+NMM_EXPORT struct nmm_codon*             nmm_codon_create(struct nmm_base_abc const* base);
+NMM_EXPORT void                          nmm_codon_destroy(struct nmm_codon const* codon);
+static inline struct nmm_triplet         nmm_codon_get_triplet(struct nmm_codon const* codon);
+static inline void nmm_codon_init(struct nmm_codon* codon, struct nmm_base_abc const* base);
+NMM_EXPORT int     nmm_codon_set_triplet(struct nmm_codon* codon, struct nmm_triplet triplet);
 
-static inline struct nmm_base_abc const* nmm_codon_get_base(struct nmm_codon const* codon)
+static inline struct nmm_base_abc const* nmm_codon_abc(struct nmm_codon const* codon)
 {
     return codon->base_abc;
 }
-
-NMM_EXPORT int nmm_codon_set_triplet(struct nmm_codon* codon, struct nmm_triplet triplet);
 
 static inline struct nmm_triplet nmm_codon_get_triplet(struct nmm_codon const* codon)
 {

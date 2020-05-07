@@ -51,7 +51,7 @@ struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base_abc const* base_a
 int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
                         double const lprob)
 {
-    if (codonp->base_abc != nmm_codon_get_base(codon)) {
+    if (codonp->base_abc != nmm_codon_abc(codon)) {
         imm_error("bases must be the same");
         return 1;
     }
@@ -72,7 +72,7 @@ int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* 
 
 double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_codon const* codon)
 {
-    if (codonp->base_abc != nmm_codon_get_base(codon)) {
+    if (codonp->base_abc != nmm_codon_abc(codon)) {
         imm_error("bases must be the same");
         return imm_lprob_invalid();
     }

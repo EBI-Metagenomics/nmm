@@ -168,7 +168,7 @@ static double marginalization(struct nmm_codon_table const* codont, char const* 
         }
     }
 
-    struct nmm_codon* tmp = nmm_codon_create(nmm_codon_get_base(codon));
+    struct nmm_codon* tmp = nmm_codon_create(nmm_codon_abc(codon));
     double            lprob = imm_lprob_zero();
     for (unsigned a = 0; a < shape[0]; ++a) {
         for (unsigned b = 0; b < shape[1]; ++b) {
