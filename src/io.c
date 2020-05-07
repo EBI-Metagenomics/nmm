@@ -11,7 +11,10 @@
 #include "lib/khash_ptr.h"
 #include "nmm/abc_types.h"
 #include "nmm/base_abc.h"
+#include "nmm/base_table.h"
+#include "nmm/codon_lprob.h"
 #include "nmm/codon_state.h"
+#include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
 #include "nmm/io.h"
 #include "nmm/state_types.h"
@@ -92,13 +95,17 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
     struct nmm_io* io = malloc(sizeof(*io));
 
+    io->super = NULL;
+    io->nbaset = 0;
+    io->baset_ptrs = NULL;
+    io->ncodonp = 0;
+    io->codonp_ptrs = NULL;
+    io->ncodont = 0;
+    io->codont_ptrs = NULL;
+
     io->baset_map = NULL;
     io->codonp_map = NULL;
     io->codont_map = NULL;
-
-    io->baset_ptrs = NULL;
-    io->codonp_ptrs = NULL;
-    io->codont_ptrs = NULL;
 
     io->super = __imm_io_create(hmm, dp, io);
     if (!io->super) {
@@ -118,7 +125,6 @@ struct nmm_io const* nmm_io_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 
 struct nmm_io const* nmm_io_create_from_file(FILE* stream)
 {
-    /* TODO: fix memory leaks */
     struct nmm_io* io = malloc(sizeof(*io));
     io->baset_ptrs = NULL;
     io->codonp_ptrs = NULL;
@@ -163,14 +169,11 @@ struct nmm_io const* nmm_io_create_from_file(FILE* stream)
     return io;
 
 err:
+    __imm_io_vtable(io->super)->destroy_on_read_failure(io->super);
     return NULL;
 }
 
-struct nmm_io const* nmm_io_derived(struct imm_io const* io)
-{
-    /* TODO: add type info to check its validity? */
-    return __imm_io_derived(io);
-}
+struct nmm_io const* nmm_io_derived(struct imm_io const* io) { return __imm_io_derived(io); }
 
 void nmm_io_destroy(struct nmm_io const* io) { __imm_io_vtable(io->super)->destroy(io->super); }
 
@@ -382,7 +385,43 @@ static void destroy_codont_map(khash_t(codont) * codont_map)
 
 static void destroy_on_read_failure(struct imm_io const* io)
 {
+    struct nmm_io* this = __imm_io_derived(io);
     __imm_io_destroy_on_read_failure(io);
+
+    if (this->baset_ptrs) {
+        for (uint32_t i = 0; i < this->nbaset; ++i) {
+            if (this->baset_ptrs[i])
+                nmm_base_table_destroy(this->baset_ptrs[i]);
+        }
+        free_c(this->baset_ptrs);
+    }
+
+    if (this->codonp_ptrs) {
+        for (uint32_t i = 0; i < this->ncodonp; ++i) {
+            if (this->codonp_ptrs[i])
+                nmm_codon_lprob_destroy(this->codonp_ptrs[i]);
+        }
+        free_c(this->codonp_ptrs);
+    }
+
+    if (this->codont_ptrs) {
+        for (uint32_t i = 0; i < this->ncodont; ++i) {
+            if (this->codont_ptrs[i])
+                nmm_codon_table_destroy(this->codont_ptrs[i]);
+        }
+        free_c(this->codont_ptrs);
+    }
+
+    if (this->baset_map)
+        destroy_baset_map(this->baset_map);
+
+    if (this->codonp_map)
+        destroy_codonp_map(this->codonp_map);
+
+    if (this->codont_map)
+        destroy_codont_map(this->codont_map);
+
+    free_c(this);
 }
 
 static int read_abc(struct nmm_io* io, FILE* stream)
@@ -424,7 +463,7 @@ static int read_baset(struct nmm_io* io, FILE* stream)
     io->nbaset = 0;
     if (fread(&io->nbaset, sizeof(io->nbaset), 1, stream) < 1) {
         imm_error("could not read nbaset");
-        goto err;
+        return 1;
     }
     if (io->nbaset == 0) {
         io->baset_ptrs = NULL;
@@ -438,16 +477,12 @@ static int read_baset(struct nmm_io* io, FILE* stream)
     for (uint32_t i = 0; i < io->nbaset; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_io_abc(io->super));
         if (!base_abc)
-            goto err;
+            return 1;
 
         io->baset_ptrs[i] = base_table_read(stream, base_abc);
     }
 
     return 0;
-
-err:
-    /* TODO: fix memory leak on error */
-    return 1;
 }
 
 static int read_codonp(struct nmm_io* io, FILE* stream)
@@ -455,7 +490,7 @@ static int read_codonp(struct nmm_io* io, FILE* stream)
     io->ncodonp = 0;
     if (fread(&io->ncodonp, sizeof(io->ncodonp), 1, stream) < 1) {
         imm_error("could not read ncodonp");
-        goto err;
+        return 1;
     }
     if (io->ncodonp == 0) {
         io->codonp_ptrs = NULL;
@@ -469,16 +504,12 @@ static int read_codonp(struct nmm_io* io, FILE* stream)
     for (uint32_t i = 0; i < io->ncodonp; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_io_abc(io->super));
         if (!base_abc)
-            goto err;
+            return 1;
 
         io->codonp_ptrs[i] = codon_lprob_read(stream, base_abc);
     }
 
     return 0;
-
-err:
-    /* TODO: fix memory leak */
-    return 1;
 }
 
 static int read_codont(struct nmm_io* io, FILE* stream)
@@ -486,7 +517,7 @@ static int read_codont(struct nmm_io* io, FILE* stream)
     io->ncodont = 0;
     if (fread(&io->ncodont, sizeof(io->ncodont), 1, stream) < 1) {
         imm_error("could not read ncodont");
-        goto err;
+        return 1;
     }
     if (io->ncodont == 0) {
         io->codont_ptrs = NULL;
@@ -500,16 +531,12 @@ static int read_codont(struct nmm_io* io, FILE* stream)
     for (uint32_t i = 0; i < io->ncodont; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_io_abc(io->super));
         if (!base_abc)
-            goto err;
+            return 1;
 
         io->codont_ptrs[i] = codon_table_read(stream, base_abc);
     }
 
     return 0;
-
-err:
-    /* TODO: fix memory leak */
-    return 1;
 }
 
 static struct imm_state const* read_state(struct imm_io const* io, FILE* stream, uint8_t type_id)
