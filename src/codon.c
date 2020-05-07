@@ -7,7 +7,7 @@
 
 struct nmm_codon* nmm_codon_create(struct nmm_base_abc const* base_abc)
 {
-    struct nmm_codon* codon = malloc(sizeof(struct nmm_codon));
+    struct nmm_codon* codon = malloc(sizeof(*codon));
     nmm_codon_init(codon, base_abc);
     return codon;
 }
