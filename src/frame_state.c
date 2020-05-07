@@ -32,9 +32,12 @@ static uint8_t frame_state_max_seq(struct imm_state const* state);
 static int  frame_state_write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
 static void destroy(struct imm_state const* state);
 
-static struct imm_state_vtable const __vtable = {frame_state_type_id, frame_state_lprob,
-                                                 frame_state_min_seq, frame_state_max_seq,
-                                                 frame_state_write,   destroy};
+static struct imm_state_vtable const __vtable = {destroy,
+                                                 frame_state_lprob,
+                                                 frame_state_max_seq,
+                                                 frame_state_min_seq,
+                                                 frame_state_type_id,
+                                                 frame_state_write};
 
 static double joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq);
 static double joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq);
