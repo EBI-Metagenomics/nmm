@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static uint8_t               type_id(struct imm_abc const* abc);
-static void                  destroy(struct imm_abc const* abc);
 static struct imm_abc const* clone(struct imm_abc const* abc);
+static void                  destroy(struct imm_abc const* abc);
+static uint8_t               type_id(struct imm_abc const* abc);
 
 static struct imm_abc_vtable const __vtable = {type_id, __imm_abc_write, destroy, clone};
 
@@ -59,7 +59,12 @@ struct imm_abc const* base_abc_read(FILE* stream)
     return abc;
 }
 
-static uint8_t type_id(struct imm_abc const* abc) { return NMM_BASE_ABC_TYPE_ID; }
+static struct imm_abc const* clone(struct imm_abc const* abc)
+{
+    struct nmm_base_abc* base_abc = malloc(sizeof(*base_abc));
+    base_abc->super = __imm_abc_clone(abc);
+    return base_abc->super;
+}
 
 static void destroy(struct imm_abc const* abc)
 {
@@ -68,9 +73,4 @@ static void destroy(struct imm_abc const* abc)
     free_c(base_abc);
 }
 
-static struct imm_abc const* clone(struct imm_abc const* abc)
-{
-    struct nmm_base_abc* base_abc = malloc(sizeof(*base_abc));
-    base_abc->super = __imm_abc_clone(abc);
-    return base_abc->super;
-}
+static uint8_t type_id(struct imm_abc const* abc) { return NMM_BASE_ABC_TYPE_ID; }
