@@ -45,7 +45,7 @@ struct imm_abc const* base_abc_read(FILE* stream)
 {
     struct nmm_base_abc* base_abc = malloc(sizeof(*base_abc));
 
-    struct imm_abc* abc = __imm_abc_read(stream);
+    struct imm_abc* abc = imm_abc_read(stream);
     if (!abc) {
         imm_error("could not read base_abc");
         free_c(base_abc);

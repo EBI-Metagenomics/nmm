@@ -3,38 +3,67 @@ meta:
   file-extension: nmm
   endian: le
 seq:
-  - id: abc
-    type: abc
-  - id: nbaset
-    type: u4
-  - id: baset
-    type: baset
-    repeat: expr
-    repeat-expr: nbaset
-  - id: ncodonp
-    type: u4
-  - id: codonp
-    type: codonp
-    repeat: expr
-    repeat-expr: ncodonp
-  - id: ncodont
-    type: u4
-  - id: codont
-    type: codont
-    repeat: expr
-    repeat-expr: ncodont
-  - id: hmm
-    type: hmm
-  - id: dp
-    type: dp
+  - id: blocks
+    type: block
+    repeat: until
+    repeat-until: _.block_type == block_type::end_of_file
 enums:
   state_type:
-    0: mute
-    1: normal
-    2: table
-    16: codon
-    17: frame
+    0x00: mute
+    0x01: normal
+    0x02: table
+    0x10: codon
+    0x11: frame
+  block_type:
+    0x00: model
+    0x10: nmm_model
+    0xff: end_of_file
 types:
+  block:
+    seq:
+      - id: block_type
+        type: u1
+        enum: block_type
+      - id: body
+        type:
+          switch-on: block_type
+          cases:
+            'block_type::model': model
+            'block_type::nmm_model': nmm_model
+  model:
+    seq:
+      - id: abc
+        type: abc
+      - id: hmm
+        type: hmm
+      - id: dp
+        type: dp
+  nmm_model:
+    seq:
+      - id: abc
+        type: abc
+      - id: nbaset
+        type: u4
+      - id: baset
+        type: baset
+        repeat: expr
+        repeat-expr: nbaset
+      - id: ncodonp
+        type: u4
+      - id: codonp
+        type: codonp
+        repeat: expr
+        repeat-expr: ncodonp
+      - id: ncodont
+        type: u4
+      - id: codont
+        type: codont
+        repeat: expr
+        repeat-expr: ncodont
+      - id: hmm
+        type: hmm
+      - id: dp
+        type: dp
   hmm:
     seq:
       - id: nstates
@@ -78,21 +107,15 @@ types:
         encoding: ASCII
         size: name_length + 1
         terminator: 0
-      - id: mute_state
-        type: mute_state
-        if: state_type == state_type::mute
-      - id: normal_state
-        type: normal_state
-        if: state_type == state_type::normal
-      - id: table_state
-        type: table_state
-        if: state_type == state_type::table
-      - id: codon_state
-        type: codon_state
-        if: state_type == state_type::codon
-      - id: frame_state
-        type: frame_state
-        if: state_type == state_type::frame
+      - id: body
+        type:
+          switch-on: state_type
+          cases:
+            'state_type::mute': mute_state
+            'state_type::normal': normal_state
+            'state_type::table': table_state
+            'state_type::codon': codon_state
+            'state_type::frame': frame_state
   mute_state: {}
   normal_state:
     seq:

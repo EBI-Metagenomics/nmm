@@ -193,12 +193,12 @@ void test_perf_viterbi(void)
 
     elapsed_destroy(elapsed);
 
-    struct nmm_io const* io = nmm_io_create(hmm, dp);
-    FILE*                file = fopen(TMP_FOLDER "/perf.nmm", "w");
+    struct nmm_model const* model = nmm_model_create(hmm, dp);
+    FILE*                   file = fopen(TMP_FOLDER "/perf.nmm", "w");
     cass_cond(file != NULL);
-    cass_equal_int(nmm_io_write(io, file), 0);
+    cass_equal_int(nmm_model_write(model, file), 0);
     fclose(file);
-    nmm_io_destroy(io);
+    nmm_model_destroy(model);
 
     imm_hmm_destroy(hmm);
     imm_mute_state_destroy(start);
@@ -224,16 +224,16 @@ void test_perf_viterbi(void)
     free(D);
 
     file = fopen(TMP_FOLDER "/perf.nmm", "r");
-    io = nmm_io_create_from_file(file);
-    cass_cond(io != NULL);
+    model = nmm_model_create_from_file(file);
+    cass_cond(model != NULL);
     cass_cond(file != NULL);
     fclose(file);
 
-    cass_equal_uint64(imm_io_nstates(nmm_io_super(io)), 3 * ncore_nodes + 5);
+    cass_equal_uint64(imm_io_nstates(nmm_model_super(model)), 3 * ncore_nodes + 5);
 
-    abc = imm_io_abc(nmm_io_super(io));
-    hmm = imm_io_hmm(nmm_io_super(io));
-    dp = imm_io_dp(nmm_io_super(io));
+    abc = imm_io_abc(nmm_model_super(model));
+    hmm = imm_io_hmm(nmm_model_super(model));
+    dp = imm_io_dp(nmm_model_super(model));
 
     seq = imm_seq_create(__seq, abc);
     results = imm_dp_viterbi(dp, seq, 0);
@@ -245,22 +245,22 @@ void test_perf_viterbi(void)
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
-    for (uint32_t i = 0; i < imm_io_nstates(nmm_io_super(io)); ++i)
-        imm_state_destroy(imm_io_state(nmm_io_super(io), i));
+    for (uint32_t i = 0; i < imm_io_nstates(nmm_model_super(model)); ++i)
+        imm_state_destroy(imm_io_state(nmm_model_super(model), i));
 
-    for (uint32_t i = 0; i < nmm_io_nbase_tables(io); ++i)
-        nmm_base_table_destroy(nmm_io_base_table(io, i));
+    for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)
+        nmm_base_table_destroy(nmm_model_base_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_io_ncodon_tables(io); ++i)
-        nmm_codon_table_destroy(nmm_io_codon_table(io, i));
+    for (uint32_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
+        nmm_codon_table_destroy(nmm_model_codon_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_io_ncodon_lprobs(io); ++i)
-        nmm_codon_lprob_destroy(nmm_io_codon_lprob(io, i));
+    for (uint32_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
+        nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
 
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
-    nmm_io_destroy(io);
+    nmm_model_destroy(model);
 }
 
 static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)

@@ -1,13 +1,13 @@
 #include "frame_state.h"
 #include "free.h"
-#include "io.h"
+#include "model.h"
 #include "nmm/array_size.h"
 #include "nmm/base_abc.h"
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
 #include "nmm/frame_state.h"
-#include "nmm/io.h"
+#include "nmm/model.h"
 #include "nmm/state_types.h"
 #include <math.h>
 #include <stdlib.h>
@@ -48,7 +48,7 @@ static double        lprob_frag_given_codon5(struct nmm_frame_state const* state
 static uint8_t       max_seq(struct imm_state const* state);
 static uint8_t       min_seq(struct imm_state const* state);
 static uint8_t       type_id(struct imm_state const* state);
-static int           write(struct imm_state const* state, struct imm_io const* io, FILE* stream);
+static int write(struct imm_state const* state, struct imm_model const* model, FILE* stream);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id, write};
 
@@ -164,9 +164,9 @@ struct nmm_codon_table const* frame_state_codont(struct nmm_frame_state const* s
     return state->codont;
 }
 
-struct imm_state const* frame_state_read(FILE* stream, struct nmm_io const* io)
+struct imm_state const* frame_state_read(FILE* stream, struct nmm_model const* model)
 {
-    struct imm_abc const* abc = imm_io_abc(nmm_io_super(io));
+    struct imm_abc const* abc = imm_model_abc(nmm_model_super(model));
     struct imm_state*     state = __imm_state_read(stream, abc);
     if (!state) {
         imm_error("could not state_read");
@@ -185,7 +185,7 @@ struct imm_state const* frame_state_read(FILE* stream, struct nmm_io const* io)
         goto err;
     }
 
-    struct nmm_base_table const* baset = io_get_baset(io, index);
+    struct nmm_base_table const* baset = nmm_model_base_table(model, index);
     if (!baset) {
         imm_error("could not get baset");
         goto err;
@@ -198,7 +198,7 @@ struct imm_state const* frame_state_read(FILE* stream, struct nmm_io const* io)
         goto err;
     }
 
-    struct nmm_codon_table const* codont = io_get_codont(io, index);
+    struct nmm_codon_table const* codont = nmm_model_codon_table(model, index);
     if (!codont) {
         imm_error("could not get codont");
         goto err;
@@ -572,11 +572,11 @@ static uint8_t min_seq(struct imm_state const* state) { return 1; }
 
 static uint8_t type_id(struct imm_state const* state) { return NMM_FRAME_STATE_TYPE_ID; }
 
-static int write(struct imm_state const* state, struct imm_io const* io, FILE* stream)
+static int write(struct imm_state const* state, struct imm_model const* model, FILE* stream)
 {
     struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-    uint32_t                      baset_idx = io_baset_index(nmm_io_derived(io), s->baset);
-    uint32_t                      codont_idx = io_codont_index(nmm_io_derived(io), s->codont);
+    uint32_t baset_idx = model_baset_index(nmm_model_derived_c(model), s->baset);
+    uint32_t codont_idx = model_codont_index(nmm_model_derived_c(model), s->codont);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");

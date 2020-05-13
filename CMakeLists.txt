@@ -33,7 +33,9 @@ add_library(nmm
     src/codon_state.c
     src/codon_table.c
     src/frame_state.c
-    src/io.c
+    src/input.c
+    src/model.c
+    src/output.c
 )
 add_library(NMM::nmm ALIAS nmm)
 
