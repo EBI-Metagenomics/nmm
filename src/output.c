@@ -7,25 +7,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct nmm_output
-{
-    struct imm_output* super;
-};
-
 struct nmm_output* nmm_output_create(char const* filepath)
 {
-    struct nmm_output* output = malloc(sizeof(*output));
-
-    if (!(output->super = imm_output_create(filepath))) {
-        free_c(output);
+    FILE* stream = fopen(filepath, "w");
+    if (!stream) {
+        imm_error("could not open file %s for writing", filepath);
         return NULL;
     }
+
+    struct nmm_output* output = malloc(sizeof(*output));
+    output->stream = stream;
+    output->filepath = strdup(filepath);
+
     return output;
 }
 
 int nmm_output_destroy(struct nmm_output const* output)
 {
-    int errno = imm_output_destroy(output->super);
+    uint8_t block_type = IMM_IO_BLOCK_EOF;
+    int     errno = 0;
+
+    if (fwrite(&block_type, sizeof(block_type), 1, output->stream) < 1) {
+        imm_error("could not write block type");
+        errno = 1;
+    }
+
+    if (fclose(output->stream)) {
+        imm_error("failed to close file %s", output->filepath);
+        errno = 1;
+    }
+    free_c(output->filepath);
     free_c(output);
     return errno;
 }
@@ -34,12 +45,12 @@ int nmm_output_write(struct nmm_output* output, struct nmm_model const* model)
 {
     uint8_t block_type = NMM_IO_BLOCK_MODEL;
 
-    if (fwrite(&block_type, sizeof(block_type), 1, output->super->stream) < 1) {
+    if (fwrite(&block_type, sizeof(block_type), 1, output->stream) < 1) {
         imm_error("could not write block type");
         return 1;
     }
 
-    if (nmm_model_write(model, output->super->stream)) {
+    if (nmm_model_write(model, output->stream)) {
         imm_error("could not write nmm model");
         return 1;
     }

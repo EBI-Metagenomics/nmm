@@ -3,114 +3,77 @@
 #include "imm/imm.h"
 #include "model.h"
 #include "nmm/io.h"
+#include "nmm/model.h"
 #include <stdlib.h>
 #include <string.h>
 
 struct nmm_input
 {
-    struct imm_input* super;
+    FILE*       stream;
+    char const* filepath;
 
-    uint32_t                       nbaset;
-    struct nmm_base_table const**  baset_ptrs;
-    uint32_t                       ncodonp;
-    struct nmm_codon_lprob const** codonp_ptrs;
-    uint32_t                       ncodont;
-    struct nmm_codon_table const** codont_ptrs;
+    bool eof;
 };
 
-/* model->nbaset = 0; */
-/* model->baset_ptrs = NULL; */
-/* model->ncodonp = 0; */
-/* model->codonp_ptrs = NULL; */
-/* model->ncodont = 0; */
-/* model->codont_ptrs = NULL; */
-
-struct imm_model const* read_block(struct imm_input* input, uint8_t block_type);
-
-static struct imm_input_vtable __vtable = {read_block};
+static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type);
 
 struct nmm_input* nmm_input_create(char const* filepath)
 {
-    struct imm_input* super = imm_input_create(filepath);
-    if (!super)
+    FILE* stream = fopen(filepath, "r");
+    if (!stream) {
+        imm_error("could not open file %s for reading", filepath);
         return NULL;
+    }
 
     struct nmm_input* input = malloc(sizeof(*input));
-    input->super = super;
+    input->stream = stream;
+    input->filepath = strdup(filepath);
+    input->eof = false;
 
     return input;
 }
 
 int nmm_input_destroy(struct nmm_input const* input)
 {
-    int err = imm_input_destroy(input->super);
+    if (fclose(input->stream)) {
+        imm_error("failed to close file %s", input->filepath);
+        return 1;
+    }
+    free_c(input->filepath);
     free_c(input);
-    return err;
+    return 0;
 }
 
-bool nmm_input_eof(struct nmm_input const* input) { return imm_input_eof(input->super); }
+bool nmm_input_eof(struct nmm_input const* input) { return input->eof; }
 
 struct nmm_model const* nmm_input_read(struct nmm_input* input)
 {
-    struct imm_model const* model = imm_input_read(input->super);
-    if (!model) {
-        imm_error("could not read model");
+    uint8_t block_type = 0x00;
+
+    if (fread(&block_type, sizeof(block_type), 1, input->stream) < 1) {
+        imm_error("could not read block type");
         return NULL;
     }
 
-    return __imm_model_derived(model);
+    return read_block(input, block_type);
 }
 
-#if 0
-struct nmm_model const* nmm_model_create_from_file(FILE* stream)
+static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type)
 {
-    struct nmm_model* io = malloc(sizeof(*io));
-    io->baset_ptrs = NULL;
-    io->codonp_ptrs = NULL;
-    io->codont_ptrs = NULL;
-    io->baset_map = NULL;
-    io->codonp_map = NULL;
-    io->codont_map = NULL;
-    io->super = __imm_io_new(io);
-    *__imm_io_vtable(io->super) = __vtable;
-
-    if (read_abc(io, stream)) {
-        imm_error("could not read abc");
-        goto err;
+    if (block_type == IMM_IO_BLOCK_EOF) {
+        input->eof = true;
+        return NULL;
     }
 
-    if (read_baset(io, stream)) {
-        imm_error("could not read baset");
-        goto err;
+    if (block_type != NMM_IO_BLOCK_MODEL) {
+        imm_error("unknown block type");
+        return NULL;
     }
 
-    if (read_codonp(io, stream)) {
-        imm_error("could not read codonp");
-        goto err;
+    struct nmm_model const* model = NULL;
+    if (!(model = nmm_model_read(input->stream))) {
+        imm_error("failed to read file %s", input->filepath);
+        return NULL;
     }
-
-    if (read_codont(io, stream)) {
-        imm_error("could not read codont");
-        goto err;
-    }
-
-    if (__imm_io_read_hmm(io->super, stream)) {
-        imm_error("could not read hmm");
-        goto err;
-    }
-
-    if (__imm_io_read_dp(io->super, stream)) {
-        imm_error("could not read dp");
-        goto err;
-    }
-
-    __imm_dp_create_from_io(io->super);
-    return io;
-
-err:
-    __imm_io_vtable(io->super)->destroy_on_read_failure(io->super);
-    return NULL;
+    return model;
 }
-#endif
-
-struct imm_model const* read_block(struct imm_input* input, uint8_t block_type) {}

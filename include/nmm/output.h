@@ -5,7 +5,12 @@
 #include <stdio.h>
 
 struct nmm_model;
-struct nmm_output;
+
+struct nmm_output
+{
+    FILE*       stream;
+    char const* filepath;
+};
 
 NMM_API struct nmm_output* nmm_output_create(char const* filepath);
 NMM_API int                nmm_output_destroy(struct nmm_output const* output);

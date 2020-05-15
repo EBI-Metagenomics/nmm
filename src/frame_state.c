@@ -48,9 +48,8 @@ static double        lprob_frag_given_codon5(struct nmm_frame_state const* state
 static uint8_t       max_seq(struct imm_state const* state);
 static uint8_t       min_seq(struct imm_state const* state);
 static uint8_t       type_id(struct imm_state const* state);
-static int write(struct imm_state const* state, struct imm_model const* model, FILE* stream);
 
-static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id, write};
+static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
 struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
                                                      struct nmm_base_table const*  baset,
@@ -164,9 +163,9 @@ struct nmm_codon_table const* frame_state_codont(struct nmm_frame_state const* s
     return state->codont;
 }
 
-struct imm_state const* frame_state_read(FILE* stream, struct nmm_model const* model)
+struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model)
 {
-    struct imm_abc const* abc = imm_model_abc(nmm_model_super(model));
+    struct imm_abc const* abc = nmm_model_abc(model);
     struct imm_state*     state = __imm_state_read(stream, abc);
     if (!state) {
         imm_error("could not state_read");
@@ -572,11 +571,12 @@ static uint8_t min_seq(struct imm_state const* state) { return 1; }
 
 static uint8_t type_id(struct imm_state const* state) { return NMM_FRAME_STATE_TYPE_ID; }
 
-static int write(struct imm_state const* state, struct imm_model const* model, FILE* stream)
+int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const* model,
+                          FILE* stream)
 {
     struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-    uint32_t baset_idx = model_baset_index(nmm_model_derived_c(model), s->baset);
-    uint32_t codont_idx = model_codont_index(nmm_model_derived_c(model), s->codont);
+    uint32_t                      baset_idx = model_baset_index(model, s->baset);
+    uint32_t                      codont_idx = model_codont_index(model, s->codont);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");

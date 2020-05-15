@@ -193,12 +193,12 @@ void test_perf_viterbi(void)
 
     elapsed_destroy(elapsed);
 
+    struct nmm_output* output = nmm_output_create(TMP_FOLDER "/perf.nmm");
+    cass_cond(output != NULL);
     struct nmm_model const* model = nmm_model_create(hmm, dp);
-    FILE*                   file = fopen(TMP_FOLDER "/perf.nmm", "w");
-    cass_cond(file != NULL);
-    cass_equal_int(nmm_model_write(model, file), 0);
-    fclose(file);
+    cass_equal_int(nmm_output_write(output, model), 0);
     nmm_model_destroy(model);
+    cass_equal_int(nmm_output_destroy(output), 0);
 
     imm_hmm_destroy(hmm);
     imm_mute_state_destroy(start);
@@ -223,17 +223,19 @@ void test_perf_viterbi(void)
     free(I);
     free(D);
 
-    file = fopen(TMP_FOLDER "/perf.nmm", "r");
-    model = nmm_model_create_from_file(file);
+    struct nmm_input* input = nmm_input_create(TMP_FOLDER "/perf.nmm");
+    cass_cond(input != NULL);
+    cass_cond(!nmm_input_eof(input));
+    model = nmm_input_read(input);
+    cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
-    cass_cond(file != NULL);
-    fclose(file);
+    nmm_input_destroy(input);
 
-    cass_equal_uint64(imm_io_nstates(nmm_model_super(model)), 3 * ncore_nodes + 5);
+    cass_equal_uint64(nmm_model_nstates(model), 3 * ncore_nodes + 5);
 
-    abc = imm_io_abc(nmm_model_super(model));
-    hmm = imm_io_hmm(nmm_model_super(model));
-    dp = imm_io_dp(nmm_model_super(model));
+    abc = nmm_model_abc(model);
+    hmm = nmm_model_hmm(model);
+    dp = nmm_model_dp(model);
 
     seq = imm_seq_create(__seq, abc);
     results = imm_dp_viterbi(dp, seq, 0);
@@ -245,8 +247,8 @@ void test_perf_viterbi(void)
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
-    for (uint32_t i = 0; i < imm_io_nstates(nmm_model_super(model)); ++i)
-        imm_state_destroy(imm_io_state(nmm_model_super(model), i));
+    for (uint32_t i = 0; i < nmm_model_nstates(model); ++i)
+        imm_state_destroy(nmm_model_state(model, i));
 
     for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)
         nmm_base_table_destroy(nmm_model_base_table(model, i));

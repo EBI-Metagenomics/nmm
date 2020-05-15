@@ -53,39 +53,43 @@ struct nmm_model
 static void                    create_baset_map(struct nmm_model* model);
 static void                    create_codonp_map(struct nmm_model* model);
 static void                    create_codont_map(struct nmm_model* model);
-static void                    destroy(struct imm_model const* model);
+static void                    deep_destroy(struct nmm_model const* model);
 static void                    destroy_baset_map(khash_t(baset) * baset_map);
 static void                    destroy_codonp_map(khash_t(codonp) * codonp_map);
 static void                    destroy_codont_map(khash_t(codont) * codont_map);
-static void                    deep_destroy(struct imm_model const* model);
+struct nmm_model*              model_new(void);
 static int                     read(struct imm_model* model, FILE* stream);
-static struct imm_abc const*   read_abc(struct imm_model* model, FILE* stream, uint8_t type_id);
+static struct imm_abc const*   read_abc(FILE* stream, uint8_t type_id);
 static int                     read_baset(struct nmm_model* model, FILE* stream);
 static int                     read_codonp(struct nmm_model* model, FILE* stream);
 static int                     read_codont(struct nmm_model* model, FILE* stream);
-static struct imm_state const* read_state(struct imm_model const* model, FILE* stream,
-                                          uint8_t type_id);
+static struct imm_state const* read_state(struct imm_model const* model, FILE* stream, void* args);
 static int                     write(struct imm_model const* model, FILE* stream);
-static int                     write_abc(struct imm_model const* model, FILE* stream);
+static int                     write_abc(struct nmm_model const* model, FILE* stream);
 static int                     write_baset(struct nmm_model const* model, FILE* stream);
 static int                     write_codonp(struct nmm_model const* model, FILE* stream);
 static int                     write_codont(struct nmm_model const* model, FILE* stream);
+static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state,
+                       void* args);
 
-static struct imm_model_vtable const __vtable = {deep_destroy, destroy, read,     read_abc,
-                                                 read_state,   write,   write_abc};
+struct imm_abc const* nmm_model_abc(struct nmm_model const* model)
+{
+    return imm_model_abc(model->super);
+}
 
 struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
-    struct nmm_model* model = model_new();
+    struct nmm_model* model = malloc(sizeof(*model));
 
-    if (!(model->super = __imm_model_create(hmm, dp, __vtable, model))) {
-        imm_error("could not create model");
-        destroy_baset_map(model->baset_map);
-        destroy_codonp_map(model->codonp_map);
-        destroy_codont_map(model->codont_map);
+    model->super = __imm_model_create(hmm, dp, read_state, model, write_state, model);
+    if (!model->super) {
         free_c(model);
         return NULL;
     }
+
+    model->baset_map = kh_init(baset);
+    model->codonp_map = kh_init(codonp);
+    model->codont_map = kh_init(codont);
 
     create_baset_map(model);
     create_codonp_map(model);
@@ -94,14 +98,14 @@ struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp cons
     return model;
 }
 
-struct nmm_model* nmm_model_derived(struct imm_model* model) { return __imm_model_derived(model); }
-
-struct nmm_model const* nmm_model_derived_c(struct imm_model const* model)
+void nmm_model_destroy(struct nmm_model const* model)
 {
-    return __imm_model_derived_c(model);
+    imm_model_destroy(model->super);
+    destroy_baset_map(model->baset_map);
+    destroy_codonp_map(model->codonp_map);
+    destroy_codont_map(model->codont_map);
+    free_c(model);
 }
-
-void nmm_model_destroy(struct nmm_model const* model) { imm_model_destroy(model->super); }
 
 uint32_t nmm_model_nbase_tables(struct nmm_model const* model) { return kh_size(model->baset_map); }
 
@@ -113,13 +117,6 @@ uint32_t nmm_model_ncodon_lprobs(struct nmm_model const* model)
 uint32_t nmm_model_ncodon_tables(struct nmm_model const* model)
 {
     return kh_size(model->codont_map);
-}
-
-struct imm_model const* nmm_model_super(struct nmm_model const* model) { return model->super; }
-
-int nmm_model_write(struct nmm_model const* model, FILE* stream)
-{
-    return imm_model_write(model->super, stream);
 }
 
 uint32_t model_baset_index(struct nmm_model const* model, struct nmm_base_table const* baset)
@@ -155,7 +152,7 @@ uint32_t model_codont_index(struct nmm_model const* model, struct nmm_codon_tabl
 struct nmm_model* model_new(void)
 {
     struct nmm_model* model = malloc(sizeof(*model));
-    model->super = NULL;
+    model->super = __imm_model_new(read_state, model, write_state, model);
     model->baset_map = kh_init(baset);
     model->codonp_map = kh_init(codonp);
     model->codont_map = kh_init(codont);
@@ -282,16 +279,6 @@ static void create_codont_map(struct nmm_model* model)
     }
 }
 
-static void destroy(struct imm_model const* model)
-{
-    struct nmm_model const* this = nmm_model_derived_c(model);
-    imm_model_vtable.destroy(model);
-    destroy_baset_map(this->baset_map);
-    destroy_codonp_map(this->codonp_map);
-    destroy_codont_map(this->codont_map);
-    free_c(this);
-}
-
 static void destroy_baset_map(khash_t(baset) * baset_map)
 {
     for (khint_t k = kh_begin(baset_map); k < kh_end(baset_map); ++k)
@@ -319,77 +306,106 @@ static void destroy_codont_map(khash_t(codont) * codont_map)
     kh_destroy(codont, codont_map);
 }
 
-static void deep_destroy(struct imm_model const* model)
+static void deep_destroy(struct nmm_model const* model)
 {
-    struct nmm_model const* this = __imm_model_derived_c(model);
-    imm_model_vtable.deep_destroy(model);
+    __imm_model_deep_destroy(model->super);
 
-    for (khint_t k = kh_begin(this->baset_map); k < kh_end(this->baset_map); ++k) {
-        if (kh_exist(this->baset_map, k)) {
-            struct baset_node const* node = kh_val(this->baset_map, k);
+    for (khint_t k = kh_begin(this->baset_map); k < kh_end(model->baset_map); ++k) {
+        if (kh_exist(model->baset_map, k)) {
+            struct baset_node const* node = kh_val(model->baset_map, k);
             nmm_base_table_destroy(node->baset);
             free_c(node);
         }
     }
-    kh_destroy(baset, this->baset_map);
+    kh_destroy(baset, model->baset_map);
 
-    for (khint_t k = kh_begin(this->codonp_map); k < kh_end(this->codonp_map); ++k) {
-        if (kh_exist(this->codonp_map, k)) {
-            struct codonp_node const* node = kh_val(this->codonp_map, k);
+    for (khint_t k = kh_begin(model->codonp_map); k < kh_end(model->codonp_map); ++k) {
+        if (kh_exist(model->codonp_map, k)) {
+            struct codonp_node const* node = kh_val(model->codonp_map, k);
             nmm_codon_lprob_destroy(node->codonp);
             free_c(node);
         }
     }
-    kh_destroy(codonp, this->codonp_map);
+    kh_destroy(codonp, model->codonp_map);
 
-    for (khint_t k = kh_begin(this->codont_map); k < kh_end(this->codont_map); ++k) {
-        if (kh_exist(this->codont_map, k)) {
-            struct codont_node const* node = kh_val(this->codont_map, k);
+    for (khint_t k = kh_begin(model->codont_map); k < kh_end(model->codont_map); ++k) {
+        if (kh_exist(model->codont_map, k)) {
+            struct codont_node const* node = kh_val(model->codont_map, k);
             nmm_codon_table_destroy(node->codont);
             free_c(node);
         }
     }
-    kh_destroy(codont, this->codont_map);
+    kh_destroy(codont, model->codont_map);
 
-    free_c(this);
+    free_c(model);
 }
 
-static int read(struct imm_model* model, FILE* stream)
+struct imm_hmm* nmm_model_hmm(struct nmm_model const* model) { return imm_model_hmm(model->super); }
+
+struct imm_dp const* nmm_model_dp(struct nmm_model const* model)
 {
+    return imm_model_dp(model->super);
+}
+
+struct imm_state const* nmm_model_state(struct nmm_model const* model, uint32_t i)
+{
+    return imm_model_state(model->super, i);
+}
+
+uint32_t nmm_model_nstates(struct nmm_model const* model)
+{
+    return imm_model_nstates(model->super);
+}
+
+struct nmm_model const* nmm_model_read(FILE* stream)
+{
+    struct nmm_model* model = model_new();
+
     uint8_t abc_type_id = 0;
     if (fread(&abc_type_id, sizeof(abc_type_id), 1, stream) < 1) {
         imm_error("could not read abc type id");
         goto err;
     }
 
-    struct imm_abc const* abc = __imm_model_vtable(model)->read_abc(model, stream, abc_type_id);
+    struct imm_abc const* abc = read_abc(stream, abc_type_id);
     if (!abc) {
         imm_error("could not read abc");
         goto err;
     }
-    __imm_model_set_abc(model, abc);
+    __imm_model_set_abc(model->super, abc);
 
-    if (read_baset(nmm_model_derived(model), stream)) {
+    if (read_baset(model, stream)) {
         imm_error("could not read baset");
         goto err;
     }
 
-    if (read_codonp(nmm_model_derived(model), stream)) {
+    if (read_codonp(model, stream)) {
         imm_error("could not read codonp");
         goto err;
     }
 
-    if (read_codont(nmm_model_derived(model), stream)) {
+    if (read_codont(model, stream)) {
         imm_error("could not read codont");
         goto err;
     }
 
+    if (__imm_model_read_hmm(model->super, stream)) {
+        imm_error("could not read hmm");
+        goto err;
+    }
+
+    if (__imm_model_read_dp(model->super, stream)) {
+        imm_error("could not read dp");
+        goto err;
+    }
+
+    return model;
 err:
-    __imm_model_vtable(model)->deep_destroy(model);
-    return 1;
+    deep_destroy(model);
+    return NULL;
 }
 
-static struct imm_abc const* read_abc(struct imm_model* model, FILE* stream, uint8_t type_id)
+static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)
 {
     struct imm_abc const* abc = NULL;
 
@@ -403,7 +419,7 @@ static struct imm_abc const* read_abc(struct imm_model* model, FILE* stream, uin
             imm_error("could not read base_abc");
         break;
     default:
-        abc = imm_model_vtable.read_abc(model, stream, type_id);
+        abc = imm_abc_read(stream);
     }
 
     return abc;
@@ -502,55 +518,72 @@ static int read_codont(struct nmm_model* model, FILE* stream)
     return 0;
 }
 
-static struct imm_state const* read_state(struct imm_model const* model, FILE* stream,
-                                          uint8_t type_id)
+static struct imm_state const* read_state(struct imm_model const* model, FILE* stream, void* args)
 {
     struct imm_state const* state = NULL;
+    uint8_t                 type_id = 0;
+
+    if (fread(&type_id, sizeof(type_id), 1, stream) < 1) {
+        imm_error("could not read type id");
+        return NULL;
+    }
 
     switch (type_id) {
+    case IMM_MUTE_STATE_TYPE_ID:
+        if (!(state = imm_mute_state_read(stream, imm_model_abc(model))))
+            imm_error("could not read mute state");
+        break;
+    case IMM_NORMAL_STATE_TYPE_ID:
+        if (!(state = imm_normal_state_read(stream, imm_model_abc(model))))
+            imm_error("could not read normal state");
+        break;
+    case IMM_TABLE_STATE_TYPE_ID:
+        if (!(state = imm_table_state_read(stream, imm_model_abc(model))))
+            imm_error("could not read table state");
+        break;
     case NMM_CODON_STATE_TYPE_ID:
-        if (!(state = codon_state_read(stream, nmm_model_derived_c(model))))
+        if (!(state = nmm_codon_state_read(stream, (struct nmm_model const*)args)))
             imm_error("could not read codon_state");
         break;
     case NMM_FRAME_STATE_TYPE_ID:
-        if (!(state = frame_state_read(stream, nmm_model_derived_c(model))))
+        if (!(state = nmm_frame_state_read(stream, (struct nmm_model const*)args)))
             imm_error("could not read frame_state");
         break;
     default:
-        state = imm_model_vtable.read_state(model, stream, type_id);
+        imm_error("unknown state type id");
     }
 
     return state;
 }
 
-static int write(struct imm_model const* model, FILE* stream)
+int nmm_model_write(struct nmm_model const* model, FILE* stream)
 {
-    if (__imm_model_vtable(model)->write_abc(model, stream)) {
+    if (write_abc(model, stream)) {
         imm_error("could not write abc");
         return 1;
     }
 
-    if (write_baset(nmm_model_derived_c(model), stream)) {
+    if (write_baset(model, stream)) {
         imm_error("could not write_baset");
         return 1;
     }
 
-    if (write_codonp(nmm_model_derived_c(model), stream)) {
+    if (write_codonp(model, stream)) {
         imm_error("could not write_codonp");
         return 1;
     }
 
-    if (write_codont(nmm_model_derived_c(model), stream)) {
+    if (write_codont(model, stream)) {
         imm_error("could not write_codont");
         return 1;
     }
 
-    if (__imm_model_write_hmm(model, stream)) {
+    if (__imm_model_write_hmm(model->super, stream)) {
         imm_error("could not write hmm");
         return 1;
     }
 
-    if (__imm_model_write_dp(model, stream)) {
+    if (__imm_model_write_dp(model->super, stream)) {
         imm_error("could not write dp");
         return 1;
     }
@@ -558,9 +591,20 @@ static int write(struct imm_model const* model, FILE* stream)
     return 0;
 }
 
-static int write_abc(struct imm_model const* model, FILE* stream)
+static int write_abc(struct nmm_model const* model, FILE* stream)
 {
-    return imm_model_vtable.write_abc(model, stream);
+    uint8_t type_id = imm_abc_type_id(imm_model_abc(model->super));
+    if (fwrite(&type_id, sizeof(type_id), 1, stream) < 1) {
+        imm_error("could not write abc type id");
+        return 1;
+    }
+
+    if (imm_abc_write(imm_model_abc(model->super), stream)) {
+        imm_error("could not write abc");
+        return 1;
+    }
+
+    return 0;
 }
 
 static int write_baset(struct nmm_model const* model, FILE* stream)
@@ -633,4 +677,37 @@ static int write_codont(struct nmm_model const* model, FILE* stream)
     }
 
     return 0;
+}
+
+static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state,
+                       void* args)
+{
+    uint8_t type_id = imm_state_type_id(state);
+    if (fwrite(&type_id, sizeof(type_id), 1, stream) < 1) {
+        imm_error("could not write state type id");
+        return 1;
+    }
+
+    int errno = 0;
+    switch (type_id) {
+    case IMM_MUTE_STATE_TYPE_ID:
+        errno = imm_mute_state_write(state, model, stream);
+        break;
+    case IMM_NORMAL_STATE_TYPE_ID:
+        errno = imm_normal_state_write(state, model, stream);
+        break;
+    case IMM_TABLE_STATE_TYPE_ID:
+        errno = imm_table_state_write(state, model, stream);
+        break;
+    case NMM_CODON_STATE_TYPE_ID:
+        errno = nmm_codon_state_write(state, (struct nmm_model const*)args, stream);
+        break;
+    case NMM_FRAME_STATE_TYPE_ID:
+        errno = nmm_frame_state_write(state, (struct nmm_model const*)args, stream);
+        break;
+    default:
+        imm_error("unknown state type id");
+        errno = 1;
+    }
+    return errno;
 }

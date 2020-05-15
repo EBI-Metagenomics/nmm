@@ -83,18 +83,19 @@ void test_hmm_io(void)
     imm_dp_destroy(dp);
     nmm_codon_lprob_destroy(codonp);
 
-#if 0
-    file = fopen(TMP_FOLDER "/two_states.nmm", "r");
-    io = nmm_model_create_from_file(file);
-    cass_cond(io != NULL);
-    cass_cond(file != NULL);
-    fclose(file);
+    struct nmm_input* input = nmm_input_create(TMP_FOLDER "/two_states.nmm");
+    cass_cond(input != NULL);
+    cass_cond(!nmm_input_eof(input));
+    model = nmm_input_read(input);
+    cass_cond(!nmm_input_eof(input));
+    cass_cond(model != NULL);
+    nmm_input_destroy(input);
 
-    cass_equal_uint64(imm_io_nstates(nmm_model_super(io)), 2);
+    cass_equal_uint64(nmm_model_nstates(model), 2);
 
-    abc = imm_io_abc(nmm_model_super(io));
-    hmm = imm_io_hmm(nmm_model_super(io));
-    dp = imm_io_dp(nmm_model_super(io));
+    abc = nmm_model_abc(model);
+    hmm = nmm_model_hmm(model);
+    dp = nmm_model_dp(model);
 
     seq = imm_seq_create("A", abc);
     results = imm_dp_viterbi(dp, seq, 0);
@@ -105,22 +106,21 @@ void test_hmm_io(void)
     cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
-    for (uint32_t i = 0; i < imm_io_nstates(nmm_model_super(io)); ++i)
-        imm_state_destroy(imm_io_state(nmm_model_super(io), i));
+    for (uint32_t i = 0; i < nmm_model_nstates(model); ++i)
+        imm_state_destroy(nmm_model_state(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_nbase_tables(io); ++i)
-        nmm_base_table_destroy(nmm_model_base_table(io, i));
+    for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)
+        nmm_base_table_destroy(nmm_model_base_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_tables(io); ++i)
-        nmm_codon_table_destroy(nmm_model_codon_table(io, i));
+    for (uint32_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
+        nmm_codon_table_destroy(nmm_model_codon_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_lprobs(io); ++i)
-        nmm_codon_lprob_destroy(nmm_model_codon_lprob(io, i));
+    for (uint32_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
+        nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
 
     imm_seq_destroy(seq);
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
-    nmm_model_destroy(io);
-#endif
+    nmm_model_destroy(model);
 }

@@ -22,9 +22,8 @@ static double  lprob(struct imm_state const* state, struct imm_seq const* seq);
 static uint8_t max_seq(struct imm_state const* state);
 static uint8_t min_seq(struct imm_state const* state);
 static uint8_t type_id(struct imm_state const* state);
-static int     write(struct imm_state const* state, struct imm_model const* model, FILE* stream);
 
-static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id, write};
+static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
 struct nmm_codon_state const* nmm_codon_state_create(char const*                   name,
                                                      struct nmm_codon_lprob const* codonp)
@@ -63,9 +62,9 @@ struct nmm_codon_lprob const* codon_state_codonp(struct nmm_codon_state const* s
     return state->codonp;
 }
 
-struct imm_state const* codon_state_read(FILE* stream, struct nmm_model const* model)
+struct imm_state const* nmm_codon_state_read(FILE* stream, struct nmm_model const* model)
 {
-    struct imm_abc const* abc = imm_model_abc(nmm_model_super(model));
+    struct imm_abc const* abc = nmm_model_abc(model);
     struct imm_state*     state = __imm_state_read(stream, abc);
     if (!state) {
         imm_error("could not state_read");
@@ -133,10 +132,11 @@ static uint8_t min_seq(struct imm_state const* state) { return 3; }
 
 static uint8_t type_id(struct imm_state const* state) { return NMM_CODON_STATE_TYPE_ID; }
 
-static int write(struct imm_state const* state, struct imm_model const* model, FILE* stream)
+int nmm_codon_state_write(struct imm_state const* state, struct nmm_model const* model,
+                          FILE* stream)
 {
     struct nmm_codon_state const* s = nmm_codon_state_derived(state);
-    uint32_t                      index = model_codonp_index(nmm_model_derived_c(model), s->codonp);
+    uint32_t                      index = model_codonp_index(model, s->codonp);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");
