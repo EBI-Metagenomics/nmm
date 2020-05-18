@@ -13,9 +13,26 @@ struct nmm_input
     char const* filepath;
 
     bool eof;
+    bool closed;
 };
 
 static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type);
+
+int nmm_input_close(struct nmm_input* input)
+{
+    if (input->closed)
+        return 0;
+
+    int errno = 0;
+
+    if (fclose(input->stream)) {
+        imm_error("failed to close file %s", input->filepath);
+        errno = 1;
+    }
+
+    input->closed = true;
+    return errno;
+}
 
 struct nmm_input* nmm_input_create(char const* filepath)
 {
@@ -33,15 +50,12 @@ struct nmm_input* nmm_input_create(char const* filepath)
     return input;
 }
 
-int nmm_input_destroy(struct nmm_input const* input)
+int nmm_input_destroy(struct nmm_input* input)
 {
-    if (fclose(input->stream)) {
-        imm_error("failed to close file %s", input->filepath);
-        return 1;
-    }
+    int errno = nmm_input_close(input);
     free_c(input->filepath);
     free_c(input);
-    return 0;
+    return errno;
 }
 
 bool nmm_input_eof(struct nmm_input const* input) { return input->eof; }
