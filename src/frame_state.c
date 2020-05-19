@@ -1,4 +1,4 @@
-#include "frame_state.h"
+#include "nmm/frame_state.h"
 #include "free.h"
 #include "model.h"
 #include "nmm/array_size.h"
@@ -6,7 +6,6 @@
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
-#include "nmm/frame_state.h"
 #include "nmm/model.h"
 #include "nmm/state_types.h"
 #include <math.h>
@@ -50,6 +49,16 @@ static uint8_t       min_seq(struct imm_state const* state);
 static uint8_t       type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
+
+struct nmm_base_table const* nmm_frame_state_baset(struct nmm_frame_state const* state)
+{
+    return state->baset;
+}
+
+struct nmm_codon_table const* nmm_frame_state_codont(struct nmm_frame_state const* state)
+{
+    return state->codont;
+}
 
 struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
                                                      struct nmm_base_table const*  baset,
@@ -151,16 +160,6 @@ double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
 struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* state)
 {
     return state->super;
-}
-
-struct nmm_base_table const* frame_state_baset(struct nmm_frame_state const* state)
-{
-    return state->baset;
-}
-
-struct nmm_codon_table const* frame_state_codont(struct nmm_frame_state const* state)
-{
-    return state->codont;
 }
 
 struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model)

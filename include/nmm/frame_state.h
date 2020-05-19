@@ -13,6 +13,8 @@ struct nmm_codon_table;
 struct nmm_frame_state;
 struct nmm_model;
 
+NMM_API struct nmm_base_table const*  nmm_frame_state_baset(struct nmm_frame_state const* state);
+NMM_API struct nmm_codon_table const* nmm_frame_state_codont(struct nmm_frame_state const* state);
 NMM_API struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
                                                              struct nmm_base_table const*  baset,
                                                              struct nmm_codon_table const* codont,

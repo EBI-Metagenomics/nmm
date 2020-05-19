@@ -5,7 +5,6 @@
 #include "codon_lprob.h"
 #include "codon_state.h"
 #include "codon_table.h"
-#include "frame_state.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "lib/khash_ptr.h"
@@ -209,7 +208,7 @@ static void create_baset_map(struct nmm_model* model)
             continue;
 
         struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-        struct nmm_base_table const*  baset = frame_state_baset(s);
+        struct nmm_base_table const*  baset = nmm_frame_state_baset(s);
         khiter_t                      k = kh_get(baset, map, baset);
         if (k != kh_end(map))
             continue;
@@ -263,7 +262,7 @@ static void create_codont_map(struct nmm_model* model)
             continue;
 
         struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-        struct nmm_codon_table const* codont = frame_state_codont(s);
+        struct nmm_codon_table const* codont = nmm_frame_state_codont(s);
         khiter_t                      k = kh_get(codont, map, codont);
         if (k != kh_end(map))
             continue;
