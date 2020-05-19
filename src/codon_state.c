@@ -25,6 +25,11 @@ static uint8_t type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
+struct nmm_codon_lprob const* nmm_codon_state_codon_lprob(struct nmm_codon_state const* state)
+{
+    return state->codonp;
+}
+
 struct nmm_codon_state const* nmm_codon_state_create(char const*                   name,
                                                      struct nmm_codon_lprob const* codonp)
 {

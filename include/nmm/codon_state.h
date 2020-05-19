@@ -9,6 +9,8 @@ struct nmm_codon_lprob;
 struct nmm_codon_state;
 struct nmm_model;
 
+NMM_API struct nmm_codon_lprob const* nmm_codon_state_codon_lprob(
+    struct nmm_codon_state const* state);
 NMM_API struct nmm_codon_state const* nmm_codon_state_create(char const*                   name,
                                                              struct nmm_codon_lprob const* codonp);
 NMM_API struct nmm_codon_state const* nmm_codon_state_derived(struct imm_state const* state);

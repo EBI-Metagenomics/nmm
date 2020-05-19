@@ -50,12 +50,12 @@ static uint8_t       type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
-struct nmm_base_table const* nmm_frame_state_baset(struct nmm_frame_state const* state)
+struct nmm_base_table const* nmm_frame_state_base_table(struct nmm_frame_state const* state)
 {
     return state->baset;
 }
 
-struct nmm_codon_table const* nmm_frame_state_codont(struct nmm_frame_state const* state)
+struct nmm_codon_table const* nmm_frame_state_codon_table(struct nmm_frame_state const* state)
 {
     return state->codont;
 }
