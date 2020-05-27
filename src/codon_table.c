@@ -6,15 +6,17 @@
 #include "nmm/codon_lprob.h"
 #include "nmm/codon_table.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Number of bases (four) plus the special any-symbol one.
  */
 #define NSYMBOLS (NMM_BASE_ABC_SIZE + 1)
 
-static double      marginalization(struct nmm_codon_table const* codont, char const* symbols,
-                                   struct nmm_codon const* codon);
-static inline int  not_marginal(struct nmm_codon const* codon, char const any_symbol);
+static double marginalization(struct nmm_codon_table const* codont, char const* symbols,
+                              struct nmm_codon const* codon);
+static struct nmm_codon_table* new_codon_table(struct nmm_base_abc const* base_abc);
+static inline int              not_marginal(struct nmm_codon const* codon, char const any_symbol);
 static inline void set_marginal_lprob(struct nmm_codon_table* codont, struct nmm_codon const* codon,
                                       double lprob);
 static void        set_marginal_lprobs(struct nmm_codon_table*    codont,
@@ -25,8 +27,7 @@ static void        set_symbol_index(struct nmm_codon_table* codont);
 
 struct nmm_codon_table const* nmm_codon_table_create(struct nmm_codon_lprob const* codonp)
 {
-    struct nmm_codon_table* codont = malloc(sizeof(*codont));
-    codont->base_abc = nmm_codon_lprob_abc(codonp);
+    struct nmm_codon_table* codont = new_codon_table(nmm_codon_lprob_abc(codonp));
 
     set_symbol_index(codont);
 
@@ -51,8 +52,7 @@ void nmm_codon_table_destroy(struct nmm_codon_table const* codont)
 
 struct nmm_codon_table const* codon_table_read(FILE* stream, struct nmm_base_abc const* base_abc)
 {
-    struct nmm_codon_table* codont = malloc(sizeof(*codont));
-    codont->base_abc = base_abc;
+    struct nmm_codon_table* codont = new_codon_table(base_abc);
 
     if (fread(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
         NMM_ASCII_LAST_STD + 1) {
@@ -123,6 +123,14 @@ static double marginalization(struct nmm_codon_table const* codont, char const* 
     nmm_codon_destroy(tmp);
 
     return lprob;
+}
+
+static struct nmm_codon_table* new_codon_table(struct nmm_base_abc const* base_abc)
+{
+    struct nmm_codon_table* codont = malloc(sizeof(*codont));
+    codont->base_abc = base_abc;
+    memset(codont->symbol_idx, 0, NMM_ASCII_LAST_STD + 1);
+    return codont;
 }
 
 static inline int not_marginal(struct nmm_codon const* codon, char const any_symbol)
