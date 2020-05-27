@@ -7,6 +7,7 @@
 #include "codon_table.h"
 #include "free.h"
 #include "imm/imm.h"
+#include "lib/khash.h"
 #include "lib/khash_ptr.h"
 #include "nmm/abc_types.h"
 #include "nmm/base_abc.h"
@@ -25,6 +26,7 @@ struct baset_node
     struct nmm_base_table const* baset;
 };
 KHASH_MAP_INIT_PTR(baset, struct baset_node*)
+KHASH_MAP_INIT_INT64(baset_idx, struct baset_node*)
 
 struct codonp_node
 {
@@ -32,6 +34,7 @@ struct codonp_node
     struct nmm_codon_lprob const* codonp;
 };
 KHASH_MAP_INIT_PTR(codonp, struct codonp_node*)
+KHASH_MAP_INIT_INT64(codonp_idx, struct codonp_node*)
 
 struct codont_node
 {
@@ -39,6 +42,7 @@ struct codont_node
     struct nmm_codon_table const* codont;
 };
 KHASH_MAP_INIT_PTR(codont, struct codont_node*)
+KHASH_MAP_INIT_INT64(codont_idx, struct codont_node*)
 
 struct nmm_model
 {
@@ -47,6 +51,10 @@ struct nmm_model
     khash_t(baset) * baset_map;
     khash_t(codonp) * codonp_map;
     khash_t(codont) * codont_map;
+
+    khash_t(baset_idx) * baset_idx;
+    khash_t(codonp_idx) * codonp_idx;
+    khash_t(codont_idx) * codont_idx;
 };
 
 static void                    create_baset_map(struct nmm_model* model);
@@ -90,6 +98,10 @@ struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp cons
     model->codonp_map = kh_init(codonp);
     model->codont_map = kh_init(codont);
 
+    model->baset_idx = kh_init(baset_idx);
+    model->codonp_idx = kh_init(codonp_idx);
+    model->codont_idx = kh_init(codont_idx);
+
     create_baset_map(model);
     create_codonp_map(model);
     create_codont_map(model);
@@ -103,6 +115,10 @@ void nmm_model_destroy(struct nmm_model const* model)
     destroy_baset_map(model->baset_map);
     destroy_codonp_map(model->codonp_map);
     destroy_codont_map(model->codont_map);
+
+    kh_destroy(baset_idx, model->baset_idx);
+    kh_destroy(codonp_idx, model->codonp_idx);
+    kh_destroy(codont_idx, model->codont_idx);
     free_c(model);
 }
 
@@ -152,56 +168,54 @@ struct nmm_model* model_new(void)
 {
     struct nmm_model* model = malloc(sizeof(*model));
     model->super = __imm_model_new(read_state, model, write_state, model);
+
     model->baset_map = kh_init(baset);
     model->codonp_map = kh_init(codonp);
     model->codont_map = kh_init(codont);
+
+    model->baset_idx = kh_init(baset_idx);
+    model->codonp_idx = kh_init(codonp_idx);
+    model->codont_idx = kh_init(codont_idx);
+
     return model;
 }
 
 struct nmm_base_table const* nmm_model_base_table(struct nmm_model const* model, uint32_t index)
 {
-    for (khint_t k = kh_begin(model->baset_map); k < kh_end(model->baset_map); ++k)
-        if (kh_exist(model->baset_map, k)) {
-            struct baset_node const* node = kh_val(model->baset_map, k);
-            if (node->index == index)
-                return node->baset;
-        }
-
-    imm_error("baset index not found");
-    return NULL;
+    khiter_t k = kh_get(baset_idx, model->baset_idx, index);
+    if (k == kh_end(model->baset_idx)) {
+        imm_error("baset index not found");
+        return NULL;
+    }
+    return kh_val(model->baset_idx, k)->baset;
 }
 
 struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* model, uint32_t index)
 {
-    for (khint_t k = kh_begin(model->codonp_map); k < kh_end(model->codonp_map); ++k)
-        if (kh_exist(model->codonp_map, k)) {
-            struct codonp_node const* node = kh_val(model->codonp_map, k);
-            if (node->index == index)
-                return node->codonp;
-        }
-
-    imm_error("codonp index not found");
-    return NULL;
+    khiter_t k = kh_get(codonp_idx, model->codonp_idx, index);
+    if (k == kh_end(model->codonp_idx)) {
+        imm_error("codonp index not found");
+        return NULL;
+    }
+    return kh_val(model->codonp_idx, k)->codonp;
 }
 
 struct nmm_codon_table const* nmm_model_codon_table(struct nmm_model const* model, uint32_t index)
 {
-    for (khint_t k = kh_begin(model->codont_map); k < kh_end(model->codont_map); ++k)
-        if (kh_exist(model->codont_map, k)) {
-            struct codont_node const* node = kh_val(model->codont_map, k);
-            if (node->index == index)
-                return node->codont;
-        }
-
-    imm_error("codont index not found");
-    return NULL;
+    khiter_t k = kh_get(codont_idx, model->codont_idx, index);
+    if (k == kh_end(model->codont_idx)) {
+        imm_error("codont index not found");
+        return NULL;
+    }
+    return kh_val(model->codont_idx, k)->codont;
 }
 
 static void create_baset_map(struct nmm_model* model)
 {
     khash_t(baset)* map = model->baset_map;
+    khash_t(baset_idx)* idx = model->baset_idx;
 
-    uint32_t idx = 0;
+    uint32_t j = 0;
     for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
@@ -214,21 +228,27 @@ static void create_baset_map(struct nmm_model* model)
             continue;
 
         struct baset_node* node = malloc(sizeof(*node));
-        node->index = idx++;
+        node->index = j++;
         node->baset = baset;
         int      ret = 0;
         khiter_t iter = kh_put(baset, map, node->baset, &ret);
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(map, iter) = node->baset;
         kh_val(map, iter) = node;
+
+        iter = kh_put(baset_idx, model->baset_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(idx, iter) = node->index;
+        kh_val(idx, iter) = node;
     }
 }
 
 static void create_codonp_map(struct nmm_model* model)
 {
     khash_t(codonp)* map = model->codonp_map;
+    khash_t(codonp_idx)* idx = model->codonp_idx;
 
-    uint32_t idx = 0;
+    uint32_t j = 0;
     for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_CODON_STATE_TYPE_ID)
@@ -241,21 +261,27 @@ static void create_codonp_map(struct nmm_model* model)
             continue;
 
         struct codonp_node* node = malloc(sizeof(*node));
-        node->index = idx++;
+        node->index = j++;
         node->codonp = codonp;
         int      ret = 0;
         khiter_t iter = kh_put(codonp, map, node->codonp, &ret);
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(map, iter) = node->codonp;
         kh_val(map, iter) = node;
+
+        iter = kh_put(codonp_idx, model->codonp_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(idx, iter) = node->index;
+        kh_val(idx, iter) = node;
     }
 }
 
 static void create_codont_map(struct nmm_model* model)
 {
     khash_t(codont)* map = model->codont_map;
+    khash_t(codont_idx)* idx = model->codont_idx;
 
-    uint32_t idx = 0;
+    uint32_t j = 0;
     for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
@@ -268,13 +294,18 @@ static void create_codont_map(struct nmm_model* model)
             continue;
 
         struct codont_node* node = malloc(sizeof(*node));
-        node->index = idx++;
+        node->index = j++;
         node->codont = codont;
         int      ret = 0;
         khiter_t iter = kh_put(codont, map, node->codont, &ret);
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(map, iter) = node->codont;
         kh_val(map, iter) = node;
+
+        iter = kh_put(codont_idx, model->codont_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(idx, iter) = node->index;
+        kh_val(idx, iter) = node;
     }
 }
 
@@ -450,6 +481,11 @@ static int read_baset(struct nmm_model* model, FILE* stream)
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(model->baset_map, iter) = node->baset;
         kh_val(model->baset_map, iter) = node;
+
+        iter = kh_put(baset_idx, model->baset_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(model->baset_idx, iter) = node->index;
+        kh_val(model->baset_idx, iter) = node;
     }
 
     return 0;
@@ -481,6 +517,11 @@ static int read_codonp(struct nmm_model* model, FILE* stream)
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(model->codonp_map, iter) = node->codonp;
         kh_val(model->codonp_map, iter) = node;
+
+        iter = kh_put(codonp_idx, model->codonp_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(model->codonp_idx, iter) = node->index;
+        kh_val(model->codonp_idx, iter) = node;
     }
 
     return 0;
@@ -512,6 +553,11 @@ static int read_codont(struct nmm_model* model, FILE* stream)
         IMM_BUG(ret == -1 || ret == 0);
         kh_key(model->codont_map, iter) = node->codont;
         kh_val(model->codont_map, iter) = node;
+
+        iter = kh_put(codont_idx, model->codont_idx, node->index, &ret);
+        IMM_BUG(ret == -1 || ret == 0);
+        kh_key(model->codont_idx, iter) = node->index;
+        kh_val(model->codont_idx, iter) = node;
     }
 
     return 0;
@@ -608,20 +654,21 @@ static int write_abc(struct nmm_model const* model, FILE* stream)
 
 static int write_baset(struct nmm_model const* model, FILE* stream)
 {
-    khash_t(baset)* map = model->baset_map;
-    IMM_BUG(kh_size(map) > UINT32_MAX);
-    uint32_t n = (uint32_t)kh_size(map);
+    khash_t(baset_idx)* idx = model->baset_idx;
+    IMM_BUG(kh_size(idx) > UINT32_MAX);
+
+    uint32_t n = (uint32_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write nbaset");
         return 1;
     }
 
-    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
-        if (!kh_exist(map, i))
-            continue;
+    for (uint32_t i = 0; i < n; ++i) {
+        khiter_t iter = kh_get(baset_idx, idx, i);
+        IMM_BUG(iter == kh_end(idx));
 
-        struct baset_node const* node = kh_val(map, i);
+        struct baset_node const* node = kh_val(idx, iter);
 
         if (base_table_write(node->baset, stream))
             return 1;
@@ -632,20 +679,21 @@ static int write_baset(struct nmm_model const* model, FILE* stream)
 
 static int write_codonp(struct nmm_model const* model, FILE* stream)
 {
-    khash_t(codonp)* map = model->codonp_map;
-    IMM_BUG(kh_size(map) > UINT32_MAX);
-    uint32_t n = (uint32_t)kh_size(map);
+    khash_t(codonp_idx)* idx = model->codonp_idx;
+    IMM_BUG(kh_size(idx) > UINT32_MAX);
+
+    uint32_t n = (uint32_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write ncodonp");
         return 1;
     }
 
-    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
-        if (!kh_exist(map, i))
-            continue;
+    for (uint32_t i = 0; i < n; ++i) {
+        khiter_t iter = kh_get(codonp_idx, idx, i);
+        IMM_BUG(iter == kh_end(idx));
 
-        struct codonp_node const* node = kh_val(map, i);
+        struct codonp_node const* node = kh_val(idx, iter);
 
         if (codon_lprob_write(node->codonp, stream))
             return 1;
@@ -656,20 +704,21 @@ static int write_codonp(struct nmm_model const* model, FILE* stream)
 
 static int write_codont(struct nmm_model const* model, FILE* stream)
 {
-    khash_t(codont)* map = model->codont_map;
-    IMM_BUG(kh_size(map) > UINT32_MAX);
-    uint32_t n = (uint32_t)kh_size(map);
+    khash_t(codont_idx)* idx = model->codont_idx;
+    IMM_BUG(kh_size(idx) > UINT32_MAX);
+
+    uint32_t n = (uint32_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write ncodont");
         return 1;
     }
 
-    for (khiter_t i = kh_begin(map); i < kh_end(map); ++i) {
-        if (!kh_exist(map, i))
-            continue;
+    for (uint32_t i = 0; i < n; ++i) {
+        khiter_t iter = kh_get(codont_idx, idx, i);
+        IMM_BUG(iter == kh_end(idx));
 
-        struct codont_node const* node = kh_val(map, i);
+        struct codont_node const* node = kh_val(idx, iter);
 
         if (codon_table_write(node->codont, stream))
             return 1;
