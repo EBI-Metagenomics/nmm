@@ -44,7 +44,7 @@ static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codo
  * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
  *
  * The alphabet's any-symbol can be passed to @codon to perform marginalization over
- * the corresponding random variable. Let `"ACGT"` be set of nucleotides and let `'X`'
+ * the corresponding random variable. Let `"ACGT"` be a set of nucleotides and let `'X`'
  * be the any-symbol of the given alphabet. The code
  *
  *     codon_lprob_get(codon_lprob, "AXG")
