@@ -128,6 +128,8 @@ void nmm_frame_state_destroy(struct nmm_frame_state const* state)
     state->super->vtable.destroy(state->super);
 }
 
+double nmm_frame_state_epsilon(struct nmm_frame_state const* state) { return state->epsilon; }
+
 double nmm_frame_state_lposterior(struct nmm_frame_state const* state,
                                   struct nmm_codon const* codon, struct imm_seq const* seq)
 {
