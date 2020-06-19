@@ -60,6 +60,13 @@ int nmm_input_destroy(struct nmm_input* input)
 
 bool nmm_input_eof(struct nmm_input const* input) { return input->eof; }
 
+int nmm_input_fseek(struct nmm_input* input, long offset)
+{
+    return fseek(input->stream, offset, SEEK_SET);
+}
+
+long nmm_input_ftell(struct nmm_input* input) { return ftell(input->stream); }
+
 struct nmm_model const* nmm_input_read(struct nmm_input* input)
 {
     uint8_t block_type = 0x00;
