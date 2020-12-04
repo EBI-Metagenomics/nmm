@@ -3,8 +3,8 @@
 #include "nmm/base_table.h"
 #include <stdlib.h>
 
-struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* abc, double const a,
-                                                   double const b, double const c, double const d)
+struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* abc, float const a,
+                                                   float const b, float const c, float const d)
 {
     struct nmm_base_table* baset = malloc(sizeof(*baset));
     baset->base_abc = abc;

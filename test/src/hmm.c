@@ -9,8 +9,8 @@ void test_hmm_frame_state_len3(void);
 void test_hmm_frame_state_len4(void);
 void test_hmm_frame_state_len5(void);
 
-double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
-                      struct imm_state const* end_state, struct imm_path* path);
+float single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
+                     struct imm_state const* end_state, struct imm_path* path);
 
 int main(void)
 {
@@ -27,18 +27,18 @@ void test_hmm_frame_state_0eps(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -46,7 +46,7 @@ void test_hmm_frame_state_0eps(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.0);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 3));
@@ -80,18 +80,18 @@ void test_hmm_frame_state_len1(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -99,7 +99,7 @@ void test_hmm_frame_state_len1(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 1));
@@ -141,18 +141,18 @@ void test_hmm_frame_state_len2(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -160,7 +160,7 @@ void test_hmm_frame_state_len2(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 2));
@@ -230,18 +230,18 @@ void test_hmm_frame_state_len3(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -249,7 +249,7 @@ void test_hmm_frame_state_len3(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 3));
@@ -291,18 +291,18 @@ void test_hmm_frame_state_len4(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -310,7 +310,7 @@ void test_hmm_frame_state_len4(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 4));
@@ -338,18 +338,18 @@ void test_hmm_frame_state_len5(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    float const                  zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, logf(0.25), logf(0.25), logf(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
@@ -357,7 +357,7 @@ void test_hmm_frame_state_len5(void)
 
     struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state), log(1.0));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state), logf(1.0));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state), 5));
@@ -395,8 +395,8 @@ void test_hmm_frame_state_len5(void)
     nmm_base_table_destroy(baset);
 }
 
-double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
-                      struct imm_state const* end_state, struct imm_path* path)
+float single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
+                     struct imm_state const* end_state, struct imm_path* path)
 {
     struct imm_dp const*      dp = imm_hmm_create_dp(hmm, end_state);
     struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
@@ -408,7 +408,7 @@ double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
     for (struct imm_step const* step = imm_path_first(src); step; step = imm_path_next(src, step))
         imm_path_append(path, imm_step_create(imm_step_state(step), imm_step_seq_len(step)));
 
-    double score = imm_result_loglik(r);
+    float score = imm_result_loglik(r);
     imm_results_destroy(results);
     imm_dp_destroy(dp);
 

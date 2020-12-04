@@ -4,11 +4,11 @@
 #include <string.h>
 
 struct nmm_amino_table const* nmm_amino_table_create(struct nmm_amino_abc const* abc,
-                                                     double const*               lprobs)
+                                                     float const*                lprobs)
 {
     struct nmm_amino_table* aminot = malloc(sizeof(*aminot));
     aminot->amino_abc = abc;
-    memcpy(aminot->lprobs, lprobs, NMM_AMINO_ABC_SIZE * sizeof(double));
+    memcpy(aminot->lprobs, lprobs, NMM_AMINO_ABC_SIZE * sizeof(float));
     return aminot;
 }
 

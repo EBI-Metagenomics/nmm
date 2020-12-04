@@ -9,7 +9,7 @@
 struct nmm_array3d
 {
     unsigned strides[3];
-    double*  values;
+    float*   values;
 };
 
 struct nmm_array3d_idx
@@ -21,12 +21,12 @@ struct nmm_array3d_idx
 
 static inline struct nmm_array3d nmm_array3d_create(unsigned dim0, unsigned dim1, unsigned dim2);
 static inline void               nmm_array3d_destroy(struct nmm_array3d arr) { free(arr.values); }
-static inline void               nmm_array3d_fill(struct nmm_array3d* arr, double val);
-static inline double   nmm_array3d_get(struct nmm_array3d const* arr, struct nmm_array3d_idx idx);
+static inline void               nmm_array3d_fill(struct nmm_array3d* arr, float val);
+static inline float    nmm_array3d_get(struct nmm_array3d const* arr, struct nmm_array3d_idx idx);
 static inline unsigned nmm_array3d_length(struct nmm_array3d const* arr);
 static inline int      nmm_array3d_normalize(struct nmm_array3d const* arr);
 NMM_API int            nmm_array3d_read(struct nmm_array3d* arr, FILE* stream);
-static inline void nmm_array3d_set(struct nmm_array3d* arr, struct nmm_array3d_idx idx, double val);
+static inline void nmm_array3d_set(struct nmm_array3d* arr, struct nmm_array3d_idx idx, float val);
 NMM_API int        nmm_array3d_write(struct nmm_array3d const* arr, FILE* stream);
 
 static inline struct nmm_array3d nmm_array3d_create(unsigned dim0, unsigned dim1, unsigned dim2)
@@ -36,13 +36,13 @@ static inline struct nmm_array3d nmm_array3d_create(unsigned dim0, unsigned dim1
     return arr;
 }
 
-static inline void nmm_array3d_fill(struct nmm_array3d* arr, double val)
+static inline void nmm_array3d_fill(struct nmm_array3d* arr, float val)
 {
     for (unsigned i = 0; i < nmm_array3d_length(arr); ++i)
         arr->values[i] = val;
 }
 
-static inline double nmm_array3d_get(struct nmm_array3d const* arr, struct nmm_array3d_idx idx)
+static inline float nmm_array3d_get(struct nmm_array3d const* arr, struct nmm_array3d_idx idx)
 {
     unsigned const* s = arr->strides;
     return arr->values[idx.i0 * s[0] + idx.i1 * s[1] + idx.i2 * s[2]];
@@ -58,7 +58,7 @@ static inline int nmm_array3d_normalize(struct nmm_array3d const* arr)
     return imm_lprob_normalize(arr->values, nmm_array3d_length(arr));
 }
 
-static inline void nmm_array3d_set(struct nmm_array3d* arr, struct nmm_array3d_idx idx, double val)
+static inline void nmm_array3d_set(struct nmm_array3d* arr, struct nmm_array3d_idx idx, float val)
 {
     unsigned const* s = arr->strides;
     arr->values[idx.i0 * s[0] + idx.i1 * s[1] + idx.i2 * s[2]] = val;

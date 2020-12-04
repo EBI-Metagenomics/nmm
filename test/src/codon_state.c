@@ -20,15 +20,15 @@ void test_codon_state1(void)
     struct nmm_codon*       codon = nmm_codon_create(base);
 
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G'));
-    nmm_codon_lprob_set(codonp, codon, log(0.8 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, logf(0.8 / 0.9));
     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T'));
-    nmm_codon_lprob_set(codonp, codon, log(0.1 / 0.9));
+    nmm_codon_lprob_set(codonp, codon, logf(0.1 / 0.9));
 
     struct nmm_codon_state const* state = nmm_codon_state_create("State", codonp);
     const struct imm_state*       s = nmm_codon_state_super(state);
 
     struct imm_seq const* seq = imm_seq_create("ATG", abc);
-    cass_close(imm_state_lprob(s, seq), log(0.8 / 0.9));
+    cass_close(imm_state_lprob(s, seq), logf(0.8 / 0.9));
     imm_seq_destroy(seq);
 
     seq = imm_seq_create("AG", abc);
