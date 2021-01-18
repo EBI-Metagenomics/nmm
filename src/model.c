@@ -215,8 +215,8 @@ static void create_baset_map(struct nmm_model* model)
     khash_t(baset)* map = model->baset_map;
     khash_t(baset_idx)* idx = model->baset_idx;
 
-    uint32_t j = 0;
-    for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
+    uint16_t j = 0;
+    for (uint16_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
             continue;
@@ -248,8 +248,8 @@ static void create_codonp_map(struct nmm_model* model)
     khash_t(codonp)* map = model->codonp_map;
     khash_t(codonp_idx)* idx = model->codonp_idx;
 
-    uint32_t j = 0;
-    for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
+    uint16_t j = 0;
+    for (uint16_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_CODON_STATE_TYPE_ID)
             continue;
@@ -281,8 +281,8 @@ static void create_codont_map(struct nmm_model* model)
     khash_t(codont)* map = model->codont_map;
     khash_t(codont_idx)* idx = model->codont_idx;
 
-    uint32_t j = 0;
-    for (uint32_t i = 0; i < imm_model_nstates(model->super); ++i) {
+    uint16_t j = 0;
+    for (uint16_t i = 0; i < imm_model_nstates(model->super); ++i) {
         struct imm_state const* state = imm_model_state(model->super, i);
         if (imm_state_type_id(state) != NMM_FRAME_STATE_TYPE_ID)
             continue;
@@ -377,12 +377,12 @@ struct imm_dp const* nmm_model_dp(struct nmm_model const* model)
     return imm_model_dp(model->super);
 }
 
-struct imm_state const* nmm_model_state(struct nmm_model const* model, uint32_t i)
+struct imm_state const* nmm_model_state(struct nmm_model const* model, uint16_t i)
 {
     return imm_model_state(model->super, i);
 }
 
-uint32_t nmm_model_nstates(struct nmm_model const* model)
+uint16_t nmm_model_nstates(struct nmm_model const* model)
 {
     return imm_model_nstates(model->super);
 }

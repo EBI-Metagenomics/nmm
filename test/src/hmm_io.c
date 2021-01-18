@@ -106,7 +106,7 @@ void test_hmm_io(void)
     cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
-    for (uint32_t i = 0; i < nmm_model_nstates(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)
         imm_state_destroy(nmm_model_state(model, i));
 
     for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)

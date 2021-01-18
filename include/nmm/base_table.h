@@ -2,7 +2,6 @@
 #define NMM_BASE_TABLE_H
 
 #include "imm/imm.h"
-#include "nmm/array_size.h"
 #include "nmm/base_abc.h"
 #include "nmm/export.h"
 #include <stdio.h>

@@ -1,7 +1,6 @@
 #include "nmm/frame_state.h"
 #include "free.h"
 #include "model.h"
-#include "nmm/array_size.h"
 #include "nmm/base_abc.h"
 #include "nmm/base_table.h"
 #include "nmm/codon.h"
@@ -475,7 +474,7 @@ static double lprob_frag_given_codon3(struct nmm_frame_state const* state,
 
     double v[] = {v0, v1, v2, v3, v4, v5, v6};
 
-    return imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
+    return imm_lprob_sum(v, IMM_ARRAY_SIZE(v));
 }
 
 static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
@@ -524,8 +523,8 @@ static double lprob_frag_given_codon4(struct nmm_frame_state const* state,
         log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return imm_lprob_add(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, NMM_ARRAY_SIZE(v0)),
-                         3 * loge + log1e - log(9) + imm_lprob_sum(v1, NMM_ARRAY_SIZE(v1)));
+    return imm_lprob_add(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, IMM_ARRAY_SIZE(v0)),
+                         3 * loge + log1e - log(9) + imm_lprob_sum(v1, IMM_ARRAY_SIZE(v1)));
 }
 
 static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
@@ -563,7 +562,7 @@ static double lprob_frag_given_codon5(struct nmm_frame_state const* state,
         lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
     };
 
-    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, NMM_ARRAY_SIZE(v));
+    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, IMM_ARRAY_SIZE(v));
 }
 
 static uint8_t max_seq(struct imm_state const* state) { return 5; }

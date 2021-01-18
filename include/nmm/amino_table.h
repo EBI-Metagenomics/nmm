@@ -3,7 +3,6 @@
 
 #include "imm/imm.h"
 #include "nmm/amino_abc.h"
-#include "nmm/array_size.h"
 #include "nmm/export.h"
 
 struct nmm_amino_abc;

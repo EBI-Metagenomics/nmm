@@ -26,8 +26,8 @@ NMM_API uint32_t                nmm_model_ncodon_lprobs(struct nmm_model const* 
 NMM_API uint32_t                nmm_model_ncodon_tables(struct nmm_model const* model);
 NMM_API struct imm_hmm*         nmm_model_hmm(struct nmm_model const* model);
 NMM_API struct imm_dp const*    nmm_model_dp(struct nmm_model const* model);
-NMM_API struct imm_state const* nmm_model_state(struct nmm_model const* model, uint32_t i);
-NMM_API uint32_t                nmm_model_nstates(struct nmm_model const* model);
+NMM_API struct imm_state const* nmm_model_state(struct nmm_model const* model, uint16_t i);
+NMM_API uint16_t                nmm_model_nstates(struct nmm_model const* model);
 NMM_API struct nmm_model const* nmm_model_read(FILE* stream);
 NMM_API int                     nmm_model_write(struct nmm_model const* io, FILE* stream);
 
