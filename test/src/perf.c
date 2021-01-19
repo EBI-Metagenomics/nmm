@@ -1,9 +1,9 @@
-#include "cass.h"
+#include "cass/cass.h"
 #include "elapsed.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
-#define TMP_FOLDER "test_perf.tmp"
+#define CLOSE(a, b) cass_close2(a, b, 1e-6, 0.0)
 
 void test_perf_viterbi(void);
 
@@ -185,7 +185,7 @@ void test_perf_viterbi(void)
     struct imm_path const*   path = imm_result_path(r);
     imm_float                loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
     cass_cond(is_valid(loglik) && !is_zero(loglik));
-    cass_close(loglik, -1641.970511421383435);
+    CLOSE(loglik, -1641.970511421383435);
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
@@ -195,7 +195,7 @@ void test_perf_viterbi(void)
 
     elapsed_destroy(elapsed);
 
-    struct nmm_output* output = nmm_output_create(TMP_FOLDER "/perf.nmm");
+    struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);
     struct nmm_model const* model = nmm_model_create(hmm, dp);
     cass_equal_int(nmm_output_write(output, model), 0);
@@ -225,7 +225,7 @@ void test_perf_viterbi(void)
     free(I);
     free(D);
 
-    struct nmm_input* input = nmm_input_create(TMP_FOLDER "/perf.nmm");
+    struct nmm_input* input = nmm_input_create(TMPDIR "/perf.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
     model = nmm_input_read(input);
@@ -247,7 +247,7 @@ void test_perf_viterbi(void)
     path = imm_result_path(r);
     loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
     cass_cond(is_valid(loglik) && !is_zero(loglik));
-    cass_close(loglik, -1641.970511421383435);
+    CLOSE(loglik, -1641.970511421383435);
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 

@@ -1,4 +1,4 @@
-#include "cass.h"
+#include "cass/cass.h"
 #include "imm/imm.h"
 #include "nmm/amino_abc.h"
 #include "nmm/nmm.h"
