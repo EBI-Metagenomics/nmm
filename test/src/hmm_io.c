@@ -61,7 +61,10 @@ void test_hmm_io(void)
     cass_cond(results != NULL);
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
-    cass_close(imm_result_loglik(r), -6.0198640216);
+    struct imm_subseq        subseq = imm_result_subseq(r);
+    struct imm_path const*   p = imm_result_path(r);
+    imm_float                loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), p);
+    cass_close(loglik, -6.0198640216);
     cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_seq_destroy(seq);
     imm_results_destroy(results);
@@ -102,7 +105,10 @@ void test_hmm_io(void)
     cass_cond(results != NULL);
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
-    cass_close(imm_result_loglik(r), -6.0198640216);
+    subseq = imm_result_subseq(r);
+    p = imm_result_path(r);
+    loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), p);
+    cass_close(loglik, -6.0198640216);
     cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 

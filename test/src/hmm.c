@@ -9,8 +9,8 @@ void test_hmm_frame_state_len3(void);
 void test_hmm_frame_state_len4(void);
 void test_hmm_frame_state_len5(void);
 
-double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
-                      struct imm_state const* end_state, struct imm_path* path);
+imm_float single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
+                         struct imm_state const* end_state, struct imm_path* path);
 
 int main(void)
 {
@@ -395,8 +395,8 @@ void test_hmm_frame_state_len5(void)
     nmm_base_table_destroy(baset);
 }
 
-double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
-                      struct imm_state const* end_state, struct imm_path* path)
+imm_float single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
+                         struct imm_state const* end_state, struct imm_path* path)
 {
     struct imm_dp const*      dp = imm_hmm_create_dp(hmm, end_state);
     struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
@@ -408,9 +408,10 @@ double single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq,
     for (struct imm_step const* step = imm_path_first(src); step; step = imm_path_next(src, step))
         imm_path_append(path, imm_step_create(imm_step_state(step), imm_step_seq_len(step)));
 
-    double score = imm_result_loglik(r);
+    struct imm_subseq subseq = imm_result_subseq(r);
+    imm_float         loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
     imm_results_destroy(results);
     imm_dp_destroy(dp);
 
-    return score;
+    return loglik;
 }

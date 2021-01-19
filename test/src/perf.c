@@ -181,9 +181,11 @@ void test_perf_viterbi(void)
 
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
-    double                   score = imm_result_loglik(r);
-    cass_cond(is_valid(score) && !is_zero(score));
-    cass_close(score, -1641.970511421383435);
+    struct imm_subseq        subseq = imm_result_subseq(r);
+    struct imm_path const*   path = imm_result_path(r);
+    imm_float                loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
+    cass_cond(is_valid(loglik) && !is_zero(loglik));
+    cass_close(loglik, -1641.970511421383435);
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
@@ -241,9 +243,11 @@ void test_perf_viterbi(void)
     results = imm_dp_viterbi(dp, seq, 0);
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
-    score = imm_result_loglik(r);
-    cass_cond(is_valid(score) && !is_zero(score));
-    cass_close(score, -1641.970511421383435);
+    subseq = imm_result_subseq(r);
+    path = imm_result_path(r);
+    loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
+    cass_cond(is_valid(loglik) && !is_zero(loglik));
+    cass_close(loglik, -1641.970511421383435);
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
