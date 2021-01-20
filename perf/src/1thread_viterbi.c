@@ -36,6 +36,8 @@ int main(void)
         -3881.2623126855455666, -4368.6624044120408143, -4856.0626420328935637,
     };
 
+    printf("ncore_nodes,seq_length,median,std_err_mean,score,perf_name\n");
+
     uint16_t ncore_nodes[] = {100, 500, 1000};
     uint16_t seq_100len[] = {1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
     for (unsigned i = 0; i < IMM_ARRAY_SIZE(ncore_nodes); ++i) {
@@ -49,7 +51,6 @@ int main(void)
             char const   fmt[] = "%d,%d,%.6f,%.6f,%.6f,1thread_viterbi\n";
             printf(fmt, ncore_nodes[i], len * 100, stats.median, stats.sem, loglik);
         }
-        printf("\n");
     }
 
     return 0;
