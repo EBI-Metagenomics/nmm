@@ -69,32 +69,38 @@ long nmm_input_ftell(struct nmm_input* input) { return ftell(input->stream); }
 
 struct nmm_model const* nmm_input_read(struct nmm_input* input)
 {
+    printf("2\n"); fflush(stdout);
     uint8_t block_type = 0x00;
 
     if (fread(&block_type, sizeof(block_type), 1, input->stream) < 1) {
         imm_error("could not read block type");
         return NULL;
     }
+    printf("3\n"); fflush(stdout);
 
     return read_block(input, block_type);
 }
 
 static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type)
 {
+    printf("4\n"); fflush(stdout);
     if (block_type == IMM_IO_BLOCK_EOF) {
         input->eof = true;
         return NULL;
     }
 
+    printf("5\n"); fflush(stdout);
     if (block_type != NMM_IO_BLOCK_MODEL) {
         imm_error("unknown block type");
         return NULL;
     }
 
+    printf("6\n"); fflush(stdout);
     struct nmm_model const* model = NULL;
     if (!(model = nmm_model_read(input->stream))) {
         imm_error("failed to read file %s", input->filepath);
         return NULL;
     }
+    printf("END-1\n"); fflush(stdout);
     return model;
 }

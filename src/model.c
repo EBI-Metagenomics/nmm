@@ -22,7 +22,7 @@
 
 struct baset_node
 {
-    uint32_t                     index;
+    uint16_t                     index;
     struct nmm_base_table const* baset;
 };
 KHASH_MAP_INIT_PTR(baset, struct baset_node*)
@@ -30,7 +30,7 @@ KHASH_MAP_INIT_INT64(baset_idx, struct baset_node*)
 
 struct codonp_node
 {
-    uint32_t                      index;
+    uint16_t                      index;
     struct nmm_codon_lprob const* codonp;
 };
 KHASH_MAP_INIT_PTR(codonp, struct codonp_node*)
@@ -38,7 +38,7 @@ KHASH_MAP_INIT_INT64(codonp_idx, struct codonp_node*)
 
 struct codont_node
 {
-    uint32_t                      index;
+    uint16_t                      index;
     struct nmm_codon_table const* codont;
 };
 KHASH_MAP_INIT_PTR(codont, struct codont_node*)
@@ -122,19 +122,22 @@ void nmm_model_destroy(struct nmm_model const* model)
     free_c(model);
 }
 
-uint32_t nmm_model_nbase_tables(struct nmm_model const* model) { return kh_size(model->baset_map); }
-
-uint32_t nmm_model_ncodon_lprobs(struct nmm_model const* model)
+uint16_t nmm_model_nbase_tables(struct nmm_model const* model)
 {
-    return kh_size(model->codonp_map);
+    return (uint16_t)kh_size(model->baset_map);
 }
 
-uint32_t nmm_model_ncodon_tables(struct nmm_model const* model)
+uint16_t nmm_model_ncodon_lprobs(struct nmm_model const* model)
 {
-    return kh_size(model->codont_map);
+    return (uint16_t)kh_size(model->codonp_map);
 }
 
-uint32_t model_baset_index(struct nmm_model const* model, struct nmm_base_table const* baset)
+uint16_t nmm_model_ncodon_tables(struct nmm_model const* model)
+{
+    return (uint16_t)kh_size(model->codont_map);
+}
+
+uint16_t model_baset_index(struct nmm_model const* model, struct nmm_base_table const* baset)
 {
     khiter_t i = kh_get(baset, model->baset_map, baset);
     IMM_BUG(i == kh_end(model->baset_map));
@@ -144,7 +147,7 @@ uint32_t model_baset_index(struct nmm_model const* model, struct nmm_base_table 
     return node->index;
 }
 
-uint32_t model_codonp_index(struct nmm_model const* model, struct nmm_codon_lprob const* codonp)
+uint16_t model_codonp_index(struct nmm_model const* model, struct nmm_codon_lprob const* codonp)
 {
     khiter_t i = kh_get(codonp, model->codonp_map, codonp);
     IMM_BUG(i == kh_end(model->codonp_map));
@@ -154,7 +157,7 @@ uint32_t model_codonp_index(struct nmm_model const* model, struct nmm_codon_lpro
     return node->index;
 }
 
-uint32_t model_codont_index(struct nmm_model const* model, struct nmm_codon_table const* codont)
+uint16_t model_codont_index(struct nmm_model const* model, struct nmm_codon_table const* codont)
 {
     khiter_t i = kh_get(codont, model->codont_map, codont);
     IMM_BUG(i == kh_end(model->codont_map));
@@ -180,7 +183,7 @@ struct nmm_model* model_new(void)
     return model;
 }
 
-struct nmm_base_table const* nmm_model_base_table(struct nmm_model const* model, uint32_t index)
+struct nmm_base_table const* nmm_model_base_table(struct nmm_model const* model, uint16_t index)
 {
     khiter_t k = kh_get(baset_idx, model->baset_idx, index);
     if (k == kh_end(model->baset_idx)) {
@@ -190,7 +193,7 @@ struct nmm_base_table const* nmm_model_base_table(struct nmm_model const* model,
     return kh_val(model->baset_idx, k)->baset;
 }
 
-struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* model, uint32_t index)
+struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* model, uint16_t index)
 {
     khiter_t k = kh_get(codonp_idx, model->codonp_idx, index);
     if (k == kh_end(model->codonp_idx)) {
@@ -200,7 +203,7 @@ struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* mode
     return kh_val(model->codonp_idx, k)->codonp;
 }
 
-struct nmm_codon_table const* nmm_model_codon_table(struct nmm_model const* model, uint32_t index)
+struct nmm_codon_table const* nmm_model_codon_table(struct nmm_model const* model, uint16_t index)
 {
     khiter_t k = kh_get(codont_idx, model->codont_idx, index);
     if (k == kh_end(model->codont_idx)) {
@@ -389,45 +392,55 @@ uint16_t nmm_model_nstates(struct nmm_model const* model)
 
 struct nmm_model const* nmm_model_read(FILE* stream)
 {
+    printf("7\n"); fflush(stdout);
     struct nmm_model* model = model_new();
 
     uint8_t abc_type_id = 0;
+    printf("8\n"); fflush(stdout);
     if (fread(&abc_type_id, sizeof(abc_type_id), 1, stream) < 1) {
         imm_error("could not read abc type id");
         goto err;
     }
 
+    printf("9\n"); fflush(stdout);
     struct imm_abc const* abc = read_abc(stream, abc_type_id);
+    printf("10\n"); fflush(stdout);
     if (!abc) {
         imm_error("could not read abc");
         goto err;
     }
     __imm_model_set_abc(model->super, abc);
+    printf("11\n"); fflush(stdout);
 
     if (read_baset(model, stream)) {
         imm_error("could not read baset");
         goto err;
     }
+    printf("12\n"); fflush(stdout);
 
     if (read_codonp(model, stream)) {
         imm_error("could not read codonp");
         goto err;
     }
+    printf("13\n"); fflush(stdout);
 
     if (read_codont(model, stream)) {
         imm_error("could not read codont");
         goto err;
     }
+    printf("14\n"); fflush(stdout);
 
     if (__imm_model_read_hmm(model->super, stream)) {
         imm_error("could not read hmm");
         goto err;
     }
+    printf("END-2\n"); fflush(stdout);
 
     if (__imm_model_read_dp(model->super, stream)) {
         imm_error("could not read dp");
         goto err;
     }
+    printf("END-3\n"); fflush(stdout);
 
     return model;
 err:
@@ -457,13 +470,14 @@ static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)
 
 static int read_baset(struct nmm_model* model, FILE* stream)
 {
-    uint32_t nbaset = 0;
+    uint16_t nbaset = 0;
     if (fread(&nbaset, sizeof(nbaset), 1, stream) < 1) {
         imm_error("could not read the number of base tables");
         return 1;
     }
+    printf("nbaset: %u\n", nbaset);
 
-    for (uint32_t i = 0; i < nbaset; ++i) {
+    for (uint16_t i = 0; i < nbaset; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_model_abc(model->super));
         if (!base_abc)
             return 1;
@@ -493,13 +507,14 @@ static int read_baset(struct nmm_model* model, FILE* stream)
 
 static int read_codonp(struct nmm_model* model, FILE* stream)
 {
-    uint32_t ncodonp = 0;
+    uint16_t ncodonp = 0;
     if (fread(&ncodonp, sizeof(ncodonp), 1, stream) < 1) {
         imm_error("could not read the number of codon lprobs");
         return 1;
     }
+    printf("ncodonp: %u\n", ncodonp);
 
-    for (uint32_t i = 0; i < ncodonp; ++i) {
+    for (uint16_t i = 0; i < ncodonp; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_model_abc(model->super));
         if (!base_abc)
             return 1;
@@ -529,13 +544,14 @@ static int read_codonp(struct nmm_model* model, FILE* stream)
 
 static int read_codont(struct nmm_model* model, FILE* stream)
 {
-    uint32_t ncodont = 0;
+    uint16_t ncodont = 0;
     if (fread(&ncodont, sizeof(ncodont), 1, stream) < 1) {
         imm_error("could not read the number of codon tables");
         return 1;
     }
+    printf("ncodont: %u\n", ncodont);
 
-    for (uint32_t i = 0; i < ncodont; ++i) {
+    for (uint16_t i = 0; i < ncodont; ++i) {
         struct nmm_base_abc const* base_abc = nmm_base_abc_derived(imm_model_abc(model->super));
         if (!base_abc)
             return 1;
@@ -655,16 +671,17 @@ static int write_abc(struct nmm_model const* model, FILE* stream)
 static int write_baset(struct nmm_model const* model, FILE* stream)
 {
     khash_t(baset_idx)* idx = model->baset_idx;
-    IMM_BUG(kh_size(idx) > UINT32_MAX);
+    IMM_BUG(kh_size(idx) > UINT16_MAX);
 
-    uint32_t n = (uint32_t)kh_size(idx);
+    uint16_t n = (uint16_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write nbaset");
         return 1;
     }
+    printf("write nbaset: %u\n", n);
 
-    for (uint32_t i = 0; i < n; ++i) {
+    for (uint16_t i = 0; i < n; ++i) {
         khiter_t iter = kh_get(baset_idx, idx, i);
         IMM_BUG(iter == kh_end(idx));
 
@@ -680,16 +697,17 @@ static int write_baset(struct nmm_model const* model, FILE* stream)
 static int write_codonp(struct nmm_model const* model, FILE* stream)
 {
     khash_t(codonp_idx)* idx = model->codonp_idx;
-    IMM_BUG(kh_size(idx) > UINT32_MAX);
+    IMM_BUG(kh_size(idx) > UINT16_MAX);
 
-    uint32_t n = (uint32_t)kh_size(idx);
+    uint16_t n = (uint16_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write ncodonp");
         return 1;
     }
+    printf("write ncodonp: %u\n", n);
 
-    for (uint32_t i = 0; i < n; ++i) {
+    for (uint16_t i = 0; i < n; ++i) {
         khiter_t iter = kh_get(codonp_idx, idx, i);
         IMM_BUG(iter == kh_end(idx));
 
@@ -705,16 +723,17 @@ static int write_codonp(struct nmm_model const* model, FILE* stream)
 static int write_codont(struct nmm_model const* model, FILE* stream)
 {
     khash_t(codont_idx)* idx = model->codont_idx;
-    IMM_BUG(kh_size(idx) > UINT32_MAX);
+    IMM_BUG(kh_size(idx) > UINT16_MAX);
 
-    uint32_t n = (uint32_t)kh_size(idx);
+    uint16_t n = (uint16_t)kh_size(idx);
 
     if (fwrite(&n, sizeof(n), 1, stream) < 1) {
         imm_error("could not write ncodont");
         return 1;
     }
+    printf("write ncodont: %u\n", n);
 
-    for (uint32_t i = 0; i < n; ++i) {
+    for (uint16_t i = 0; i < n; ++i) {
         khiter_t iter = kh_get(codont_idx, idx, i);
         IMM_BUG(iter == kh_end(idx));
 

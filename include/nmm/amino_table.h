@@ -26,7 +26,7 @@ static inline struct nmm_amino_abc const* nmm_amino_table_abc(struct nmm_amino_t
 
 static inline double nmm_amino_table_lprob(struct nmm_amino_table const* tbl, char const amino)
 {
-    unsigned i = imm_abc_symbol_idx(nmm_amino_abc_super(tbl->amino_abc), amino);
+    uint_fast8_t i = imm_abc_symbol_idx(nmm_amino_abc_super(tbl->amino_abc), amino);
     return tbl->lprobs[i];
 }
 

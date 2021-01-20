@@ -165,8 +165,11 @@ struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* stat
 
 struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model)
 {
+    printf("15\n"); fflush(stdout);
     struct imm_abc const* abc = nmm_model_abc(model);
+    printf("16\n"); fflush(stdout);
     struct imm_state*     state = __imm_state_read(stream, abc);
+    printf("17\n"); fflush(stdout);
     if (!state) {
         imm_error("could not state_read");
         return NULL;
@@ -178,12 +181,14 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
     frame_state->super = state;
     state->derived = frame_state;
 
-    uint32_t index = 0;
+    printf("18\n"); fflush(stdout);
+    uint16_t index = 0;
     if (fread(&index, sizeof(index), 1, stream) < 1) {
         imm_error("could not read baset index");
         goto err;
     }
 
+    printf("19\n"); fflush(stdout);
     struct nmm_base_table const* baset = nmm_model_base_table(model, index);
     if (!baset) {
         imm_error("could not get baset");
@@ -192,18 +197,21 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
     frame_state->baset = baset;
 
     index = 0;
+    printf("20\n"); fflush(stdout);
     if (fread(&index, sizeof(index), 1, stream) < 1) {
         imm_error("could not read codont index");
         goto err;
     }
 
     struct nmm_codon_table const* codont = nmm_model_codon_table(model, index);
+    printf("21\n"); fflush(stdout);
     if (!codont) {
         imm_error("could not get codont");
         goto err;
     }
     frame_state->codont = codont;
 
+    printf("22\n"); fflush(stdout);
     if (fread(&frame_state->epsilon, sizeof(frame_state->epsilon), 1, stream) < 1) {
         imm_error("could not read epsilon");
         goto err;
@@ -214,6 +222,7 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
     frame_state->zero_lprob = imm_lprob_zero();
     frame_state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_abc(baset)));
 
+    printf("23\n"); fflush(stdout);
     return state;
 
 err:
@@ -575,8 +584,8 @@ int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const*
                           FILE* stream)
 {
     struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-    uint32_t                      baset_idx = model_baset_index(model, s->baset);
-    uint32_t                      codont_idx = model_codont_index(model, s->codont);
+    uint16_t                      baset_idx = model_baset_index(model, s->baset);
+    uint16_t                      codont_idx = model_codont_index(model, s->codont);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");

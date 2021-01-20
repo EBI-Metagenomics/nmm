@@ -226,7 +226,10 @@ void test_perf_viterbi(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/perf.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
+    printf("1\n"); fflush(stdout);
     model = nmm_input_read(input);
+    printf("END\n"); fflush(stdout);
+    return;
     cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
     nmm_input_destroy(input);

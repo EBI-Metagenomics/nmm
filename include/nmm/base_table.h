@@ -27,7 +27,7 @@ static inline struct nmm_base_abc const* nmm_base_table_abc(struct nmm_base_tabl
 
 static inline double nmm_base_table_lprob(struct nmm_base_table const* baset, char const base)
 {
-    unsigned i = imm_abc_symbol_idx(nmm_base_abc_super(baset->base_abc), base);
+    uint8_t i = imm_abc_symbol_idx(nmm_base_abc_super(baset->base_abc), base);
     return baset->lprobs[i];
 }
 

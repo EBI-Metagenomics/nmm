@@ -86,7 +86,7 @@ struct imm_state const* nmm_codon_state_read(FILE* stream, struct nmm_model cons
         goto err;
     }
 
-    uint32_t index = 0;
+    uint16_t index = 0;
     if (fread(&index, sizeof(index), 1, stream) < 1) {
         imm_error("could not read codonp index");
         goto err;
@@ -116,7 +116,7 @@ static void destroy(struct imm_state const* state)
 static double lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
     struct nmm_codon_state const* s = __imm_state_derived(state);
-    unsigned                      length = imm_seq_length(seq);
+    uint32_t                      length = imm_seq_length(seq);
 
     if (length != 3)
         return imm_lprob_invalid();
@@ -141,7 +141,7 @@ int nmm_codon_state_write(struct imm_state const* state, struct nmm_model const*
                           FILE* stream)
 {
     struct nmm_codon_state const* s = nmm_codon_state_derived(state);
-    uint32_t                      index = model_codonp_index(model, s->codonp);
+    uint16_t                      index = model_codonp_index(model, s->codonp);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");
