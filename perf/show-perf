@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+from glob import glob
+from pathlib import Path
+import re
+
+from typing import Optional
+import fire
+import pandas as pd
+import plotly.express as px
+from numpy import newaxis
+from sklearn.linear_model import LinearRegression
+
+
+def is_perf_dir(dirpath: Path):
+    return re.match("^\d\d-\d\d-\d\d\d\d$", dirpath.name) is not None
+
+
+def figure(df, perf_name: str, title: str):
+    df = df[df["perf_name"] == perf_name].copy()
+    if len(df) == 0:
+        raise RuntimeError(f"Could not find {perf_name}.")
+    df["err"] = 3 * df["std_err_mean"]
+    df["ncore_nodes"] = df["ncore_nodes"].astype("str")
+    ylabel = "median of computation time"
+    df[ylabel] = df["median"]
+    return px.scatter(
+        df,
+        x="seq_length",
+        y=ylabel,
+        color="ncore_nodes",
+        error_y="err",
+        title=title,
+    )
+
+
+class ShowPerf:
+    def __init__(self):
+        pass
+
+    def _latest_dir(self) -> Path:
+        perf_dirs = list(sorted(glob("*-*-*")))
+
+        if len(perf_dirs) == 0:
+            raise RuntimeError("Performance results not found.")
+
+        return Path(perf_dirs[-1]).resolve()
+
+    def _fetch_result(self, dir: Path):
+        print(f"Source: {dir}")
+        df = pd.read_csv(dir / "perf.csv")
+        with open(dir / "hdw.txt") as file:
+            hwd = file.read()
+        return df, hwd
+
+    def _format_dir(self, dir: Optional[str] = None) -> Path:
+        if dir is None:
+            return self._latest_dir()
+        return Path(dir)
+
+    def slope(self, dir: Optional[dir] = None):
+        """
+        Print the slope (x1000) of the computation time curve.
+
+        Parameters
+        ----------
+        dir
+            Directory of performance results. (Optional.)
+        """
+        dirpath = self._format_dir(dir)
+        if not is_perf_dir(dirpath):
+            raise ValueError(f"{dirpath} is not a valid performance folder.")
+        df = self._fetch_result(dirpath)[0]
+        print("nodes kslope")
+        for ncore_nodes in df["ncore_nodes"].unique():
+            df_ = df[df["ncore_nodes"] == ncore_nodes]
+            x = df_["seq_length"].values.astype(float)[:, newaxis]
+            y = df_["median"].values
+            model = LinearRegression().fit(x, y)
+            slope_10k = model.coef_[0] * 10_000
+            print(f" {ncore_nodes:4} {slope_10k:.4f}")
+
+    def fig(self, dir: Optional[str] = None, file: Optional[str] = None):
+        """
+        Show (or write) figure of the computation time curve.
+
+        Parameters
+        ----------
+        file
+            Output HTML file to write. (Optional.)
+        dir
+            Directory of performance results. (Optional.)
+        """
+        dirpath = self._format_dir(dir)
+        if not is_perf_dir(dirpath):
+            raise ValueError(f"{dirpath} is not a valid performance folder.")
+        date = dirpath.name
+        df = self._fetch_result(dirpath)[0]
+        perf_name = "1thread_viterbi"
+        fig = figure(df, perf_name, f"{perf_name} ({date})")
+        if file is None:
+            fig.show()
+        else:
+            print(f"Writing to {file}... ", end="")
+            fig.write_html(file)
+            print("done.")
+
+
+if __name__ == "__main__":
+    fire.Fire(ShowPerf)

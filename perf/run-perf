@@ -1,0 +1,46 @@
+#!/bin/bash
+
+dir="$(date "+%d-%m-%Y")"
+if test -d "$dir" >/dev/null; then
+    rm -rf "$dir"
+fi
+mkdir "$dir"
+
+HDW="$dir"/hdw.txt
+CSV="$dir"/perf.csv
+
+function show_cpu_info
+{
+    opt=$1
+    echo -n "$opt: "
+    sysctl -n $opt
+}
+
+function cpu_info
+{
+    if type lscpu &>/dev/null; then
+        lscpu | grep -v Vulnerability
+    else
+        show_cpu_info machdep.cpu.brand_string
+        show_cpu_info machdep.cpu.core_count
+        show_cpu_info hw.l1dcachesize
+        show_cpu_info hw.l1icachesize
+        show_cpu_info hw.l2cachesize
+        show_cpu_info hw.cpufrequency_min
+        show_cpu_info hw.cpufrequency_max
+    fi
+}
+
+function run_perf
+{
+    perf_name=$1
+    echo -n "Running to $perf_name... "
+
+    cmd="perf/$perf_name"
+    $cmd > $CSV
+    cpu_info > $HDW
+
+    echo "done."
+}
+
+run_perf "perf_1thread_viterbi"
