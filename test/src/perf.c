@@ -1,5 +1,5 @@
 #include "cass/cass.h"
-#include "elapsed.h"
+#include "elapsed/elapsed.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
@@ -172,12 +172,12 @@ void test_perf_viterbi(void)
 
     cass_cond(imm_seq_length(seq) == 2000);
 
-    struct elapsed*      elapsed = elapsed_create();
+    struct elapsed       elapsed = elapsed_init();
     struct imm_dp const* dp = imm_hmm_create_dp(hmm, mute_super(end));
 
-    elapsed_start(elapsed);
+    elapsed_start(&elapsed);
     struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
-    elapsed_end(elapsed);
+    elapsed_end(&elapsed);
 
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
@@ -190,10 +190,8 @@ void test_perf_viterbi(void)
     imm_seq_destroy(seq);
 
 #ifdef NDEBUG
-    cass_cond(elapsed_seconds(elapsed) < 20.0);
+    cass_cond(elapsed_seconds(&elapsed) < 20.0);
 #endif
-
-    elapsed_destroy(elapsed);
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);

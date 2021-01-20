@@ -21,6 +21,7 @@ if(CMAKE_VERSION VERSION_GREATER 3.12.0)
 endif()
 
 find_package(imm REQUIRED)
+find_package(elapsed REQUIRED)
 
 add_library(nmm
     src/amino_abc.c
@@ -67,6 +68,7 @@ target_include_directories(nmm
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 target_link_libraries(nmm PUBLIC IMM::imm)
+target_link_libraries(nmm PUBLIC ELAPSED::elapsed)
 set_target_properties(nmm PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(nmm PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 target_compile_features(nmm PRIVATE c_std_11)
