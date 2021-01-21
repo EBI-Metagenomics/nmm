@@ -229,7 +229,6 @@ void test_perf_viterbi(void)
     printf("1\n"); fflush(stdout);
     model = nmm_input_read(input);
     printf("END\n"); fflush(stdout);
-    return;
     cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
     nmm_input_destroy(input);
@@ -255,13 +254,13 @@ void test_perf_viterbi(void)
     for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)
         imm_state_destroy(nmm_model_state(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_nbase_tables(model); ++i)
         nmm_base_table_destroy(nmm_model_base_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
         nmm_codon_table_destroy(nmm_model_codon_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
 
     imm_abc_destroy(abc);
