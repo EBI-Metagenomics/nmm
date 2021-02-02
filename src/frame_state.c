@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LOG(x) ((imm_float)log(x))
+
 struct nmm_frame_state
 {
     struct imm_state const*       super;
@@ -74,8 +76,8 @@ struct nmm_frame_state const* nmm_frame_state_create(char const*                
     state->baset = baset;
     state->codont = codont;
     state->epsilon = epsilon;
-    state->leps = log(epsilon);
-    state->l1eps = log(1 - epsilon);
+    state->leps = LOG(epsilon);
+    state->l1eps = LOG(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
     state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_abc(baset)));
 
@@ -225,8 +227,8 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
         goto err;
     }
 
-    frame_state->leps = log(frame_state->epsilon);
-    frame_state->l1eps = log(1 - frame_state->epsilon);
+    frame_state->leps = LOG(frame_state->epsilon);
+    frame_state->l1eps = LOG(1 - frame_state->epsilon);
     frame_state->zero_lprob = imm_lprob_zero();
     frame_state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_abc(baset)));
 
@@ -271,7 +273,7 @@ static imm_float joint_seq_len1(struct nmm_frame_state const* state, struct imm_
     imm_float const e1 = nmm_codon_table_lprob(state->codont, codon_set(&codon, _, nucl, _));
     imm_float const e2 = nmm_codon_table_lprob(state->codont, codon_set(&codon, _, _, nucl));
 
-    return c + logaddexp3(e0, e1, e2) - log(3);
+    return c + logaddexp3(e0, e1, e2) - LOG(3);
 }
 
 static imm_float joint_seq_len2(struct nmm_frame_state const* state, struct imm_seq const* seq)
@@ -286,10 +288,10 @@ static imm_float joint_seq_len2(struct nmm_frame_state const* state, struct imm_
     imm_float const b_lp0 = base_lprob(state, str[0]);
     imm_float const b_lp1 = base_lprob(state, str[1]);
 
-    imm_float const c0 = log(2) + state->leps + state->l1eps * 3 - log(3);
+    imm_float const c0 = LOG(2) + state->leps + state->l1eps * 3 - LOG(3);
     imm_float const v0 = c0 + logaddexp3(C(_, 0, 1), C(0, _, 1), C(0, 1, _));
 
-    imm_float const c1 = 3 * state->leps + state->l1eps - log(3);
+    imm_float const c1 = 3 * state->leps + state->l1eps - LOG(3);
     imm_float const v1 = c1 + logaddexp3(C(0, _, _), C(_, 0, _), C(_, _, 0)) + b_lp1;
     imm_float const v2 = c1 + logaddexp3(C(1, _, _), C(_, 1, _), C(_, _, 1)) + b_lp0;
 
@@ -311,12 +313,12 @@ static imm_float joint_seq_len3(struct nmm_frame_state const* state, struct imm_
 
     imm_float const v0 = 4 * state->l1eps + C(0, 1, 2);
 
-    imm_float const c1 = log(4) + 2 * state->leps + 2 * state->l1eps - log(9);
+    imm_float const c1 = LOG(4) + 2 * state->leps + 2 * state->l1eps - LOG(9);
     imm_float const v1[] = {logaddexp3(C(_, 1, 2), C(1, _, 2), C(1, 2, _)) + B[0],
                             logaddexp3(C(_, 0, 2), C(0, _, 2), C(0, 2, _)) + B[1],
                             logaddexp3(C(_, 0, 1), C(0, _, 1), C(0, 1, _)) + B[2]};
 
-    imm_float const c2 = 4 * state->leps - log(9);
+    imm_float const c2 = 4 * state->leps - LOG(9);
     imm_float const v2[] = {logaddexp3(C(2, _, _), C(_, 2, _), C(_, _, 2)) + B[0] + B[1],
                             logaddexp3(C(1, _, _), C(_, 1, _), C(_, _, 1)) + B[0] + B[2],
                             logaddexp3(C(0, _, _), C(_, 0, _), C(_, _, 0)) + B[1] + B[2]};
@@ -337,11 +339,11 @@ static imm_float joint_seq_len4(struct nmm_frame_state const* state, struct imm_
     imm_float const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                            base_lprob(state, str[2]), base_lprob(state, str[3])};
 
-    imm_float const c0 = state->leps + state->l1eps * 3 - log(2);
+    imm_float const c0 = state->leps + state->l1eps * 3 - LOG(2);
     imm_float const v0[] = {C(1, 2, 3) + B[0], C(0, 2, 3) + B[1], C(0, 1, 3) + B[2],
                             C(0, 1, 2) + B[3]};
 
-    imm_float const c1 = 3 * state->leps + state->l1eps - log(9);
+    imm_float const c1 = 3 * state->leps + state->l1eps - LOG(9);
     imm_float const v1[] = {
         C(_, 2, 3) + B[0] + B[1], C(_, 1, 3) + B[0] + B[2], C(_, 1, 2) + B[0] + B[3],
         C(_, 0, 3) + B[1] + B[2], C(_, 0, 2) + B[1] + B[3], C(_, 0, 1) + B[2] + B[3],
@@ -374,7 +376,7 @@ static imm_float joint_seq_len5(struct nmm_frame_state const* state, struct imm_
         imm_lprob_add(b_lp1 + b_lp4 + LPROB(C(0, 2, 3)), b_lp2 + b_lp3 + LPROB(C(0, 1, 4))),
         imm_lprob_add(b_lp2 + b_lp4 + LPROB(C(0, 1, 3)), b_lp3 + b_lp4 + LPROB(C(0, 1, 2)))};
 
-    return 2 * state->leps + 2 * state->l1eps - log(10) + imm_lprob_sum(v, 5);
+    return 2 * state->leps + 2 * state->l1eps - LOG(10) + imm_lprob_sum(v, 5);
 #undef C
 #undef LPROB
 }
@@ -419,7 +421,7 @@ static imm_float lprob_frag_given_codon1(struct nmm_frame_state const* state,
 
     imm_float const c = 2 * loge + 2 * log1e;
 
-    return c + log((x1 == z1) + (x2 == z1) + (x3 == z1)) - log(3);
+    return c + LOG((x1 == z1) + (x2 == z1) + (x3 == z1)) - LOG(3);
 }
 
 static imm_float lprob_frag_given_codon2(struct nmm_frame_state const* state,
@@ -438,14 +440,14 @@ static imm_float lprob_frag_given_codon2(struct nmm_frame_state const* state,
     imm_float const lprob_z1 = base_lprob(state, z1);
     imm_float const lprob_z2 = base_lprob(state, z2);
 
-    imm_float const c1 = log(2) + loge + log1e * 3 - log(3);
+    imm_float const c1 = LOG(2) + loge + log1e * 3 - LOG(3);
     imm_float const v0 =
-        c1 + log((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2));
+        c1 + LOG((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2));
 
-    imm_float const c2 = 3 * loge + log1e - log(3);
+    imm_float const c2 = 3 * loge + log1e - LOG(3);
 
-    imm_float const v1 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2;
-    imm_float const v2 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z2)) + lprob_z1;
+    imm_float const v1 = c2 + LOG((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2;
+    imm_float const v2 = c2 + LOG((x1 == z2) + (x2 == z2) + (x3 == z2)) + lprob_z1;
 
     return logaddexp3(v0, v1, v2);
 }
@@ -468,27 +470,27 @@ static imm_float lprob_frag_given_codon3(struct nmm_frame_state const* state,
     imm_float const lprob_z2 = base_lprob(state, z2);
     imm_float const lprob_z3 = base_lprob(state, z3);
 
-    imm_float const v0 = 4 * log1e + log((x1 == z1) * (x2 == z2) * (x3 == z3));
+    imm_float const v0 = 4 * log1e + LOG((x1 == z1) * (x2 == z2) * (x3 == z3));
 
-    imm_float const c1 = log(4) + 2 * loge + 2 * log1e - log(9);
+    imm_float const c1 = LOG(4) + 2 * loge + 2 * log1e - LOG(9);
 
     imm_float const v1 =
-        c1 + log((x2 == z2) * (x3 == z3) + (x1 == z2) * (x3 == z3) + (x1 == z2) * (x2 == z3)) +
+        c1 + LOG((x2 == z2) * (x3 == z3) + (x1 == z2) * (x3 == z3) + (x1 == z2) * (x2 == z3)) +
         lprob_z1;
 
     imm_float const v2 =
-        c1 + log((x2 == z1) * (x3 == z3) + (x1 == z1) * (x3 == z3) + (x1 == z1) * (x2 == z3)) +
+        c1 + LOG((x2 == z1) * (x3 == z3) + (x1 == z1) * (x3 == z3) + (x1 == z1) * (x2 == z3)) +
         lprob_z2;
 
     imm_float const v3 =
-        c1 + log((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2)) +
+        c1 + LOG((x2 == z1) * (x3 == z2) + (x1 == z1) * (x3 == z2) + (x1 == z1) * (x2 == z2)) +
         lprob_z3;
 
-    imm_float const c2 = 4 * loge - log(9);
+    imm_float const c2 = 4 * loge - LOG(9);
 
-    imm_float const v4 = c2 + log((x1 == z3) + (x2 == z3) + (x3 == z3)) + lprob_z1 + lprob_z2;
-    imm_float const v5 = c2 + log((x1 == z2) + (x2 == z2) + (x3 == z2)) + lprob_z1 + lprob_z3;
-    imm_float const v6 = c2 + log((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2 + lprob_z3;
+    imm_float const v4 = c2 + LOG((x1 == z3) + (x2 == z3) + (x3 == z3)) + lprob_z1 + lprob_z2;
+    imm_float const v5 = c2 + LOG((x1 == z2) + (x2 == z2) + (x3 == z2)) + lprob_z1 + lprob_z3;
+    imm_float const v6 = c2 + LOG((x1 == z1) + (x2 == z1) + (x3 == z1)) + lprob_z2 + lprob_z3;
 
     imm_float v[] = {v0, v1, v2, v3, v4, v5, v6};
 
@@ -515,34 +517,34 @@ static imm_float lprob_frag_given_codon4(struct nmm_frame_state const* state,
     imm_float const lprob_z3 = base_lprob(state, z3);
     imm_float const lprob_z4 = base_lprob(state, z4);
 
-    imm_float const v0[] = {log((x1 == z2) * (x2 == z3) * (x3 == z4)) + lprob_z1,
-                            log((x1 == z1) * (x2 == z3) * (x3 == z4)) + lprob_z2,
-                            log((x1 == z1) * (x2 == z2) * (x3 == z4)) + lprob_z3,
-                            log((x1 == z1) * (x2 == z2) * (x3 == z3)) + lprob_z4};
+    imm_float const v0[] = {LOG((x1 == z2) * (x2 == z3) * (x3 == z4)) + lprob_z1,
+                            LOG((x1 == z1) * (x2 == z3) * (x3 == z4)) + lprob_z2,
+                            LOG((x1 == z1) * (x2 == z2) * (x3 == z4)) + lprob_z3,
+                            LOG((x1 == z1) * (x2 == z2) * (x3 == z3)) + lprob_z4};
 
     imm_float const v1[] = {
-        log((x2 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
-        log((x2 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
-        log((x2 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
-        log((x2 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
-        log((x2 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
-        log((x2 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
-        log((x1 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
-        log((x1 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
-        log((x1 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
-        log((x1 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
-        log((x1 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
-        log((x1 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
-        log((x1 == z3) * (x2 == z4)) + lprob_z1 + lprob_z2,
-        log((x1 == z2) * (x2 == z4)) + lprob_z1 + lprob_z3,
-        log((x1 == z2) * (x2 == z3)) + lprob_z1 + lprob_z4,
-        log((x1 == z1) * (x2 == z4)) + lprob_z2 + lprob_z3,
-        log((x1 == z1) * (x2 == z3)) + lprob_z2 + lprob_z4,
-        log((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
+        LOG((x2 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
+        LOG((x2 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
+        LOG((x2 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
+        LOG((x2 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
+        LOG((x2 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
+        LOG((x2 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
+        LOG((x1 == z3) * (x3 == z4)) + lprob_z1 + lprob_z2,
+        LOG((x1 == z2) * (x3 == z4)) + lprob_z1 + lprob_z3,
+        LOG((x1 == z2) * (x3 == z3)) + lprob_z1 + lprob_z4,
+        LOG((x1 == z1) * (x3 == z4)) + lprob_z2 + lprob_z3,
+        LOG((x1 == z1) * (x3 == z3)) + lprob_z2 + lprob_z4,
+        LOG((x1 == z1) * (x3 == z2)) + lprob_z3 + lprob_z4,
+        LOG((x1 == z3) * (x2 == z4)) + lprob_z1 + lprob_z2,
+        LOG((x1 == z2) * (x2 == z4)) + lprob_z1 + lprob_z3,
+        LOG((x1 == z2) * (x2 == z3)) + lprob_z1 + lprob_z4,
+        LOG((x1 == z1) * (x2 == z4)) + lprob_z2 + lprob_z3,
+        LOG((x1 == z1) * (x2 == z3)) + lprob_z2 + lprob_z4,
+        LOG((x1 == z1) * (x2 == z2)) + lprob_z3 + lprob_z4,
     };
 
-    return imm_lprob_add(loge + log1e * 3 - log(2) + imm_lprob_sum(v0, IMM_ARRAY_SIZE(v0)),
-                         3 * loge + log1e - log(9) + imm_lprob_sum(v1, IMM_ARRAY_SIZE(v1)));
+    return imm_lprob_add(loge + log1e * 3 - LOG(2) + imm_lprob_sum(v0, IMM_ARRAY_SIZE(v0)),
+                         3 * loge + log1e - LOG(9) + imm_lprob_sum(v1, IMM_ARRAY_SIZE(v1)));
 }
 
 static imm_float lprob_frag_given_codon5(struct nmm_frame_state const* state,
@@ -568,19 +570,19 @@ static imm_float lprob_frag_given_codon5(struct nmm_frame_state const* state,
     imm_float const lprob_z5 = base_lprob(state, z5);
 
     imm_float const v[] = {
-        lprob_z1 + lprob_z2 + log((x1 == z3) * (x2 == z4) * (x3 == z5)),
-        lprob_z1 + lprob_z3 + log((x1 == z2) * (x2 == z4) * (x3 == z5)),
-        lprob_z1 + lprob_z4 + log((x1 == z2) * (x2 == z3) * (x3 == z5)),
-        lprob_z1 + lprob_z5 + log((x1 == z2) * (x2 == z3) * (x3 == z4)),
-        lprob_z2 + lprob_z3 + log((x1 == z1) * (x2 == z4) * (x3 == z5)),
-        lprob_z2 + lprob_z4 + log((x1 == z1) * (x2 == z3) * (x3 == z5)),
-        lprob_z2 + lprob_z5 + log((x1 == z1) * (x2 == z3) * (x3 == z4)),
-        lprob_z3 + lprob_z4 + log((x1 == z1) * (x2 == z2) * (x3 == z5)),
-        lprob_z3 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z4)),
-        lprob_z4 + lprob_z5 + log((x1 == z1) * (x2 == z2) * (x3 == z3)),
+        lprob_z1 + lprob_z2 + LOG((x1 == z3) * (x2 == z4) * (x3 == z5)),
+        lprob_z1 + lprob_z3 + LOG((x1 == z2) * (x2 == z4) * (x3 == z5)),
+        lprob_z1 + lprob_z4 + LOG((x1 == z2) * (x2 == z3) * (x3 == z5)),
+        lprob_z1 + lprob_z5 + LOG((x1 == z2) * (x2 == z3) * (x3 == z4)),
+        lprob_z2 + lprob_z3 + LOG((x1 == z1) * (x2 == z4) * (x3 == z5)),
+        lprob_z2 + lprob_z4 + LOG((x1 == z1) * (x2 == z3) * (x3 == z5)),
+        lprob_z2 + lprob_z5 + LOG((x1 == z1) * (x2 == z3) * (x3 == z4)),
+        lprob_z3 + lprob_z4 + LOG((x1 == z1) * (x2 == z2) * (x3 == z5)),
+        lprob_z3 + lprob_z5 + LOG((x1 == z1) * (x2 == z2) * (x3 == z4)),
+        lprob_z4 + lprob_z5 + LOG((x1 == z1) * (x2 == z2) * (x3 == z3)),
     };
 
-    return 2 * loge + 2 * log1e - log(10) + imm_lprob_sum(v, IMM_ARRAY_SIZE(v));
+    return 2 * loge + 2 * log1e - LOG(10) + imm_lprob_sum(v, IMM_ARRAY_SIZE(v));
 }
 
 static uint8_t max_seq(struct imm_state const* state) { return 5; }

@@ -23,7 +23,7 @@ static inline struct stats compute_stats(imm_float* arr, unsigned n)
     imm_float mean = __mean(arr, n);
     imm_float median = __median(arr, n);
     imm_float std = __sample_std(arr, n, mean);
-    imm_float sem = std / sqrt(n);
+    imm_float sem = (imm_float)(std / sqrt(n));
     return (struct stats){mean, median, sem};
 }
 
@@ -37,7 +37,7 @@ static inline imm_float __mean(imm_float const* arr, unsigned n)
     for (unsigned i = 1; i < n; ++i)
         total += arr[i];
 
-    return total / n;
+    return (imm_float)((double)total / n);
 }
 
 static inline imm_float __median(imm_float const* sorted_arr, unsigned n)
@@ -62,7 +62,7 @@ static inline imm_float __sample_std(imm_float const* arr, unsigned n, imm_float
     for (unsigned i = 0; i < n; ++i)
         var += (arr[i] - mean) * (arr[i] - mean);
 
-    return sqrt(var / (n - 1));
+    return (imm_float)sqrt((double)var / (n - 1));
 }
 
 static int __comp(void const* a, void const* b)

@@ -3,6 +3,7 @@
 #include "nmm/nmm.h"
 
 #define TMP_FOLDER "test_hmm_io.tmp"
+#define LOG(x) ((imm_float)log(x))
 
 void test_hmm_io(void);
 
@@ -18,26 +19,27 @@ void test_hmm_io(void)
     struct imm_abc const*        abc = nmm_base_abc_super(base);
     imm_float const              zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
-        nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
+        nmm_base_table_create(base, LOG(0.25), LOG(0.25), LOG(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.8));
+    nmm_codon_lprob_set(codonp, codon, LOG(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, LOG(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, log(0.1));
+    nmm_codon_lprob_set(codonp, codon, LOG(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state1 = nmm_frame_state_create("S0", baset, codont, 0.1);
+    struct nmm_frame_state const* state1 =
+        nmm_frame_state_create("S0", baset, codont, (imm_float)0.1);
     struct nmm_codon_state const* state2 = nmm_codon_state_create("S1", codonp);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state1), log(1.0));
-    imm_hmm_add_state(hmm, nmm_codon_state_super(state2), log(0.0001));
-    imm_hmm_set_trans(hmm, nmm_frame_state_super(state1), nmm_codon_state_super(state2), log(0.2));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state1), LOG(1.0));
+    imm_hmm_add_state(hmm, nmm_codon_state_super(state2), LOG(0.0001));
+    imm_hmm_set_trans(hmm, nmm_frame_state_super(state1), nmm_codon_state_super(state2), LOG(0.2));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state1), 1));
