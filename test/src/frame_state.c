@@ -264,7 +264,7 @@ void test_frame_state_lposterior(void)
         nmm_codon_set_triplet(codon,
                               (struct nmm_triplet){codon_item[0], codon_item[1], codon_item[2]});
 
-        double total = imm_lprob_zero();
+        imm_float total = imm_lprob_zero();
         for (unsigned times = 1; times < 6; ++times) {
 
             struct cartes* seq_iter = cartes_create(symbols, length, times);
@@ -273,7 +273,7 @@ void test_frame_state_lposterior(void)
             while ((seq = cartes_next(seq_iter)) != NULL) {
                 struct imm_seq const* tmp = imm_seq_create(seq, abc);
                 cass_cond(tmp != NULL);
-                double lprob = nmm_frame_state_lposterior(state, codon, tmp);
+                imm_float lprob = nmm_frame_state_lposterior(state, codon, tmp);
                 imm_seq_destroy(tmp);
                 lprob -= nmm_codon_table_lprob(codont, codon);
                 total = imm_lprob_add(total, lprob);

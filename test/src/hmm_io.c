@@ -16,7 +16,7 @@ void test_hmm_io(void)
 {
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    double const                 zero = imm_lprob_zero();
+    imm_float const              zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base, log(0.25), log(0.25), log(0.5), zero);
 
@@ -57,7 +57,10 @@ void test_hmm_io(void)
     cass_cond(dp != NULL);
 
     seq = imm_seq_create("A", abc);
-    struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
+    struct imm_dp_task* task = imm_dp_task_create(dp);
+    imm_dp_task_setup(task, seq, 0);
+    struct imm_results const* results = imm_dp_viterbi(dp, task);
+    imm_dp_task_destroy(task);
     cass_cond(results != NULL);
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
@@ -101,7 +104,10 @@ void test_hmm_io(void)
     dp = nmm_model_dp(model);
 
     seq = imm_seq_create("A", abc);
-    results = imm_dp_viterbi(dp, seq, 0);
+    task = imm_dp_task_create(dp);
+    imm_dp_task_setup(task, seq, 0);
+    results = imm_dp_viterbi(dp, task);
+    return;
     cass_cond(results != NULL);
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
@@ -115,13 +121,13 @@ void test_hmm_io(void)
     for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)
         imm_state_destroy(nmm_model_state(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_nbase_tables(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_nbase_tables(model); ++i)
         nmm_base_table_destroy(nmm_model_base_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
         nmm_codon_table_destroy(nmm_model_codon_table(model, i));
 
-    for (uint32_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
+    for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
 
     imm_seq_destroy(seq);
@@ -129,4 +135,5 @@ void test_hmm_io(void)
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
     nmm_model_destroy(model);
+    imm_dp_task_destroy(task);
 }

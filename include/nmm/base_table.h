@@ -11,21 +11,22 @@ struct nmm_base_abc;
 struct nmm_base_table
 {
     struct nmm_base_abc const* base_abc;
-    double                     lprobs[NMM_BASE_ABC_SIZE];
+    imm_float                  lprobs[NMM_BASE_ABC_SIZE];
 };
 
 static inline struct nmm_base_abc const* nmm_base_table_abc(struct nmm_base_table const* baset);
-NMM_API struct nmm_base_table const* nmm_base_table_create(struct nmm_base_abc const* abc, double a,
-                                                           double b, double c, double d);
-NMM_API void                         nmm_base_table_destroy(struct nmm_base_table const* baset);
-static inline double nmm_base_table_lprob(struct nmm_base_table const* baset, char const base);
+NMM_API struct nmm_base_table const*     nmm_base_table_create(struct nmm_base_abc const* abc,
+                                                               imm_float a, imm_float b, imm_float c,
+                                                               imm_float d);
+NMM_API void                             nmm_base_table_destroy(struct nmm_base_table const* baset);
+static inline imm_float nmm_base_table_lprob(struct nmm_base_table const* baset, char const base);
 
 static inline struct nmm_base_abc const* nmm_base_table_abc(struct nmm_base_table const* baset)
 {
     return baset->base_abc;
 }
 
-static inline double nmm_base_table_lprob(struct nmm_base_table const* baset, char const base)
+static inline imm_float nmm_base_table_lprob(struct nmm_base_table const* baset, char const base)
 {
     uint8_t i = imm_abc_symbol_idx(nmm_base_abc_super(baset->base_abc), base);
     return baset->lprobs[i];

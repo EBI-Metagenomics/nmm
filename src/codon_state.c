@@ -17,11 +17,11 @@ struct nmm_codon_state
     struct nmm_base_abc const*    base_abc;
 };
 
-static void    destroy(struct imm_state const* state);
-static double  lprob(struct imm_state const* state, struct imm_seq const* seq);
-static uint8_t max_seq(struct imm_state const* state);
-static uint8_t min_seq(struct imm_state const* state);
-static uint8_t type_id(struct imm_state const* state);
+static void      destroy(struct imm_state const* state);
+static imm_float lprob(struct imm_state const* state, struct imm_seq const* seq);
+static uint8_t   max_seq(struct imm_state const* state);
+static uint8_t   min_seq(struct imm_state const* state);
+static uint8_t   type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
@@ -113,7 +113,7 @@ static void destroy(struct imm_state const* state)
     __imm_state_destroy(state);
 }
 
-static double lprob(struct imm_state const* state, struct imm_seq const* seq)
+static imm_float lprob(struct imm_state const* state, struct imm_seq const* seq)
 {
     struct nmm_codon_state const* s = __imm_state_derived(state);
     uint32_t                      length = imm_seq_length(seq);

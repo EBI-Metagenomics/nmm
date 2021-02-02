@@ -1,24 +1,24 @@
 #include "cass/cass.h"
 #include "elapsed/elapsed.h"
-#include "stats.h"
 #include "imm/imm.h"
 #include "nmm/nmm.h"
+#include "stats.h"
 
 #define CLOSE(a, b) cass_close2(a, b, 1e-6, 0.0)
 #define NSAMPLES 100
 
-imm_float perf_1thread_viterbi(double* seconds, uint16_t ncore_nodes, uint16_t seq_100length);
+imm_float perf_1thread_viterbi(imm_float* seconds, uint16_t ncore_nodes, uint16_t seq_100length);
 
 static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base,
                                                    struct nmm_triplet const   triplet,
-                                                   double const               lprob);
+                                                   imm_float const            lprob);
 static struct imm_state const*       frame_super(struct nmm_frame_state const* state);
 static struct imm_state const*       mute_super(struct imm_mute_state const* state);
 
-static inline double zero(void) { return imm_lprob_zero(); }
-static inline int    is_valid(double a) { return imm_lprob_is_valid(a); }
-static inline int    is_zero(double a) { return imm_lprob_is_zero(a); }
-static char*         fmt_name(char* restrict buffer, char const* name, unsigned i);
+static inline imm_float zero(void) { return imm_lprob_zero(); }
+static inline int       is_valid(imm_float a) { return imm_lprob_is_valid(a); }
+static inline int       is_zero(imm_float a) { return imm_lprob_is_zero(a); }
+static char*            fmt_name(char* restrict buffer, char const* name, unsigned i);
 
 int main(void)
 {
@@ -43,7 +43,7 @@ int main(void)
     for (unsigned i = 0; i < IMM_ARRAY_SIZE(ncore_nodes); ++i) {
         for (unsigned j = 0; j < IMM_ARRAY_SIZE(seq_100len); ++j) {
             uint16_t  len = seq_100len[j];
-            double    seconds[NSAMPLES] = {0.};
+            imm_float seconds[NSAMPLES] = {0.};
             imm_float loglik = perf_1thread_viterbi(seconds, ncore_nodes[i], len);
             printf("%.16f, ", loglik);
             cass_close(loglik, logliks[i * IMM_ARRAY_SIZE(seq_100len) + j]);
@@ -56,9 +56,9 @@ int main(void)
     return 0;
 }
 
-imm_float perf_1thread_viterbi(double* seconds, uint16_t ncore_nodes, uint16_t seq_100length)
+imm_float perf_1thread_viterbi(imm_float* seconds, uint16_t ncore_nodes, uint16_t seq_100length)
 {
-    double const                 epsilon = 0.01;
+    imm_float const              epsilon = 0.01;
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
     struct nmm_base_table const* baset =
@@ -151,9 +151,11 @@ imm_float perf_1thread_viterbi(double* seconds, uint16_t ncore_nodes, uint16_t s
     struct imm_seq const* seq = imm_seq_create(str, abc);
     struct imm_dp const*  dp = imm_hmm_create_dp(hmm, mute_super(end));
 
-    imm_float loglik = 0.0;
+    imm_float           loglik = 0.0;
+    struct imm_dp_task* task = imm_dp_task_create(dp);
+    imm_dp_task_setup(task, seq, 0);
     for (unsigned i = 0; i < NSAMPLES; ++i) {
-        struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
+        struct imm_results const* results = imm_dp_viterbi(dp, task);
         cass_cond(imm_results_size(results) == 1);
         struct imm_result const* r = imm_results_get(results, 0);
         struct imm_subseq        subseq = imm_result_subseq(r);
@@ -164,6 +166,7 @@ imm_float perf_1thread_viterbi(double* seconds, uint16_t ncore_nodes, uint16_t s
         imm_results_destroy(results);
     }
 
+    imm_dp_task_destroy(task);
     imm_mute_state_destroy(start);
     imm_mute_state_destroy(end);
     nmm_frame_state_destroy(B);
@@ -213,7 +216,7 @@ static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
 static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base,
                                                    struct nmm_triplet const   triplet,
-                                                   double const               lprob)
+                                                   imm_float const            lprob)
 {
     struct nmm_codon_lprob* codonp = create_codonp(base);
     struct nmm_codon*       codon = nmm_codon_create(base);

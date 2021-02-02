@@ -50,7 +50,7 @@ void nmm_codon_lprob_destroy(struct nmm_codon_lprob const* codonp)
     free_c(codonp);
 }
 
-double nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_codon const* codon)
+imm_float nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_codon const* codon)
 {
     if (codonp->base_abc != nmm_codon_abc(codon)) {
         imm_error("bases must be the same");
@@ -75,7 +75,7 @@ int nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp)
 }
 
 int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
-                        double const lprob)
+                        imm_float const lprob)
 {
     if (codonp->base_abc != nmm_codon_abc(codon)) {
         imm_error("bases must be the same");

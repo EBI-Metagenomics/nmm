@@ -33,9 +33,9 @@ struct nmm_codon_table
 
 static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_table const* codont);
 NMM_API struct nmm_codon_table const*    nmm_codon_table_create(struct nmm_codon_lprob const* prob);
-NMM_API void         nmm_codon_table_destroy(struct nmm_codon_table const* codont);
-static inline double nmm_codon_table_lprob(struct nmm_codon_table const* codont,
-                                           struct nmm_codon const*       codon);
+NMM_API void            nmm_codon_table_destroy(struct nmm_codon_table const* codont);
+static inline imm_float nmm_codon_table_lprob(struct nmm_codon_table const* codont,
+                                              struct nmm_codon const*       codon);
 
 static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codon_table const* tbl,
                                                                  struct nmm_codon const* codon);
@@ -57,8 +57,8 @@ static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_ta
     return codont->base_abc;
 }
 
-static inline double nmm_codon_table_lprob(struct nmm_codon_table const* codont,
-                                           struct nmm_codon const*       codon)
+static inline imm_float nmm_codon_table_lprob(struct nmm_codon_table const* codont,
+                                              struct nmm_codon const*       codon)
 {
     return nmm_array3d_get(&codont->lprobs, __nmm_codon_table_array_idx(codont, codon));
 }

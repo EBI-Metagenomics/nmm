@@ -13,7 +13,7 @@ int main(void)
 void test_base_table(void)
 {
     struct nmm_base_abc const*   base_abc = nmm_base_abc_create("ACGT", 'X');
-    double const                 zero = imm_lprob_zero();
+    imm_float const              zero = imm_lprob_zero();
     struct nmm_base_table const* baset =
         nmm_base_table_create(base_abc, log(8), log(1), zero, log(3));
 

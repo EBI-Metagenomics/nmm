@@ -13,12 +13,12 @@
  */
 #define NSYMBOLS (NMM_BASE_ABC_SIZE + 1)
 
-static double marginalization(struct nmm_codon_table const* codont, char const* symbols,
-                              struct nmm_codon const* codon);
+static imm_float marginalization(struct nmm_codon_table const* codont, char const* symbols,
+                                 struct nmm_codon const* codon);
 static struct nmm_codon_table* new_codon_table(struct nmm_base_abc const* base_abc);
 static inline int              not_marginal(struct nmm_codon const* codon, char const any_symbol);
 static inline void set_marginal_lprob(struct nmm_codon_table* codont, struct nmm_codon const* codon,
-                                      double lprob);
+                                      imm_float lprob);
 static void        set_marginal_lprobs(struct nmm_codon_table*    codont,
                                        struct nmm_base_abc const* base_abc);
 static int         set_nonmarginal_lprobs(struct nmm_codon_table*       codont,
@@ -86,8 +86,8 @@ int codon_table_write(struct nmm_codon_table const* codont, FILE* stream)
     return 0;
 }
 
-static double marginalization(struct nmm_codon_table const* codont, char const* symbols,
-                              struct nmm_codon const* codon)
+static imm_float marginalization(struct nmm_codon_table const* codont, char const* symbols,
+                                 struct nmm_codon const* codon)
 {
     char const any_symbol = symbols[NSYMBOLS - 1];
 
@@ -107,7 +107,7 @@ static double marginalization(struct nmm_codon_table const* codont, char const* 
     }
 
     struct nmm_codon* tmp = nmm_codon_create(nmm_codon_abc(codon));
-    double            lprob = imm_lprob_zero();
+    imm_float         lprob = imm_lprob_zero();
     for (unsigned a = 0; a < shape[0]; ++a) {
         for (unsigned b = 0; b < shape[1]; ++b) {
             for (unsigned c = 0; c < shape[2]; ++c) {
@@ -140,7 +140,7 @@ static inline int not_marginal(struct nmm_codon const* codon, char const any_sym
 }
 
 static inline void set_marginal_lprob(struct nmm_codon_table* codont, struct nmm_codon const* codon,
-                                      double lprob)
+                                      imm_float lprob)
 {
     nmm_array3d_set(&codont->lprobs, __nmm_codon_table_array_idx(codont, codon), lprob);
 }

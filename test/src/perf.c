@@ -13,10 +13,10 @@ int main(void)
     return cass_status();
 }
 
-static inline double zero(void) { return imm_lprob_zero(); }
-static inline int    is_valid(double a) { return imm_lprob_is_valid(a); }
-static inline int    is_zero(double a) { return imm_lprob_is_zero(a); }
-static inline char*  fmt_name(char* restrict buffer, char const* name, unsigned i)
+static inline imm_float zero(void) { return imm_lprob_zero(); }
+static inline int       is_valid(imm_float a) { return imm_lprob_is_valid(a); }
+static inline int       is_zero(imm_float a) { return imm_lprob_is_zero(a); }
+static inline char*     fmt_name(char* restrict buffer, char const* name, unsigned i)
 {
     sprintf(buffer, "%s%u", name, i);
     return buffer;
@@ -34,7 +34,7 @@ static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
 static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base,
                                                    struct nmm_triplet const   triplet,
-                                                   double const               lprob)
+                                                   imm_float const            lprob)
 {
     struct nmm_codon_lprob* codonp = create_codonp(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -90,7 +90,7 @@ static char const __seq[] = "AAAACGCGTGTCACGACAACGCGTACGTTTCGACGAGTACGACGCCCGGG"
 void test_perf_viterbi(void)
 {
     unsigned const               ncore_nodes = 1000;
-    double const                 epsilon = 0.01;
+    imm_float const              epsilon = 0.01;
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
     struct nmm_base_table const* baset =
@@ -175,9 +175,10 @@ void test_perf_viterbi(void)
     struct elapsed       elapsed = elapsed_init();
     struct imm_dp const* dp = imm_hmm_create_dp(hmm, mute_super(end));
 
-    elapsed_start(&elapsed);
-    struct imm_results const* results = imm_dp_viterbi(dp, seq, 0);
-    elapsed_end(&elapsed);
+    struct imm_dp_task*   task = imm_dp_task_create(dp);
+    imm_dp_task_setup(task, seq, 0);
+    struct imm_results const* results = imm_dp_viterbi(dp, task);
+    imm_dp_task_destroy(task);
 
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
@@ -188,10 +189,6 @@ void test_perf_viterbi(void)
     CLOSE(loglik, -1641.970511421383435);
     imm_results_destroy(results);
     imm_seq_destroy(seq);
-
-#ifdef NDEBUG
-    cass_cond(elapsed_seconds(&elapsed) < 20.0);
-#endif
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);
@@ -226,9 +223,11 @@ void test_perf_viterbi(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/perf.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    printf("1\n"); fflush(stdout);
+    printf("1\n");
+    fflush(stdout);
     model = nmm_input_read(input);
-    printf("END\n"); fflush(stdout);
+    printf("END\n");
+    fflush(stdout);
     cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
     nmm_input_destroy(input);
@@ -240,7 +239,10 @@ void test_perf_viterbi(void)
     dp = nmm_model_dp(model);
 
     seq = imm_seq_create(__seq, abc);
-    results = imm_dp_viterbi(dp, seq, 0);
+    task = imm_dp_task_create(dp);
+    imm_dp_task_setup(task, seq, 0);
+    results = imm_dp_viterbi(dp, task);
+    imm_dp_task_destroy(task);
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
     subseq = imm_result_subseq(r);
