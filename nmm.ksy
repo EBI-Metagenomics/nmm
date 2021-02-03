@@ -15,7 +15,7 @@ enums:
     0x10: codon
     0x11: frame
   block_type:
-    0x00: model
+    0x00: imm_model
     0x10: nmm_model
     0xff: end_of_file
 types:
@@ -28,34 +28,36 @@ types:
         type:
           switch-on: block_type
           cases:
-            'block_type::model': model
+            'block_type::imm_model': imm_model
             'block_type::nmm_model': nmm_model
-  model:
+  imm_model:
     seq:
       - id: abc
         type: abc
-      - id: hmm
-        type: hmm
-      - id: dp
-        type: dp
+      - id: nhmm_blocks
+        type: u1
+      - id: hmm_block
+        type: hmm_block
+        repeat: expr
+        repeat-expr: nhmm_blocks
   nmm_model:
     seq:
       - id: abc
         type: abc
       - id: nbaset
-        type: u4
+        type: u2
       - id: baset
         type: baset
         repeat: expr
         repeat-expr: nbaset
       - id: ncodonp
-        type: u4
+        type: u2
       - id: codonp
         type: codonp
         repeat: expr
         repeat-expr: ncodonp
       - id: ncodont
-        type: u4
+        type: u2
       - id: codont
         type: codont
         repeat: expr
@@ -64,16 +66,22 @@ types:
         type: hmm
       - id: dp
         type: dp
+  hmm_block:
+    seq:
+      - id: hmm
+        type: hmm
+      - id: dp
+        type: dp
   hmm:
     seq:
       - id: nstates
-        type: u4
+        type: u2
       - id: states
         type: state
         repeat: expr
         repeat-expr: nstates
       - id: ntransitions
-        type: u4
+        type: u2
       - id: transitions
         type: transition
         repeat: expr
@@ -96,12 +104,12 @@ types:
   state:
     seq:
       - id: start_lprob
-        type: f8
+        type: f4
       - id: state_type
         type: u1
         enum: state_type
       - id: name_length
-        type: u2
+        type: u1
       - id: name
         type: str
         encoding: ASCII
@@ -122,30 +130,30 @@ types:
       - id: lprobs_size
         type: u1
       - id: lprobs
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: lprobs_size
   table_state: {}
   codon_state:
     seq:
       - id: codonp_index
-        type: u4
+        type: u2
   frame_state:
     seq:
       - id: baset_index
-        type: u4
+        type: u2
       - id: codont_index
-        type: u4
+        type: u2
       - id: epsilon
-        type: f8
+        type: f4
   transition:
     seq:
       - id: source_state
-        type: u4
+        type: u2
       - id: target_state
-        type: u4
+        type: u2
       - id: lprob
-        type: f8
+        type: f4
   dp:
     seq:
       - id: seq_code
@@ -163,21 +171,21 @@ types:
       - id: max_seq
         type: u1
       - id: offset
-        type: u4
+        type: u2
         repeat: expr
         repeat-expr: max_seq - min_seq + 1
       - id: stride
-        type: u4
+        type: u2
         repeat: expr
         repeat-expr: max_seq
       - id: size
-        type: u4
+        type: u2
   dp_emission:
     seq:
       - id: score_size
         type: u4
       - id: score
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: score_size
       - id: offset_size
@@ -189,25 +197,25 @@ types:
   dp_trans_table:
     seq:
       - id: ntrans
-        type: u4
+        type: u2
       - id: score
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: ntrans
       - id: source_state
-        type: u4
+        type: u2
         repeat: expr
         repeat-expr: ntrans
       - id: offset_size
-        type: u4
+        type: u2
       - id: offset
-        type: u4
+        type: u2
         repeat: expr
         repeat-expr: offset_size
   dp_state_table:
     seq:
       - id: nstates
-        type: u4
+        type: u2
       - id: min_seq
         type: u1
         repeat: expr
@@ -217,11 +225,11 @@ types:
         repeat: expr
         repeat-expr: nstates
       - id: start_lprob
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: nstates
       - id: end_state
-        type: u4
+        type: u2
   array3d:
     seq:
       - id: strides
@@ -229,13 +237,13 @@ types:
         repeat: expr
         repeat-expr: 3
       - id: values
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: strides[0] * strides[1] * strides[2]
   baset:
     seq:
       - id: lprobs
-        type: f8
+        type: f4
         repeat: expr
         repeat-expr: 4
   codonp:
