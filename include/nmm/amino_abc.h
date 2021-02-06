@@ -12,8 +12,7 @@ struct nmm_amino_abc
     struct imm_abc const* super;
 };
 
-NMM_API struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols,
-                                                         char const  any_symbol);
+NMM_API struct nmm_amino_abc const* nmm_amino_abc_create(char const* symbols, char const any_symbol);
 NMM_API struct nmm_amino_abc const* nmm_amino_abc_derived(struct imm_abc const* abc);
 NMM_API void                        nmm_amino_abc_destroy(struct nmm_amino_abc const* amino_abc);
 static inline struct imm_abc const* nmm_amino_abc_super(struct nmm_amino_abc const* amino_abc);

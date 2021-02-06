@@ -76,13 +76,9 @@ static int                     write_abc(struct nmm_model const* model, FILE* st
 static int                     write_basep(struct nmm_model const* model, FILE* stream);
 static int                     write_codonp(struct nmm_model const* model, FILE* stream);
 static int                     write_codont(struct nmm_model const* model, FILE* stream);
-static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state,
-                       void* args);
+static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state, void* args);
 
-struct imm_abc const* nmm_model_abc(struct nmm_model const* model)
-{
-    return imm_model_abc(model->super);
-}
+struct imm_abc const* nmm_model_abc(struct nmm_model const* model) { return imm_model_abc(model->super); }
 
 struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
@@ -122,20 +118,11 @@ void nmm_model_destroy(struct nmm_model const* model)
     free_c(model);
 }
 
-uint16_t nmm_model_nbase_lprobs(struct nmm_model const* model)
-{
-    return (uint16_t)kh_size(model->basep_map);
-}
+uint16_t nmm_model_nbase_lprobs(struct nmm_model const* model) { return (uint16_t)kh_size(model->basep_map); }
 
-uint16_t nmm_model_ncodon_lprobs(struct nmm_model const* model)
-{
-    return (uint16_t)kh_size(model->codonp_map);
-}
+uint16_t nmm_model_ncodon_lprobs(struct nmm_model const* model) { return (uint16_t)kh_size(model->codonp_map); }
 
-uint16_t nmm_model_ncodon_tables(struct nmm_model const* model)
-{
-    return (uint16_t)kh_size(model->codont_map);
-}
+uint16_t nmm_model_ncodon_tables(struct nmm_model const* model) { return (uint16_t)kh_size(model->codont_map); }
 
 uint16_t model_basep_index(struct nmm_model const* model, struct nmm_base_lprob const* basep)
 {
@@ -375,20 +362,14 @@ static void deep_destroy(struct nmm_model const* model)
 
 struct imm_hmm* nmm_model_hmm(struct nmm_model const* model) { return imm_model_hmm(model->super); }
 
-struct imm_dp const* nmm_model_dp(struct nmm_model const* model)
-{
-    return imm_model_dp(model->super);
-}
+struct imm_dp const* nmm_model_dp(struct nmm_model const* model) { return imm_model_dp(model->super); }
 
 struct imm_state const* nmm_model_state(struct nmm_model const* model, uint16_t i)
 {
     return imm_model_state(model->super, i);
 }
 
-uint16_t nmm_model_nstates(struct nmm_model const* model)
-{
-    return imm_model_nstates(model->super);
-}
+uint16_t nmm_model_nstates(struct nmm_model const* model) { return imm_model_nstates(model->super); }
 
 struct nmm_model const* nmm_model_read(FILE* stream)
 {
@@ -748,8 +729,7 @@ static int write_codont(struct nmm_model const* model, FILE* stream)
     return 0;
 }
 
-static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state,
-                       void* args)
+static int write_state(struct imm_model const* model, FILE* stream, struct imm_state const* state, void* args)
 {
     uint8_t type_id = imm_state_type_id(state);
     if (fwrite(&type_id, sizeof(type_id), 1, stream) < 1) {

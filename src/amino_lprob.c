@@ -4,7 +4,7 @@
 #include <string.h>
 
 struct nmm_amino_lprob const* nmm_amino_lprob_create(struct nmm_amino_abc const* abc,
-                                                     imm_float const*            lprobs)
+                                                     imm_float const             lprobs[static NMM_AMINO_ABC_SIZE])
 {
     struct nmm_amino_lprob* aminop = malloc(sizeof(*aminop));
     aminop->amino_abc = abc;
