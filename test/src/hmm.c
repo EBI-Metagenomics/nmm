@@ -99,7 +99,7 @@ void test_hmm_frame_state_len1(void)
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, (imm_float)0.1);
 
     imm_hmm_add_state(hmm, nmm_frame_state_super(state), LOG(1.0));
 
@@ -160,7 +160,7 @@ void test_hmm_frame_state_len2(void)
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, (imm_float)0.1);
 
     imm_hmm_add_state(hmm, nmm_frame_state_super(state), LOG(1.0));
 
@@ -249,7 +249,7 @@ void test_hmm_frame_state_len3(void)
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, (imm_float)0.1);
 
     imm_hmm_add_state(hmm, nmm_frame_state_super(state), LOG(1.0));
 
@@ -310,7 +310,7 @@ void test_hmm_frame_state_len4(void)
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, (imm_float)0.1);
 
     imm_hmm_add_state(hmm, nmm_frame_state_super(state), LOG(1.0));
 
@@ -357,7 +357,7 @@ void test_hmm_frame_state_len5(void)
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, 0.1);
+    struct nmm_frame_state const* state = nmm_frame_state_create("M", baset, codont, (imm_float)0.1);
 
     imm_hmm_add_state(hmm, nmm_frame_state_super(state), LOG(1.0));
 
