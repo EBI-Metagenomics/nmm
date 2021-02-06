@@ -92,8 +92,8 @@ void test_perf_viterbi(void)
     imm_float const              epsilon = (imm_float)0.01;
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
-    struct nmm_base_table const* baset =
-        nmm_base_table_create(base, LOG(0.25), LOG(0.25), LOG(0.45), LOG(0.05));
+    struct nmm_base_lprob const* basep =
+        nmm_base_lprob_create(base, LOG(0.25), LOG(0.25), LOG(0.45), LOG(0.05));
 
     struct nmm_codon_table const* M_codont =
         create_codont(base, NMM_TRIPLET('A', 'C', 'G'), LOG(100.0));
@@ -114,13 +114,13 @@ void test_perf_viterbi(void)
     struct imm_mute_state const* end = imm_mute_state_create("END", abc);
     imm_hmm_add_state(hmm, mute_super(end), zero());
 
-    struct nmm_frame_state const* B = nmm_frame_state_create("B", baset, B_codont, epsilon);
+    struct nmm_frame_state const* B = nmm_frame_state_create("B", basep, B_codont, epsilon);
     imm_hmm_add_state(hmm, frame_super(B), zero());
 
-    struct nmm_frame_state const* E = nmm_frame_state_create("E", baset, B_codont, epsilon);
+    struct nmm_frame_state const* E = nmm_frame_state_create("E", basep, B_codont, epsilon);
     imm_hmm_add_state(hmm, frame_super(E), zero());
 
-    struct nmm_frame_state const* J = nmm_frame_state_create("J", baset, B_codont, epsilon);
+    struct nmm_frame_state const* J = nmm_frame_state_create("J", basep, B_codont, epsilon);
     imm_hmm_add_state(hmm, frame_super(J), zero());
 
     imm_hmm_set_trans(hmm, mute_super(start), frame_super(B), LOG(0.2));
@@ -137,8 +137,8 @@ void test_perf_viterbi(void)
 
     char name[10] = "\0";
     for (unsigned i = 0; i < ncore_nodes; ++i) {
-        M[i] = nmm_frame_state_create(fmt_name(name, "M", i), baset, M_codont, epsilon);
-        I[i] = nmm_frame_state_create(fmt_name(name, "I", i), baset, I_codont, epsilon);
+        M[i] = nmm_frame_state_create(fmt_name(name, "M", i), basep, M_codont, epsilon);
+        I[i] = nmm_frame_state_create(fmt_name(name, "I", i), basep, I_codont, epsilon);
         D[i] = imm_mute_state_create(fmt_name(name, "D", i), abc);
 
         imm_hmm_add_state(hmm, frame_super(M[i]), zero());
@@ -211,7 +211,7 @@ void test_perf_viterbi(void)
     nmm_codon_table_destroy(B_codont);
     nmm_codon_table_destroy(E_codont);
     nmm_codon_table_destroy(J_codont);
-    nmm_base_table_destroy(baset);
+    nmm_base_lprob_destroy(basep);
     nmm_base_abc_destroy(base);
     imm_dp_destroy(dp);
     free(M);
@@ -252,8 +252,8 @@ void test_perf_viterbi(void)
     for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)
         imm_state_destroy(nmm_model_state(model, i));
 
-    for (uint16_t i = 0; i < nmm_model_nbase_tables(model); ++i)
-        nmm_base_table_destroy(nmm_model_base_table(model, i));
+    for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
+        nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
         nmm_codon_table_destroy(nmm_model_codon_table(model, i));

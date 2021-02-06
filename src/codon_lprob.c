@@ -1,7 +1,7 @@
 #include "codon_lprob.h"
 #include "free.h"
 #include "imm/imm.h"
-#include "nmm/array.h"
+#include "nmm/array3d.h"
 #include "nmm/base_abc.h"
 #include "nmm/codon.h"
 #include "nmm/codon_lprob.h"

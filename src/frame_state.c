@@ -2,7 +2,7 @@
 #include "free.h"
 #include "model.h"
 #include "nmm/base_abc.h"
-#include "nmm/base_table.h"
+#include "nmm/base_lprob.h"
 #include "nmm/codon.h"
 #include "nmm/codon_table.h"
 #include "nmm/model.h"
@@ -16,7 +16,7 @@
 struct nmm_frame_state
 {
     struct imm_state const*       super;
-    struct nmm_base_table const*  baset;
+    struct nmm_base_lprob const*  basep;
     struct nmm_codon_table const* codont;
     imm_float                     epsilon;
     imm_float                     leps;
@@ -51,9 +51,9 @@ static uint8_t          type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
-struct nmm_base_table const* nmm_frame_state_base_table(struct nmm_frame_state const* state)
+struct nmm_base_lprob const* nmm_frame_state_base_lprob(struct nmm_frame_state const* state)
 {
-    return state->baset;
+    return state->basep;
 }
 
 struct nmm_codon_table const* nmm_frame_state_codon_table(struct nmm_frame_state const* state)
@@ -62,26 +62,26 @@ struct nmm_codon_table const* nmm_frame_state_codon_table(struct nmm_frame_state
 }
 
 struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
-                                                     struct nmm_base_table const*  baset,
+                                                     struct nmm_base_lprob const*  basep,
                                                      struct nmm_codon_table const* codont,
                                                      imm_float const               epsilon)
 {
     struct nmm_frame_state* state = malloc(sizeof(*state));
 
-    if (nmm_base_table_abc(baset) != nmm_codon_table_abc(codont)) {
+    if (nmm_base_lprob_abc(basep) != nmm_codon_table_abc(codont)) {
         free_c(state);
         return NULL;
     }
 
-    state->baset = baset;
+    state->basep = basep;
     state->codont = codont;
     state->epsilon = epsilon;
     state->leps = LOG(epsilon);
     state->l1eps = LOG(1 - epsilon);
     state->zero_lprob = imm_lprob_zero();
-    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_abc(baset)));
+    state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_lprob_abc(basep)));
 
-    struct imm_abc const* abc = nmm_base_abc_super(nmm_base_table_abc(baset));
+    struct imm_abc const* abc = nmm_base_abc_super(nmm_base_lprob_abc(basep));
     state->super = imm_state_create(name, abc, __vtable, state);
     return state;
 }
@@ -167,14 +167,8 @@ struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* stat
 
 struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model)
 {
-    printf("15\n");
-    fflush(stdout);
     struct imm_abc const* abc = nmm_model_abc(model);
-    printf("16\n");
-    fflush(stdout);
     struct imm_state* state = __imm_state_read(stream, abc);
-    printf("17\n");
-    fflush(stdout);
     if (!state) {
         imm_error("could not state_read");
         return NULL;
@@ -186,42 +180,32 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
     frame_state->super = state;
     state->derived = frame_state;
 
-    printf("18\n");
-    fflush(stdout);
     uint16_t index = 0;
     if (fread(&index, sizeof(index), 1, stream) < 1) {
-        imm_error("could not read baset index");
+        imm_error("could not read basep index");
         goto err;
     }
 
-    printf("19\n");
-    fflush(stdout);
-    struct nmm_base_table const* baset = nmm_model_base_table(model, index);
-    if (!baset) {
-        imm_error("could not get baset");
+    struct nmm_base_lprob const* basep = nmm_model_base_lprob(model, index);
+    if (!basep) {
+        imm_error("could not get basep");
         goto err;
     }
-    frame_state->baset = baset;
+    frame_state->basep = basep;
 
     index = 0;
-    printf("20\n");
-    fflush(stdout);
     if (fread(&index, sizeof(index), 1, stream) < 1) {
         imm_error("could not read codont index");
         goto err;
     }
 
     struct nmm_codon_table const* codont = nmm_model_codon_table(model, index);
-    printf("21\n");
-    fflush(stdout);
     if (!codont) {
         imm_error("could not get codont");
         goto err;
     }
     frame_state->codont = codont;
 
-    printf("22\n");
-    fflush(stdout);
     if (fread(&frame_state->epsilon, sizeof(frame_state->epsilon), 1, stream) < 1) {
         imm_error("could not read epsilon");
         goto err;
@@ -230,10 +214,8 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
     frame_state->leps = LOG(frame_state->epsilon);
     frame_state->l1eps = LOG(1 - frame_state->epsilon);
     frame_state->zero_lprob = imm_lprob_zero();
-    frame_state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_table_abc(baset)));
+    frame_state->any_symbol = imm_abc_any_symbol(nmm_base_abc_super(nmm_base_lprob_abc(basep)));
 
-    printf("23\n");
-    fflush(stdout);
     return state;
 
 err:
@@ -244,7 +226,7 @@ err:
 
 static inline imm_float base_lprob(struct nmm_frame_state const* state, char id)
 {
-    return nmm_base_table_lprob(state->baset, id);
+    return nmm_base_lprob_get(state->basep, id);
 }
 
 static inline struct nmm_codon const* codon_set(struct nmm_codon* codon, char a, char b, char c)
@@ -264,7 +246,7 @@ static void destroy(struct imm_state const* state)
 static imm_float joint_seq_len1(struct nmm_frame_state const* state, struct imm_seq const* seq)
 {
     char const _ = state->any_symbol;
-    NMM_CODON_DECL(codon, nmm_base_table_abc(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_lprob_abc(state->basep));
 
     imm_float const c = 2 * state->leps + 2 * state->l1eps;
 
@@ -283,7 +265,7 @@ static imm_float joint_seq_len2(struct nmm_frame_state const* state, struct imm_
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, nmm_base_table_abc(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_lprob_abc(state->basep));
 
     imm_float const b_lp0 = base_lprob(state, str[0]);
     imm_float const b_lp1 = base_lprob(state, str[1]);
@@ -306,7 +288,7 @@ static imm_float joint_seq_len3(struct nmm_frame_state const* state, struct imm_
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, nmm_base_table_abc(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_lprob_abc(state->basep));
 
     imm_float const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                            base_lprob(state, str[2])};
@@ -334,7 +316,7 @@ static imm_float joint_seq_len4(struct nmm_frame_state const* state, struct imm_
     char const*  str = imm_seq_string(seq);
     char const   eseq[] = {str[0], str[1], str[2], str[3], state->any_symbol};
     size_t const _ = sizeof(eseq) - 1;
-    NMM_CODON_DECL(codon, nmm_base_table_abc(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_lprob_abc(state->basep));
 
     imm_float const B[] = {base_lprob(state, str[0]), base_lprob(state, str[1]),
                            base_lprob(state, str[2]), base_lprob(state, str[3])};
@@ -361,7 +343,7 @@ static imm_float joint_seq_len5(struct nmm_frame_state const* state, struct imm_
 #define LPROB(codon) nmm_codon_table_lprob(state->codont, codon)
 #define C(a, b, c) codon_set(&codon, str[a], str[b], str[c])
     char const* str = imm_seq_string(seq);
-    NMM_CODON_DECL(codon, nmm_base_table_abc(state->baset));
+    NMM_CODON_DECL(codon, nmm_base_lprob_abc(state->basep));
 
     imm_float const b_lp0 = base_lprob(state, str[0]);
     imm_float const b_lp1 = base_lprob(state, str[1]);
@@ -595,7 +577,7 @@ int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const*
                           FILE* stream)
 {
     struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-    uint16_t                      baset_idx = model_baset_index(model, s->baset);
+    uint16_t                      basep_idx = model_basep_index(model, s->basep);
     uint16_t                      codont_idx = model_codont_index(model, s->codont);
 
     if (__imm_state_write(state, stream)) {
@@ -603,8 +585,8 @@ int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const*
         return 1;
     }
 
-    if (fwrite(&baset_idx, sizeof(baset_idx), 1, stream) < 1) {
-        imm_error("could not write baset_idx index");
+    if (fwrite(&basep_idx, sizeof(basep_idx), 1, stream) < 1) {
+        imm_error("could not write basep_idx index");
         return 1;
     }
 

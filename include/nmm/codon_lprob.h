@@ -4,12 +4,12 @@
 #include "imm/imm.h"
 #include "nmm/export.h"
 
-/** @file codonp.h
+/** @file codon_lprob.h
  * Codon probability module.
  *
  * An object of type @ref nmm_codon_lprob is used to define the probabilities
  * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) of emitting codon (𝚡₁,𝚡₂,𝚡₃). Its sole purpose is
- * to be used by the constructor of the type @ref nmm_codont.
+ * to be used by the constructor of the type @ref nmm_codon_table.
  */
 
 struct nmm_base_abc;

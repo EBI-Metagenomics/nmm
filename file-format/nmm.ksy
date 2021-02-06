@@ -44,12 +44,12 @@ types:
     seq:
       - id: abc
         type: abc
-      - id: nbaset
+      - id: nbasep
         type: u2
-      - id: baset
-        type: baset
+      - id: basep
+        type: basep
         repeat: expr
-        repeat-expr: nbaset
+        repeat-expr: nbasep
       - id: ncodonp
         type: u2
       - id: codonp
@@ -142,7 +142,7 @@ types:
         type: u2
   frame_state:
     seq:
-      - id: baset_index
+      - id: basep_index
         type: u2
       - id: codont_index
         type: u2
@@ -242,7 +242,7 @@ types:
         type: f4
         repeat: expr
         repeat-expr: strides[0] * strides[1] * strides[2]
-  baset:
+  basep:
     seq:
       - id: lprobs
         type: f4

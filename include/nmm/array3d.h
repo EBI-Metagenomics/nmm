@@ -1,5 +1,5 @@
-#ifndef NMM_ARRAY_H
-#define NMM_ARRAY_H
+#ifndef NMM_ARRAY3D_H
+#define NMM_ARRAY3D_H
 
 #include "imm/imm.h"
 #include "nmm/export.h"

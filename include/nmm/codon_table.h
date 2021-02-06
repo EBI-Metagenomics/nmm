@@ -1,11 +1,11 @@
 #ifndef NMM_CODON_TABLE_H
 #define NMM_CODON_TABLE_H
 
-#include "nmm/array.h"
+#include "nmm/array3d.h"
 #include "nmm/codon.h"
 #include "nmm/export.h"
 
-/** @file codont.h
+/** @file codon_table.h
  * Codon table module.
  *
  * A codon table is represented by an (immutable) object of type @ref nmm_codon_table

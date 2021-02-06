@@ -1,4 +1,4 @@
-#include "nmm/array.h"
+#include "nmm/array3d.h"
 #include "free.h"
 #include <inttypes.h>
 #include <limits.h>

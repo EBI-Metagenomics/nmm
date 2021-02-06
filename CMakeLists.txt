@@ -28,7 +28,7 @@ add_library(nmm
     src/amino_table.c
     src/array.c
     src/base_abc.c
-    src/base_table.c
+    src/base_lprob.c
     src/codon.c
     src/codon_lprob.c
     src/codon_state.c
