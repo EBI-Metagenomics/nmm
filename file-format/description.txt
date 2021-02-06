@@ -1,0 +1,83 @@
+The file format is formally defined in nmm.ksy, and it is a extension of the
+[https://is.gd/SW0ftF](imm file format). We here provide a visual description of it, and refer the
+reader to the [https://is.gd/wWlT3H](imm file description) for fields that are not defined here.
+
+The file is a sequence of blocks:
+
+    |-------------|-|-----------------------------------|
+    |             | | block_type: uint8_t (0x00)        |
+    | Block 0     | | body: non-empty sequence of bytes |
+    |             | |                                   |
+    |-------------|-|-----------------------------------|
+    |             | | block_type: uint8_t (0x00)        |
+    | Block 1     | | body: non-empty sequence of bytes |
+    |             | |                                   |
+    |-------------|-|-----------------------------------|
+    ...
+    |-------------|-|-----------------------------------|
+    |             | | block_type: uint8_t (0xff)        |
+    | Block n-1   | | body: empty sequence of bytes     |
+    |             | |                                   |
+    |-------------|-|-----------------------------------|
+
+A block has a type defined by the block_type field: imm_model (0x00), nmm_model (0x10), or
+end_of_file (0xff). The only block to have type end_of_file is the Block n-1 to the stream of bytes.
+
+The body of a nmm_model block contains the following chunk:
+
+     model_block                              abc
+    |--------------------------------------| |---------------------------|
+    | abc: abc                             | | nsymbols: uint8_t         |
+    |                                      | | symbols: char[nsymbols+1] |
+    |                                      | | any_symbol: char          |
+    |--------------------------------------| |---------------------------|
+    | nbaset: uint16_t                     |
+    | baset: baset[nbaset]                 |
+    |--------------------------------------|
+    | ncodonp: uint16_t                    |
+    | codonp: codonp[ncodonp]              |
+    |--------------------------------------|
+    | ncodont: uint16_t                    |
+    | codont: codont[ncodont]              |
+    |--------------------------------------|
+    | nhmm_blocks: uint8_t                 |
+    | hmm_block: hmm_block[nhmm_blocks]    |
+    |--------------------------------------|
+
+Base and codon chunks:
+
+     baset
+    |---------------------------|
+    | lprobs: float[4]          |
+    |---------------------------|
+
+     codonp
+    |---------------------------|
+    | lprobs: array3d           |
+    |---------------------------|
+
+     codont
+    |---------------------------|
+    | symbol_idx: uint8_t[128]  |
+    | lprobs: array3d           |
+    |---------------------------|
+
+Three-dimensional array:
+
+     array3d
+    |-------------------------------------------------|
+    | strides: uint16_t[3]                            |
+    | values: float[strides[0]*strides[1]*strides[2]] |
+    |-------------------------------------------------|
+
+The state_type field of a state chunk (refer to [https://is.gd/SW0ftF](imm file format)) will have
+one of five values, each representing a different state type: mute (0x00), normal (0x01), table
+(0x02), codon (0x10), and frame (0x11). Additional state data is stored in the body field, and are
+defined as follows:
+
+     codon_state                     frame_state
+    |----------------------------|  |------------------------|
+    | codonp_index: uint16_t     |  | baset_index: uint16_t  |
+    |----------------------------|  | codont_index: uint16_t |
+                                    | epsilon: float         |
+                                    |------------------------|

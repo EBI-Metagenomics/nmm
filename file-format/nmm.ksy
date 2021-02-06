@@ -62,10 +62,12 @@ types:
         type: codont
         repeat: expr
         repeat-expr: ncodont
-      - id: hmm
-        type: hmm
-      - id: dp
-        type: dp
+      - id: nhmm_blocks
+        type: u1
+      - id: hmm_block
+        type: hmm_block
+        repeat: expr
+        repeat-expr: nhmm_blocks
   hmm_block:
     seq:
       - id: hmm

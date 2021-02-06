@@ -392,55 +392,51 @@ uint16_t nmm_model_nstates(struct nmm_model const* model)
 
 struct nmm_model const* nmm_model_read(FILE* stream)
 {
-    printf("7\n"); fflush(stdout);
     struct nmm_model* model = model_new();
 
     uint8_t abc_type_id = 0;
-    printf("8\n"); fflush(stdout);
     if (fread(&abc_type_id, sizeof(abc_type_id), 1, stream) < 1) {
         imm_error("could not read abc type id");
         goto err;
     }
 
-    printf("9\n"); fflush(stdout);
     struct imm_abc const* abc = read_abc(stream, abc_type_id);
-    printf("10\n"); fflush(stdout);
     if (!abc) {
         imm_error("could not read abc");
         goto err;
     }
     __imm_model_set_abc(model->super, abc);
-    printf("11\n"); fflush(stdout);
 
     if (read_baset(model, stream)) {
         imm_error("could not read baset");
         goto err;
     }
-    printf("12\n"); fflush(stdout);
 
     if (read_codonp(model, stream)) {
         imm_error("could not read codonp");
         goto err;
     }
-    printf("13\n"); fflush(stdout);
 
     if (read_codont(model, stream)) {
         imm_error("could not read codont");
         goto err;
     }
-    printf("14\n"); fflush(stdout);
+
+    uint8_t nhmms = 0;
+    if (fread(&nhmms, sizeof(nhmms), 1, stream) < 1) {
+        imm_error("could not read nhmms");
+        goto err;
+    }
 
     if (__imm_model_read_hmm(model->super, stream)) {
         imm_error("could not read hmm");
         goto err;
     }
-    printf("END-2\n"); fflush(stdout);
 
     if (__imm_model_read_dp(model->super, stream)) {
         imm_error("could not read dp");
         goto err;
     }
-    printf("END-3\n"); fflush(stdout);
 
     return model;
 err:
@@ -636,6 +632,12 @@ int nmm_model_write(struct nmm_model const* model, FILE* stream)
 
     if (write_codont(model, stream)) {
         imm_error("could not write_codont");
+        return 1;
+    }
+
+    uint8_t nhmms = 1;
+    if (fwrite(&nhmms, sizeof(nhmms), 1, stream) < 1) {
+        imm_error("could not write nhmms");
         return 1;
     }
 
