@@ -17,7 +17,7 @@ function(nmm_add_test name)
 endfunction()
 
 nmm_add_test(amino_abc)
-nmm_add_test(amino_table)
+nmm_add_test(amino_lprob)
 nmm_add_test(base_abc)
 nmm_add_test(base_lprob)
 nmm_add_test(codon)

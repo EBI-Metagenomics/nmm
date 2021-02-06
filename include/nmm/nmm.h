@@ -8,7 +8,7 @@ extern "C"
 
 #include "nmm/abc_types.h"
 #include "nmm/amino_abc.h"
-#include "nmm/amino_table.h"
+#include "nmm/amino_lprob.h"
 #include "nmm/base_abc.h"
 #include "nmm/base_lprob.h"
 #include "nmm/codon.h"

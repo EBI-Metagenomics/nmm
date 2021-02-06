@@ -25,7 +25,7 @@ find_package(elapsed REQUIRED)
 
 add_library(nmm
     src/amino_abc.c
-    src/amino_table.c
+    src/amino_lprob.c
     src/array.c
     src/base_abc.c
     src/base_lprob.c
