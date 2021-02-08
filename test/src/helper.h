@@ -3,8 +3,11 @@
 
 #include "imm/imm.h"
 
-#define LOG(x) ((imm_float)log((x)))
-
 static inline imm_float zero(void) { return imm_lprob_zero(); }
+static inline char*     fmt_name(char* restrict buffer, char const* name, unsigned i)
+{
+    sprintf(buffer, "%s%u", name, i);
+    return buffer;
+}
 
 #endif

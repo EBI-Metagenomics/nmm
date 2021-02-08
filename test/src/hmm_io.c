@@ -2,8 +2,9 @@
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
-#define TMP_FOLDER "test_hmm_io.tmp"
-#define LOG(x) ((imm_float)log(x))
+#ifndef TMPDIR
+#define TMPDIR ""
+#endif
 
 void test_hmm_io(void);
 
@@ -18,28 +19,26 @@ void test_hmm_io(void)
     struct nmm_base_abc const*   base = nmm_base_abc_create("ACGT", 'X');
     struct imm_abc const*        abc = nmm_base_abc_super(base);
     imm_float const              zero = imm_lprob_zero();
-    struct nmm_base_lprob const* basep =
-        nmm_base_lprob_create(base, LOG(0.25), LOG(0.25), LOG(0.5), zero);
+    struct nmm_base_lprob const* basep = nmm_base_lprob_create(base, imm_log(0.25), imm_log(0.25), imm_log(0.5), zero);
 
     struct nmm_codon_lprob* codonp = nmm_codon_lprob_create(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'G')) == 0);
-    nmm_codon_lprob_set(codonp, codon, LOG(0.8));
+    nmm_codon_lprob_set(codonp, codon, imm_log(0.8));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'T', 'T')) == 0);
-    nmm_codon_lprob_set(codonp, codon, LOG(0.1));
+    nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
-    nmm_codon_lprob_set(codonp, codon, LOG(0.1));
+    nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
-    struct nmm_frame_state const* state1 =
-        nmm_frame_state_create("S0", basep, codont, (imm_float)0.1);
+    struct nmm_frame_state const* state1 = nmm_frame_state_create("S0", basep, codont, (imm_float)0.1);
     struct nmm_codon_state const* state2 = nmm_codon_state_create("S1", codonp);
 
-    imm_hmm_add_state(hmm, nmm_frame_state_super(state1), LOG(1.0));
-    imm_hmm_add_state(hmm, nmm_codon_state_super(state2), LOG(0.0001));
-    imm_hmm_set_trans(hmm, nmm_frame_state_super(state1), nmm_codon_state_super(state2), LOG(0.2));
+    imm_hmm_add_state(hmm, nmm_frame_state_super(state1), imm_log(1.0));
+    imm_hmm_add_state(hmm, nmm_codon_state_super(state2), imm_log(0.0001));
+    imm_hmm_set_trans(hmm, nmm_frame_state_super(state1), nmm_codon_state_super(state2), imm_log(0.2));
 
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state1), 1));
@@ -74,7 +73,7 @@ void test_hmm_io(void)
     imm_seq_destroy(seq);
     imm_results_destroy(results);
 
-    struct nmm_output* output = nmm_output_create(TMP_FOLDER "/two_states.nmm");
+    struct nmm_output* output = nmm_output_create(TMPDIR "/two_states.nmm");
     cass_cond(output != NULL);
     struct nmm_model const* model = nmm_model_create(hmm, dp);
     cass_equal_int(nmm_output_write(output, model), 0);
@@ -91,7 +90,7 @@ void test_hmm_io(void)
     imm_dp_destroy(dp);
     nmm_codon_lprob_destroy(codonp);
 
-    struct nmm_input* input = nmm_input_create(TMP_FOLDER "/two_states.nmm");
+    struct nmm_input* input = nmm_input_create(TMPDIR "/two_states.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
     model = nmm_input_read(input);

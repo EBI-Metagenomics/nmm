@@ -2,8 +2,6 @@
 #include "imm/imm.h"
 #include "nmm/nmm.h"
 
-#define LOG(x) ((imm_float)log(x))
-
 void test_codonp(void);
 
 int main(void)
@@ -25,11 +23,11 @@ void test_codonp(void)
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'C', 'C')) == 0);
 
     cass_cond(imm_lprob_is_zero(nmm_codon_lprob_get(codonp, codon)));
-    cass_cond(nmm_codon_lprob_set(codonp, codon, LOG(0.5)) == 0);
-    cass_close(nmm_codon_lprob_get(codonp, codon), LOG(0.5));
+    cass_cond(nmm_codon_lprob_set(codonp, codon, imm_log(0.5)) == 0);
+    cass_close(nmm_codon_lprob_get(codonp, codon), imm_log(0.5));
 
     cass_cond(nmm_codon_lprob_normalize(codonp) == 0);
-    cass_close(nmm_codon_lprob_get(codonp, codon), LOG(1.0));
+    cass_close(nmm_codon_lprob_get(codonp, codon), imm_log(1.0));
 
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'C', 'X')) == 0);
     cass_cond(!imm_lprob_is_valid(nmm_codon_lprob_get(codonp, codon)));
