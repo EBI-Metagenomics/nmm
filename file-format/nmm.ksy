@@ -56,12 +56,12 @@ types:
         type: codonp
         repeat: expr
         repeat-expr: ncodonp
-      - id: ncodont
+      - id: ncodonm
         type: u2
-      - id: codont
-        type: codont
+      - id: codonm
+        type: codonm
         repeat: expr
-        repeat-expr: ncodont
+        repeat-expr: ncodonm
       - id: nhmm_blocks
         type: u1
       - id: hmm_block
@@ -144,7 +144,7 @@ types:
     seq:
       - id: basep_index
         type: u2
-      - id: codont_index
+      - id: codonm_index
         type: u2
       - id: epsilon
         type: f4
@@ -252,7 +252,7 @@ types:
     seq:
       - id: lprobs
         type: array3d
-  codont:
+  codonm:
     seq:
       - id: symbol_idx
         type: u1
