@@ -247,7 +247,7 @@ void test_perf_viterbi(void)
         nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
-        nmm_codon_marg_destroy(nmm_model_codon_table(model, i));
+        nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));

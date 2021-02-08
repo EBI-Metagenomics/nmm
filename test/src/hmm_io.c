@@ -108,7 +108,6 @@ void test_hmm_io(void)
     task = imm_dp_task_create(dp);
     imm_dp_task_setup(task, seq, 0);
     results = imm_dp_viterbi(dp, task);
-    return;
     cass_cond(results != NULL);
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
@@ -126,7 +125,7 @@ void test_hmm_io(void)
         nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
-        nmm_codon_marg_destroy(nmm_model_codon_table(model, i));
+        nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));

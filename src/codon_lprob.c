@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/** @file codonp.c
+/** @file codon_lprob.c
  * Compute the probability of emitting a codon.
  *
  * Let p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃) be the probability of emitting codon (𝚡₁,𝚡₂,𝚡₃), where 𝚡ᵢ𝜖𝒜.

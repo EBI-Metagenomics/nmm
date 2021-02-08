@@ -14,25 +14,19 @@ struct nmm_codon_marg;
 struct nmm_frame_state;
 struct nmm_model;
 
-NMM_API struct nmm_base_lprob const* nmm_frame_state_base_lprob(
-    struct nmm_frame_state const* state);
-NMM_API struct nmm_codon_marg const* nmm_frame_state_codon_table(
-    struct nmm_frame_state const* state);
-NMM_API struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
-                                                             struct nmm_base_lprob const*  basep,
-                                                             struct nmm_codon_marg const* codont,
-                                                             imm_float                     epsilon);
-NMM_API imm_float                     nmm_frame_state_decode(struct nmm_frame_state const* state,
-                                                             struct imm_seq const* seq, struct nmm_codon* codon);
+NMM_API struct nmm_base_lprob const*  nmm_frame_state_base_lprob(struct nmm_frame_state const* state);
+NMM_API struct nmm_codon_marg const*  nmm_frame_state_codon_marg(struct nmm_frame_state const* state);
+NMM_API struct nmm_frame_state const* nmm_frame_state_create(char const* name, struct nmm_base_lprob const* basep,
+                                                             struct nmm_codon_marg const* codont, imm_float epsilon);
+NMM_API imm_float nmm_frame_state_decode(struct nmm_frame_state const* state, struct imm_seq const* seq,
+                                         struct nmm_codon* codon);
 NMM_API struct nmm_frame_state const* nmm_frame_state_derived(struct imm_state const* state);
 NMM_API void                          nmm_frame_state_destroy(struct nmm_frame_state const* state);
 NMM_API imm_float                     nmm_frame_state_epsilon(struct nmm_frame_state const* state);
-NMM_API imm_float               nmm_frame_state_lposterior(struct nmm_frame_state const* state,
-                                                           struct nmm_codon const*       codon,
-                                                           struct imm_seq const*         seq);
+NMM_API imm_float nmm_frame_state_lposterior(struct nmm_frame_state const* state, struct nmm_codon const* codon,
+                                             struct imm_seq const* seq);
 NMM_API struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model);
 NMM_API struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* state);
-NMM_API int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const* model,
-                                  FILE* stream);
+NMM_API int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const* model, FILE* stream);
 
 #endif

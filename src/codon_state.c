@@ -141,7 +141,7 @@ int nmm_codon_state_write(struct imm_state const* state, struct nmm_model const*
                           FILE* stream)
 {
     struct nmm_codon_state const* s = nmm_codon_state_derived(state);
-    uint16_t                      index = model_codonp_index(model, s->codonp);
+    uint16_t                      index = model_codon_lprob_index(model, s->codonp);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");
