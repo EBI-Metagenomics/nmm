@@ -20,7 +20,7 @@ NMM_API struct nmm_model const*       nmm_model_create(struct imm_hmm* hmm, stru
 NMM_API void                          nmm_model_destroy(struct nmm_model const* model);
 NMM_API uint16_t                      nmm_model_nbase_lprobs(struct nmm_model const* model);
 NMM_API uint16_t                      nmm_model_ncodon_lprobs(struct nmm_model const* model);
-NMM_API uint16_t                      nmm_model_ncodon_tables(struct nmm_model const* model);
+NMM_API uint16_t                      nmm_model_ncodon_margs(struct nmm_model const* model);
 NMM_API struct imm_hmm*               nmm_model_hmm(struct nmm_model const* model);
 NMM_API struct imm_dp const*          nmm_model_dp(struct nmm_model const* model);
 NMM_API struct imm_state const*       nmm_model_state(struct nmm_model const* model, uint16_t i);

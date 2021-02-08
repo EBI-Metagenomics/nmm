@@ -114,7 +114,7 @@ uint16_t nmm_model_nbase_lprobs(struct nmm_model const* model) { return (uint16_
 
 uint16_t nmm_model_ncodon_lprobs(struct nmm_model const* model) { return (uint16_t)kh_size(model->codon_lprob_map); }
 
-uint16_t nmm_model_ncodon_tables(struct nmm_model const* model) { return (uint16_t)kh_size(model->codon_marg_map); }
+uint16_t nmm_model_ncodon_margs(struct nmm_model const* model) { return (uint16_t)kh_size(model->codon_marg_map); }
 
 #define CREATE_MODEL_INDEX_FUNC(MOD)                                                                                   \
     uint16_t model_##MOD##_index(struct nmm_model const* model, struct nmm_##MOD const* MOD)                           \
