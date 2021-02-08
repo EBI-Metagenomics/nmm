@@ -4,7 +4,7 @@
 #include "base_lprob.h"
 #include "codon_lprob.h"
 #include "codon_state.h"
-#include "codon_table.h"
+#include "codon_marg.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "lib/khash.h"
@@ -14,7 +14,7 @@
 #include "nmm/base_lprob.h"
 #include "nmm/codon_lprob.h"
 #include "nmm/codon_state.h"
-#include "nmm/codon_table.h"
+#include "nmm/codon_marg.h"
 #include "nmm/frame_state.h"
 #include "nmm/model.h"
 #include "nmm/state_types.h"
@@ -39,7 +39,7 @@ KHASH_MAP_INIT_INT64(codonp_idx, struct codonp_node*)
 struct codont_node
 {
     uint16_t                      index;
-    struct nmm_codon_table const* codont;
+    struct nmm_codon_marg const* codont;
 };
 KHASH_MAP_INIT_PTR(codont, struct codont_node*)
 KHASH_MAP_INIT_INT64(codont_idx, struct codont_node*)
@@ -144,7 +144,7 @@ uint16_t model_codonp_index(struct nmm_model const* model, struct nmm_codon_lpro
     return node->index;
 }
 
-uint16_t model_codont_index(struct nmm_model const* model, struct nmm_codon_table const* codont)
+uint16_t model_codont_index(struct nmm_model const* model, struct nmm_codon_marg const* codont)
 {
     khiter_t i = kh_get(codont, model->codont_map, codont);
     IMM_BUG(i == kh_end(model->codont_map));
@@ -190,7 +190,7 @@ struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* mode
     return kh_val(model->codonp_idx, k)->codonp;
 }
 
-struct nmm_codon_table const* nmm_model_codon_table(struct nmm_model const* model, uint16_t index)
+struct nmm_codon_marg const* nmm_model_codon_table(struct nmm_model const* model, uint16_t index)
 {
     khiter_t k = kh_get(codont_idx, model->codont_idx, index);
     if (k == kh_end(model->codont_idx)) {
@@ -278,7 +278,7 @@ static void create_codont_map(struct nmm_model* model)
             continue;
 
         struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-        struct nmm_codon_table const* codont = nmm_frame_state_codon_table(s);
+        struct nmm_codon_marg const* codont = nmm_frame_state_codon_table(s);
         khiter_t                      k = kh_get(codont, map, codont);
         if (k != kh_end(map))
             continue;
@@ -351,7 +351,7 @@ static void deep_destroy(struct nmm_model const* model)
     for (khint_t k = kh_begin(model->codont_map); k < kh_end(model->codont_map); ++k) {
         if (kh_exist(model->codont_map, k)) {
             struct codont_node const* node = kh_val(model->codont_map, k);
-            nmm_codon_table_destroy(node->codont);
+            nmm_codon_marg_destroy(node->codont);
             free_c(node);
         }
     }
@@ -533,7 +533,7 @@ static int read_codont(struct nmm_model* model, FILE* stream)
         if (!base_abc)
             return 1;
 
-        struct nmm_codon_table const* codont = codon_table_read(stream, base_abc);
+        struct nmm_codon_marg const* codont = codon_marg_read(stream, base_abc);
         if (!codont)
             return 1;
 
@@ -722,7 +722,7 @@ static int write_codont(struct nmm_model const* model, FILE* stream)
 
         struct codont_node const* node = kh_val(idx, iter);
 
-        if (codon_table_write(node->codont, stream))
+        if (codon_marg_write(node->codont, stream))
             return 1;
     }
 

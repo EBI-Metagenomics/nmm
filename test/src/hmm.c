@@ -38,7 +38,7 @@ void test_hmm_frame_state_0eps(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -71,7 +71,7 @@ void test_hmm_frame_state_0eps(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 
@@ -90,7 +90,7 @@ void test_hmm_frame_state_len1(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -131,7 +131,7 @@ void test_hmm_frame_state_len1(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 
@@ -150,7 +150,7 @@ void test_hmm_frame_state_len2(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -219,7 +219,7 @@ void test_hmm_frame_state_len2(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 
@@ -238,7 +238,7 @@ void test_hmm_frame_state_len3(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -279,7 +279,7 @@ void test_hmm_frame_state_len3(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 
@@ -298,7 +298,7 @@ void test_hmm_frame_state_len4(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -325,7 +325,7 @@ void test_hmm_frame_state_len4(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 
@@ -344,7 +344,7 @@ void test_hmm_frame_state_len5(void)
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
     cass_cond(nmm_codon_set_triplet(codon, NMM_TRIPLET('C', 'C', 'C')) == 0);
     nmm_codon_lprob_set(codonp, codon, imm_log(0.1));
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_lprob_destroy(codonp);
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
@@ -385,7 +385,7 @@ void test_hmm_frame_state_len5(void)
     nmm_codon_destroy(codon);
     imm_hmm_destroy(hmm);
     nmm_frame_state_destroy(state);
-    nmm_codon_table_destroy(codont);
+    nmm_codon_marg_destroy(codont);
     nmm_base_lprob_destroy(basep);
 }
 

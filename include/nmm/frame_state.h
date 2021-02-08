@@ -10,17 +10,17 @@ struct imm_seq;
 struct imm_state;
 struct nmm_base_lprob;
 struct nmm_codon;
-struct nmm_codon_table;
+struct nmm_codon_marg;
 struct nmm_frame_state;
 struct nmm_model;
 
 NMM_API struct nmm_base_lprob const* nmm_frame_state_base_lprob(
     struct nmm_frame_state const* state);
-NMM_API struct nmm_codon_table const* nmm_frame_state_codon_table(
+NMM_API struct nmm_codon_marg const* nmm_frame_state_codon_table(
     struct nmm_frame_state const* state);
 NMM_API struct nmm_frame_state const* nmm_frame_state_create(char const*                   name,
                                                              struct nmm_base_lprob const*  basep,
-                                                             struct nmm_codon_table const* codont,
+                                                             struct nmm_codon_marg const* codont,
                                                              imm_float                     epsilon);
 NMM_API imm_float                     nmm_frame_state_decode(struct nmm_frame_state const* state,
                                                              struct imm_seq const* seq, struct nmm_codon* codon);

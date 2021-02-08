@@ -26,14 +26,14 @@ static inline struct imm_state const* mute_super(struct imm_mute_state const* st
 
 static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
-static struct nmm_codon_table const* create_codont(struct nmm_base_abc const* base, struct nmm_triplet const triplet,
+static struct nmm_codon_marg const* create_codont(struct nmm_base_abc const* base, struct nmm_triplet const triplet,
                                                    imm_float const lprob)
 {
     struct nmm_codon_lprob* codonp = create_codonp(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
     cass_cond(nmm_codon_set_triplet(codon, triplet) == 0);
     nmm_codon_lprob_set(codonp, codon, lprob);
-    struct nmm_codon_table const* codont = nmm_codon_table_create(codonp);
+    struct nmm_codon_marg const* codont = nmm_codon_marg_create(codonp);
     nmm_codon_destroy(codon);
     nmm_codon_lprob_destroy(codonp);
     return codont;
@@ -89,11 +89,11 @@ void test_perf_viterbi(void)
     struct nmm_base_lprob const* basep =
         nmm_base_lprob_create(base, imm_log(0.25), imm_log(0.25), imm_log(0.45), imm_log(0.05));
 
-    struct nmm_codon_table const* M_codont = create_codont(base, NMM_TRIPLET('A', 'C', 'G'), imm_log(100.0));
-    struct nmm_codon_table const* I_codont = create_codont(base, NMM_TRIPLET('C', 'G', 'T'), imm_log(100.0));
-    struct nmm_codon_table const* B_codont = create_codont(base, NMM_TRIPLET('A', 'A', 'A'), imm_log(100.0));
-    struct nmm_codon_table const* E_codont = create_codont(base, NMM_TRIPLET('C', 'C', 'C'), imm_log(100.0));
-    struct nmm_codon_table const* J_codont = create_codont(base, NMM_TRIPLET('G', 'G', 'G'), imm_log(100.0));
+    struct nmm_codon_marg const* M_codont = create_codont(base, NMM_TRIPLET('A', 'C', 'G'), imm_log(100.0));
+    struct nmm_codon_marg const* I_codont = create_codont(base, NMM_TRIPLET('C', 'G', 'T'), imm_log(100.0));
+    struct nmm_codon_marg const* B_codont = create_codont(base, NMM_TRIPLET('A', 'A', 'A'), imm_log(100.0));
+    struct nmm_codon_marg const* E_codont = create_codont(base, NMM_TRIPLET('C', 'C', 'C'), imm_log(100.0));
+    struct nmm_codon_marg const* J_codont = create_codont(base, NMM_TRIPLET('G', 'G', 'G'), imm_log(100.0));
 
     struct imm_hmm* hmm = imm_hmm_create(abc);
 
@@ -196,11 +196,11 @@ void test_perf_viterbi(void)
         nmm_frame_state_destroy(I[i]);
         imm_mute_state_destroy(D[i]);
     }
-    nmm_codon_table_destroy(M_codont);
-    nmm_codon_table_destroy(I_codont);
-    nmm_codon_table_destroy(B_codont);
-    nmm_codon_table_destroy(E_codont);
-    nmm_codon_table_destroy(J_codont);
+    nmm_codon_marg_destroy(M_codont);
+    nmm_codon_marg_destroy(I_codont);
+    nmm_codon_marg_destroy(B_codont);
+    nmm_codon_marg_destroy(E_codont);
+    nmm_codon_marg_destroy(J_codont);
     nmm_base_lprob_destroy(basep);
     nmm_base_abc_destroy(base);
     imm_dp_destroy(dp);
@@ -247,7 +247,7 @@ void test_perf_viterbi(void)
         nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_tables(model); ++i)
-        nmm_codon_table_destroy(nmm_model_codon_table(model, i));
+        nmm_codon_marg_destroy(nmm_model_codon_table(model, i));
 
     for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));

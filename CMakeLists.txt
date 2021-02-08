@@ -31,8 +31,8 @@ add_library(nmm
     src/base_lprob.c
     src/codon.c
     src/codon_lprob.c
+    src/codon_marg.c
     src/codon_state.c
-    src/codon_table.c
     src/frame_state.c
     src/input.c
     src/model.c
