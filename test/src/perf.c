@@ -27,7 +27,7 @@ static inline struct imm_state const* mute_super(struct imm_mute_state const* st
 static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base);
 
 static struct nmm_codon_marg const* create_codont(struct nmm_base_abc const* base, struct nmm_triplet const triplet,
-                                                   imm_float const lprob)
+                                                  imm_float const lprob)
 {
     struct nmm_codon_lprob* codonp = create_codonp(base);
     struct nmm_codon*       codon = nmm_codon_create(base);
@@ -171,7 +171,7 @@ void test_perf_viterbi(void)
     struct imm_result const* r = imm_results_get(results, 0);
     struct imm_subseq        subseq = imm_result_subseq(r);
     struct imm_path const*   path = imm_result_path(r);
-    imm_float                loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
+    imm_float                loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), path);
     cass_cond(imm_lprob_is_valid(loglik));
     cass_cond(!imm_lprob_is_zero(loglik));
     cass_close(loglik, -1641.970511421383435);
@@ -233,7 +233,7 @@ void test_perf_viterbi(void)
     r = imm_results_get(results, 0);
     subseq = imm_result_subseq(r);
     path = imm_result_path(r);
-    loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), path);
+    loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), path);
     cass_cond(imm_lprob_is_valid(loglik));
     cass_cond(!imm_lprob_is_zero(loglik));
     cass_close(loglik, -1641.970511421383435);

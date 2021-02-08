@@ -43,14 +43,14 @@ void test_hmm_io(void)
     struct imm_path* path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state1), 1));
     struct imm_seq const* seq = imm_seq_create("A", abc);
-    cass_close(imm_hmm_likelihood(hmm, seq, path), -6.0198640216);
+    cass_close(imm_hmm_loglikelihood(hmm, seq, path), -6.0198640216);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
     path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state1), 1));
     seq = imm_seq_create("C", abc);
-    cass_close(imm_hmm_likelihood(hmm, seq, path), -7.118476310297789);
+    cass_close(imm_hmm_loglikelihood(hmm, seq, path), -7.118476310297789);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
@@ -67,9 +67,9 @@ void test_hmm_io(void)
     struct imm_result const* r = imm_results_get(results, 0);
     struct imm_subseq        subseq = imm_result_subseq(r);
     struct imm_path const*   p = imm_result_path(r);
-    imm_float                loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), p);
+    imm_float                loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p);
     cass_close(loglik, -6.0198640216);
-    cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
+    cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_seq_destroy(seq);
     imm_results_destroy(results);
 
@@ -114,9 +114,9 @@ void test_hmm_io(void)
     r = imm_results_get(results, 0);
     subseq = imm_result_subseq(r);
     p = imm_result_path(r);
-    loglik = imm_hmm_likelihood(hmm, imm_subseq_cast(&subseq), p);
+    loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p);
     cass_close(loglik, -6.0198640216);
-    cass_close(imm_hmm_likelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
+    cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
     for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)

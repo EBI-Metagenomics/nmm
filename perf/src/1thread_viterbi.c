@@ -154,7 +154,7 @@ imm_float perf_1thread_viterbi(imm_float* seconds, uint16_t ncore_nodes, uint16_
         struct imm_result const* r = imm_results_get(results, 0);
         struct imm_subseq        subseq = imm_result_subseq(r);
         struct imm_seq const*    s = imm_subseq_cast(&subseq);
-        loglik = imm_hmm_likelihood(hmm, s, imm_result_path(r));
+        loglik = imm_hmm_loglikelihood(hmm, s, imm_result_path(r));
         cass_cond(is_valid(loglik) && !is_zero(loglik));
         seconds[i] = imm_result_seconds(r);
         imm_results_destroy(results);
