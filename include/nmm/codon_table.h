@@ -39,6 +39,11 @@ static inline imm_float nmm_codon_table_lprob(struct nmm_codon_table const* codo
 
 static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codon_table const* tbl,
                                                                  struct nmm_codon const* codon);
+static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_table const* codont)
+{
+    return codont->base_abc;
+}
+
 /**
  * Calculate any of the marginalization forms of
  * p(𝑋₁=𝚡₁,𝑋₂=𝚡₂,𝑋₃=𝚡₃).
@@ -47,16 +52,11 @@ static inline struct nmm_array3d_idx __nmm_codon_table_array_idx(struct nmm_codo
  * the corresponding random variable. Let `"ACGT"` be a set of nucleotides and let `'X`'
  * be the any-symbol of the given alphabet. The code
  *
- *     codon_lprob_get(codon_lprob, "AXG")
+ *     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'X', 'G'));
+ *     nmm_codon_table_lprob(codont, codon);
  *
  * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
  */
-
-static inline struct nmm_base_abc const* nmm_codon_table_abc(struct nmm_codon_table const* codont)
-{
-    return codont->base_abc;
-}
-
 static inline imm_float nmm_codon_table_lprob(struct nmm_codon_table const* codont,
                                               struct nmm_codon const*       codon)
 {
