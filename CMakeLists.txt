@@ -34,6 +34,7 @@ add_library(nmm
     src/codon_marg.c
     src/codon_state.c
     src/frame_state.c
+    src/hmm_block.c
     src/input.c
     src/model.c
     src/output.c

@@ -98,11 +98,13 @@ void test_hmm_io(void)
     cass_cond(model != NULL);
     nmm_input_destroy(input);
 
-    cass_equal_uint64(nmm_model_nstates(model), 2);
+    struct imm_hmm_block* block = nmm_model_get_hmm_block(model, 0);
+
+    cass_equal_uint32(imm_hmm_block_nstates(block), 2);
 
     abc = nmm_model_abc(model);
-    hmm = nmm_model_hmm(model);
-    dp = nmm_model_dp(model);
+    hmm = imm_hmm_block_hmm(block);
+    dp = imm_hmm_block_dp(block);
 
     seq = imm_seq_create("A", abc);
     task = imm_dp_task_create(dp);
@@ -118,8 +120,8 @@ void test_hmm_io(void)
     cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
-    for (uint16_t i = 0; i < nmm_model_nstates(model); ++i)
-        imm_state_destroy(nmm_model_state(model, i));
+    for (uint16_t i = 0; i < imm_hmm_block_nstates(block); ++i)
+        imm_state_destroy(imm_hmm_block_state(block, i));
 
     for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
         nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));

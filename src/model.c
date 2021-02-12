@@ -46,9 +46,9 @@ struct nmm_model
     khash_t(codon_marg_idx) * codon_marg_idx;
 };
 
-static void                    create_base_lprob_map(struct nmm_model* model);
-static void                    create_codon_lprob_map(struct nmm_model* model);
-static void                    create_codon_marg_map(struct nmm_model* model);
+static void                    create_base_lprob_map(struct nmm_model* model, struct imm_hmm_block* block);
+static void                    create_codon_lprob_map(struct nmm_model* model, struct imm_hmm_block* block);
+static void                    create_codon_marg_map(struct nmm_model* model, struct imm_hmm_block* block);
 static void                    deep_destroy(struct nmm_model const* model);
 static void                    deep_destroy_base_lprob(khash_t(base_lprob) * base_lprob_map);
 static void                    deep_destroy_codon_lprob(khash_t(codon_lprob) * codon_lprob_map);
@@ -90,9 +90,10 @@ struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp cons
     model->codon_lprob_idx = kh_init(codon_lprob_idx);
     model->codon_marg_idx = kh_init(codon_marg_idx);
 
-    create_base_lprob_map(model);
-    create_codon_lprob_map(model);
-    create_codon_marg_map(model);
+    struct imm_hmm_block* block = imm_model_get_hmm_block(model->super, 0);
+    create_base_lprob_map(model, block);
+    create_codon_lprob_map(model, block);
+    create_codon_marg_map(model, block);
 
     return model;
 }
@@ -163,14 +164,14 @@ CREATE_MODEL_GET_FUNC(codon_lprob)
 CREATE_MODEL_GET_FUNC(codon_marg)
 
 #define CREATE_MAP_FUNC(MOD, ID, NAME)                                                                                 \
-    static void create_##MOD##_map(struct nmm_model* model)                                                            \
+    static void create_##MOD##_map(struct nmm_model* model, struct imm_hmm_block* block)                               \
     {                                                                                                                  \
         khash_t(MOD)* map = model->MOD##_map;                                                                          \
         khash_t(MOD##_idx)* idx = model->MOD##_idx;                                                                    \
                                                                                                                        \
         uint16_t j = 0;                                                                                                \
-        for (uint16_t i = 0; i < imm_model_nstates(model->super); ++i) {                                               \
-            struct imm_state const* state = imm_model_state(model->super, i);                                          \
+        for (uint16_t i = 0; i < imm_hmm_block_nstates(block); ++i) {                                                  \
+            struct imm_state const* state = imm_hmm_block_state(block, i);                                             \
             if (imm_state_type_id(state) != NMM_##ID##_STATE_TYPE_ID)                                                  \
                 continue;                                                                                              \
                                                                                                                        \
@@ -242,16 +243,17 @@ static void deep_destroy(struct nmm_model const* model)
     free_c(model);
 }
 
-struct imm_hmm* nmm_model_hmm(struct nmm_model const* model) { return imm_model_hmm(model->super); }
-
-struct imm_dp const* nmm_model_dp(struct nmm_model const* model) { return imm_model_dp(model->super); }
-
-struct imm_state const* nmm_model_state(struct nmm_model const* model, uint16_t i)
+void nmm_model_append_hmm_block(struct nmm_model* model, struct imm_hmm* hmm, struct imm_dp const* dp)
 {
-    return imm_model_state(model->super, i);
+    imm_model_append_hmm_block(model->super, hmm, dp);
 }
 
-uint16_t nmm_model_nstates(struct nmm_model const* model) { return imm_model_nstates(model->super); }
+struct imm_hmm_block* nmm_model_get_hmm_block(struct nmm_model const* model, uint8_t i)
+{
+    return imm_model_get_hmm_block(model->super, i);
+}
+
+uint8_t nmm_model_nhmm_blocks(struct nmm_model const* model) { return imm_model_nhmm_blocks(model->super); }
 
 struct nmm_model const* nmm_model_read(FILE* stream)
 {
@@ -285,21 +287,8 @@ struct nmm_model const* nmm_model_read(FILE* stream)
         goto err;
     }
 
-    uint8_t nhmms = 0;
-    if (fread(&nhmms, sizeof(nhmms), 1, stream) < 1) {
-        imm_error("could not read nhmms");
+    if (__imm_model_read_hmm_blocks(model->super, stream))
         goto err;
-    }
-
-    if (__imm_model_read_hmm(model->super, stream)) {
-        imm_error("could not read hmm");
-        goto err;
-    }
-
-    if (__imm_model_read_dp(model->super, stream)) {
-        imm_error("could not read dp");
-        goto err;
-    }
 
     return model;
 err:
@@ -428,21 +417,8 @@ int nmm_model_write(struct nmm_model const* model, FILE* stream)
         return 1;
     }
 
-    uint8_t nhmms = 1;
-    if (fwrite(&nhmms, sizeof(nhmms), 1, stream) < 1) {
-        imm_error("could not write nhmms");
+    if (__imm_model_write_hmm_blocks(model->super, stream))
         return 1;
-    }
-
-    if (__imm_model_write_hmm(model->super, stream)) {
-        imm_error("could not write hmm");
-        return 1;
-    }
-
-    if (__imm_model_write_dp(model->super, stream)) {
-        imm_error("could not write dp");
-        return 1;
-    }
 
     return 0;
 }
