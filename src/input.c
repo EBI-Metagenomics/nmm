@@ -46,6 +46,7 @@ struct nmm_input* nmm_input_create(char const* filepath)
     input->stream = stream;
     input->filepath = strdup(filepath);
     input->eof = false;
+    input->closed = false;
 
     return input;
 }

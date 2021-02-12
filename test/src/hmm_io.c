@@ -286,6 +286,7 @@ void test_hmm_io_two_hmm_blocks(void)
     cass_close(loglik, -6.0198640216);
     cass_close(imm_hmm_loglikelihood(hmm0, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
+    imm_seq_destroy(seq);
 
     seq = imm_seq_create("A", abc);
     task1 = imm_dp_task_create(dp1);
@@ -323,6 +324,9 @@ void test_hmm_io_two_hmm_blocks(void)
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm0);
     imm_dp_destroy(dp0);
+    imm_hmm_destroy(hmm1);
+    imm_dp_destroy(dp1);
     nmm_model_destroy(model);
     imm_dp_task_destroy(task0);
+    imm_dp_task_destroy(task1);
 }
