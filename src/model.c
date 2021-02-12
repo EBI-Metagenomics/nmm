@@ -72,7 +72,7 @@ static int write_state(struct imm_model const* model, FILE* stream, struct imm_s
 
 struct imm_abc const* nmm_model_abc(struct nmm_model const* model) { return imm_model_abc(model->super); }
 
-struct nmm_model const* nmm_model_create(struct imm_hmm* hmm, struct imm_dp const* dp)
+struct nmm_model* nmm_model_create(struct imm_hmm* hmm, struct imm_dp const* dp)
 {
     struct nmm_model* model = malloc(sizeof(*model));
 
