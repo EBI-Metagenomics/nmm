@@ -8,6 +8,7 @@
 struct imm_abc;
 struct imm_dp;
 struct imm_hmm;
+struct imm_hmm_block;
 struct nmm_base_lprob;
 struct nmm_codon_marg;
 struct nmm_model;
