@@ -78,8 +78,8 @@ void test_hmm_io_two_states(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_states.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create();
-    nmm_model_append_hmm_block(m, hmm, dp);
+    struct nmm_model* m = nmm_model_create(abc);
+    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm, dp));
     cass_equal(nmm_output_write(output, m), 0);
     nmm_model_destroy(m);
     cass_equal(nmm_output_destroy(output), 0);
@@ -235,9 +235,9 @@ void test_hmm_io_two_hmm_blocks(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_hmms.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create();
-    nmm_model_append_hmm_block(m, hmm0, dp0);
-    nmm_model_append_hmm_block(m, hmm1, dp1);
+    struct nmm_model* m = nmm_model_create(abc);
+    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm0, dp0));
+    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm1, dp1));
     cass_equal(nmm_output_write(output, m), 0);
     nmm_model_destroy(m);
     cass_equal(nmm_output_destroy(output), 0);

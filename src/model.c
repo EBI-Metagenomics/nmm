@@ -71,11 +71,11 @@ static int                     write_state(struct imm_model const* model, FILE* 
 
 struct imm_abc const* nmm_model_abc(struct nmm_model const* model) { return imm_model_abc(model->super); }
 
-struct nmm_model* nmm_model_create(void)
+struct nmm_model* nmm_model_create(struct imm_abc const* abc)
 {
     struct nmm_model* model = malloc(sizeof(*model));
 
-    model->super = __imm_model_create((struct imm_model_vtable){read_state, write_state}, model);
+    model->super = __imm_model_create(abc, (struct imm_model_vtable){read_state, write_state}, model);
     if (!model->super) {
         free_c(model);
         return NULL;
@@ -220,11 +220,9 @@ static void deep_destroy(struct nmm_model const* model)
     free_c(model);
 }
 
-void nmm_model_append_hmm_block(struct nmm_model* model, struct imm_hmm* hmm, struct imm_dp const* dp)
+void nmm_model_append_hmm_block(struct nmm_model* model, struct imm_hmm_block* block)
 {
-    imm_model_append_hmm_block(model->super, hmm, dp);
-    uint8_t               i = imm_model_nhmm_blocks(model->super) - 1;
-    struct imm_hmm_block* block = imm_model_get_hmm_block(model->super, i);
+    imm_model_append_hmm_block(model->super, block);
     update_base_lprob_map(model, block);
     update_codon_lprob_map(model, block);
     update_codon_marg_map(model, block);
@@ -239,19 +237,20 @@ uint8_t nmm_model_nhmm_blocks(struct nmm_model const* model) { return imm_model_
 
 struct nmm_model const* nmm_model_read(FILE* stream)
 {
-    struct nmm_model* model = nmm_model_create();
-
     uint8_t abc_type_id = 0;
     if (fread(&abc_type_id, sizeof(abc_type_id), 1, stream) < 1) {
         imm_error("could not read abc type id");
-        goto err;
+        return NULL;
     }
 
     struct imm_abc const* abc = read_abc(stream, abc_type_id);
     if (!abc) {
         imm_error("could not read abc");
-        goto err;
+        return NULL;
     }
+
+    struct nmm_model* model = nmm_model_create(abc);
+
     __imm_model_set_abc(model->super, abc);
 
     if (read_base_lprob(model, stream)) {

@@ -180,8 +180,8 @@ void test_perf_viterbi(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create();
-    nmm_model_append_hmm_block(m, hmm, dp);
+    struct nmm_model* m = nmm_model_create(abc);
+    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm, dp));
     cass_equal(nmm_output_write(output, m), 0);
     nmm_model_destroy(m);
     cass_equal(nmm_output_destroy(output), 0);

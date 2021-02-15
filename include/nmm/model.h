@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+struct imm_abc;
 struct imm_dp;
 struct imm_hmm;
 struct nmm_base_lprob;
@@ -15,15 +16,15 @@ NMM_API struct imm_abc const*         nmm_model_abc(struct nmm_model const* mode
 NMM_API struct nmm_base_lprob const*  nmm_model_base_lprob(struct nmm_model const* model, uint16_t index);
 NMM_API struct nmm_codon_lprob const* nmm_model_codon_lprob(struct nmm_model const* model, uint16_t index);
 NMM_API struct nmm_codon_marg const*  nmm_model_codon_marg(struct nmm_model const* model, uint16_t index);
-NMM_API struct nmm_model*             nmm_model_create(void);
-NMM_API void nmm_model_append_hmm_block(struct nmm_model* model, struct imm_hmm* hmm, struct imm_dp const* dp);
-NMM_API struct imm_hmm_block*   nmm_model_get_hmm_block(struct nmm_model const* model, uint8_t i);
-NMM_API uint8_t                 nmm_model_nhmm_blocks(struct nmm_model const* model);
-NMM_API void                    nmm_model_destroy(struct nmm_model const* model);
-NMM_API uint16_t                nmm_model_nbase_lprobs(struct nmm_model const* model);
-NMM_API uint16_t                nmm_model_ncodon_lprobs(struct nmm_model const* model);
-NMM_API uint16_t                nmm_model_ncodon_margs(struct nmm_model const* model);
-NMM_API struct nmm_model const* nmm_model_read(FILE* stream);
-NMM_API int                     nmm_model_write(struct nmm_model const* io, FILE* stream);
+NMM_API struct nmm_model*             nmm_model_create(struct imm_abc const* abc);
+NMM_API void                          nmm_model_append_hmm_block(struct nmm_model* model, struct imm_hmm_block* block);
+NMM_API struct imm_hmm_block*         nmm_model_get_hmm_block(struct nmm_model const* model, uint8_t i);
+NMM_API uint8_t                       nmm_model_nhmm_blocks(struct nmm_model const* model);
+NMM_API void                          nmm_model_destroy(struct nmm_model const* model);
+NMM_API uint16_t                      nmm_model_nbase_lprobs(struct nmm_model const* model);
+NMM_API uint16_t                      nmm_model_ncodon_lprobs(struct nmm_model const* model);
+NMM_API uint16_t                      nmm_model_ncodon_margs(struct nmm_model const* model);
+NMM_API struct nmm_model const*       nmm_model_read(FILE* stream);
+NMM_API int                           nmm_model_write(struct nmm_model const* io, FILE* stream);
 
 #endif
