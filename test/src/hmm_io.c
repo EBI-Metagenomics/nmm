@@ -78,10 +78,11 @@ void test_hmm_io_two_states(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_states.nmm");
     cass_cond(output != NULL);
-    struct nmm_model const* model = nmm_model_create(hmm, dp);
-    cass_equal_int(nmm_output_write(output, model), 0);
-    nmm_model_destroy(model);
-    cass_equal_int(nmm_output_destroy(output), 0);
+    struct nmm_model* m = nmm_model_create();
+    nmm_model_append_hmm_block(m, hmm, dp);
+    cass_equal(nmm_output_write(output, m), 0);
+    nmm_model_destroy(m);
+    cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
@@ -96,14 +97,14 @@ void test_hmm_io_two_states(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/two_states.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    model = nmm_input_read(input);
+    struct nmm_model const* model = nmm_input_read(input);
     cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
     nmm_input_destroy(input);
 
     struct imm_hmm_block* block = nmm_model_get_hmm_block(model, 0);
 
-    cass_equal_uint32(imm_hmm_block_nstates(block), 2);
+    cass_equal(imm_hmm_block_nstates(block), 2);
 
     abc = nmm_model_abc(model);
     hmm = imm_hmm_block_hmm(block);
@@ -234,11 +235,12 @@ void test_hmm_io_two_hmm_blocks(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_hmms.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create(hmm0, dp0);
+    struct nmm_model* m = nmm_model_create();
+    nmm_model_append_hmm_block(m, hmm0, dp0);
     nmm_model_append_hmm_block(m, hmm1, dp1);
-    cass_equal_int(nmm_output_write(output, m), 0);
+    cass_equal(nmm_output_write(output, m), 0);
     nmm_model_destroy(m);
-    cass_equal_int(nmm_output_destroy(output), 0);
+    cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
     nmm_codon_destroy(codon);
@@ -260,12 +262,12 @@ void test_hmm_io_two_hmm_blocks(void)
     cass_cond(model != NULL);
     nmm_input_destroy(input);
 
-    cass_equal_uint16(nmm_model_nhmm_blocks(model), 2);
+    cass_equal(nmm_model_nhmm_blocks(model), 2);
     struct imm_hmm_block* block0 = nmm_model_get_hmm_block(model, 0);
     struct imm_hmm_block* block1 = nmm_model_get_hmm_block(model, 1);
 
-    cass_equal_uint32(imm_hmm_block_nstates(block0), 2);
-    cass_equal_uint32(imm_hmm_block_nstates(block1), 2);
+    cass_equal(imm_hmm_block_nstates(block0), 2);
+    cass_equal(imm_hmm_block_nstates(block1), 2);
 
     abc = nmm_model_abc(model);
     hmm0 = imm_hmm_block_hmm(block0);
@@ -308,15 +310,15 @@ void test_hmm_io_two_hmm_blocks(void)
     for (uint16_t i = 0; i < imm_hmm_block_nstates(block1); ++i)
         imm_state_destroy(imm_hmm_block_state(block1, i));
 
-    cass_equal_uint16(nmm_model_nbase_lprobs(model), 1);
+    cass_equal(nmm_model_nbase_lprobs(model), 1);
     for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
         nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
 
-    cass_equal_uint16(nmm_model_ncodon_margs(model), 1);
+    cass_equal(nmm_model_ncodon_margs(model), 1);
     for (uint16_t i = 0; i < nmm_model_ncodon_margs(model); ++i)
         nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
 
-    cass_equal_uint16(nmm_model_ncodon_lprobs(model), 1);
+    cass_equal(nmm_model_ncodon_lprobs(model), 1);
     for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
         nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
 

@@ -180,10 +180,11 @@ void test_perf_viterbi(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);
-    struct nmm_model const* model = nmm_model_create(hmm, dp);
-    cass_equal_int(nmm_output_write(output, model), 0);
-    nmm_model_destroy(model);
-    cass_equal_int(nmm_output_destroy(output), 0);
+    struct nmm_model* m = nmm_model_create();
+    nmm_model_append_hmm_block(m, hmm, dp);
+    cass_equal(nmm_output_write(output, m), 0);
+    nmm_model_destroy(m);
+    cass_equal(nmm_output_destroy(output), 0);
 
     imm_hmm_destroy(hmm);
     imm_mute_state_destroy(start);
@@ -211,16 +212,14 @@ void test_perf_viterbi(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/perf.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    fflush(stdout);
-    model = nmm_input_read(input);
-    fflush(stdout);
+    struct nmm_model const* model = nmm_input_read(input);
     cass_cond(!nmm_input_eof(input));
     cass_cond(model != NULL);
     nmm_input_destroy(input);
 
     struct imm_hmm_block* block = nmm_model_get_hmm_block(model, 0);
 
-    cass_equal_uint32(imm_hmm_block_nstates(block), 3 * ncore_nodes + 5);
+    cass_equal(imm_hmm_block_nstates(block), 3 * ncore_nodes + 5);
 
     abc = nmm_model_abc(model);
     hmm = imm_hmm_block_hmm(block);
