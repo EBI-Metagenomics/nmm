@@ -25,6 +25,7 @@ NMM_API void                          nmm_model_destroy(struct nmm_model const* 
 NMM_API uint16_t                      nmm_model_nbase_lprobs(struct nmm_model const* model);
 NMM_API uint16_t                      nmm_model_ncodon_lprobs(struct nmm_model const* model);
 NMM_API uint16_t                      nmm_model_ncodon_margs(struct nmm_model const* model);
+NMM_API void                          nmm_model_free(struct nmm_model const* model);
 NMM_API struct nmm_model const*       nmm_model_read(FILE* stream);
 NMM_API int                           nmm_model_write(struct nmm_model const* io, FILE* stream);
 

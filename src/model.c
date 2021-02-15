@@ -104,6 +104,19 @@ void nmm_model_destroy(struct nmm_model const* model)
     free_c(model);
 }
 
+void nmm_model_free(struct nmm_model const* model)
+{
+    imm_model_free(model->super);
+    destroy_base_lprob_map(model->base_lprob_map);
+    destroy_codon_lprob_map(model->codon_lprob_map);
+    destroy_codon_marg_map(model->codon_marg_map);
+
+    kh_destroy(base_lprob_idx, model->base_lprob_idx);
+    kh_destroy(codon_lprob_idx, model->codon_lprob_idx);
+    kh_destroy(codon_marg_idx, model->codon_marg_idx);
+    free_c(model);
+}
+
 uint16_t nmm_model_nbase_lprobs(struct nmm_model const* model) { return (uint16_t)kh_size(model->base_lprob_map); }
 
 uint16_t nmm_model_ncodon_lprobs(struct nmm_model const* model) { return (uint16_t)kh_size(model->codon_lprob_map); }
