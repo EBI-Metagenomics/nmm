@@ -159,7 +159,7 @@ CREATE_MODEL_GET_FUNC(codon_marg)
         khash_t(MOD)* map = model->MOD##_map;                                                                          \
         khash_t(MOD##_idx)* idx = model->MOD##_idx;                                                                    \
                                                                                                                        \
-        uint16_t j = 0;                                                                                                \
+        uint16_t index = (uint16_t)kh_size(map);                                                                       \
         for (uint16_t i = 0; i < imm_hmm_block_nstates(block); ++i) {                                                  \
             struct imm_state const* state = imm_hmm_block_state(block, i);                                             \
             if (imm_state_type_id(state) != NMM_##ID##_STATE_TYPE_ID)                                                  \
@@ -172,7 +172,7 @@ CREATE_MODEL_GET_FUNC(codon_marg)
                 continue;                                                                                              \
                                                                                                                        \
             struct MOD##_node* node = malloc(sizeof(*node));                                                           \
-            node->index = j++;                                                                                         \
+            node->index = index++;                                                                                     \
             node->MOD = MOD;                                                                                           \
             int      ret = 0;                                                                                          \
             khiter_t iter = kh_put(MOD, map, node->MOD, &ret);                                                         \
