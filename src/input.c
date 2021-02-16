@@ -1,4 +1,5 @@
 #include "nmm/input.h"
+#include "fio.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "model.h"
@@ -61,12 +62,9 @@ int nmm_input_destroy(struct nmm_input* input)
 
 bool nmm_input_eof(struct nmm_input const* input) { return input->eof; }
 
-int nmm_input_fseek(struct nmm_input* input, long offset)
-{
-    return fseek(input->stream, offset, SEEK_SET);
-}
+int nmm_input_fseek(struct nmm_input* input, int64_t offset) { return nmm_fseek(input->stream, offset, SEEK_SET); }
 
-long nmm_input_ftell(struct nmm_input* input) { return ftell(input->stream); }
+int64_t nmm_input_ftell(struct nmm_input* input) { return ftell(input->stream); }
 
 struct nmm_model const* nmm_input_read(struct nmm_input* input)
 {
