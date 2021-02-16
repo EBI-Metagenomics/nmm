@@ -1,4 +1,5 @@
 #include "nmm/output.h"
+#include "fio.h"
 #include "free.h"
 #include "imm/imm.h"
 #include "model.h"
@@ -81,7 +82,7 @@ int nmm_output_destroy(struct nmm_output* output)
     return errno;
 }
 
-uint64_t nmm_output_ftell(struct nmm_output* output) { return (uint64_t) ftell(output->stream); }
+int64_t nmm_output_ftell(struct nmm_output* output) { return nmm_ftell(output->stream); }
 
 int nmm_output_write(struct nmm_output* output, struct nmm_model const* model)
 {
