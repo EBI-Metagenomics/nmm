@@ -14,17 +14,12 @@ struct nmm_codon
     char                       c;
 };
 
-static inline struct nmm_base_abc const* nmm_codon_abc(struct nmm_codon const* codon);
+static inline struct nmm_base_abc const* nmm_codon_abc(struct nmm_codon const* codon) { return codon->base_abc; }
 NMM_API struct nmm_codon*                nmm_codon_create(struct nmm_base_abc const* base);
 NMM_API void                             nmm_codon_destroy(struct nmm_codon const* codon);
 static inline struct nmm_triplet         nmm_codon_get_triplet(struct nmm_codon const* codon);
-static inline void nmm_codon_init(struct nmm_codon* codon, struct nmm_base_abc const* base);
-NMM_API int        nmm_codon_set_triplet(struct nmm_codon* codon, struct nmm_triplet triplet);
-
-static inline struct nmm_base_abc const* nmm_codon_abc(struct nmm_codon const* codon)
-{
-    return codon->base_abc;
-}
+static inline void                       nmm_codon_init(struct nmm_codon* codon, struct nmm_base_abc const* base);
+NMM_API int                              nmm_codon_set_triplet(struct nmm_codon* codon, struct nmm_triplet triplet);
 
 static inline struct nmm_triplet nmm_codon_get_triplet(struct nmm_codon const* codon)
 {
@@ -39,8 +34,8 @@ static inline void nmm_codon_init(struct nmm_codon* codon, struct nmm_base_abc c
     codon->c = imm_abc_any_symbol(nmm_base_abc_super(base_abc));
 }
 
-#define NMM_CODON_DECL(name, base)                                                                 \
-    struct nmm_codon name;                                                                         \
+#define NMM_CODON_DECL(name, base)                                                                                     \
+    struct nmm_codon name;                                                                                             \
     nmm_codon_init(&(name), (base))
 
 #endif

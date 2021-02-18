@@ -1,6 +1,5 @@
 #include "cass/cass.h"
 #include "helper.h"
-#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 void test_base_lprob(void);

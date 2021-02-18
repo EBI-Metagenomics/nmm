@@ -1,5 +1,4 @@
 #include "cass/cass.h"
-#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 void test_amino_lprob(void);

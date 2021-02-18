@@ -1,10 +1,7 @@
 #include "codon_marg.h"
 #include "codon_iter.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "nmm/base_abc.h"
-#include "nmm/codon_lprob.h"
-#include "nmm/codon_marg.h"
+#include "nmm/nmm.h"
 #include <stdlib.h>
 #include <string.h>
 

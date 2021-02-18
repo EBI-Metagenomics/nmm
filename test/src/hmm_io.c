@@ -1,6 +1,5 @@
 #include "cass/cass.h"
 #include "helper.h"
-#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 #ifndef TMPDIR
@@ -69,8 +68,8 @@ void test_hmm_io_two_states(void)
     cass_cond(imm_results_size(results) == 1);
     struct imm_result const* r = imm_results_get(results, 0);
     struct imm_subseq        subseq = imm_result_subseq(r);
-    struct imm_path const*   p = imm_result_path(r);
-    imm_float                loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p);
+    struct imm_path const*   p_c = imm_result_path(r);
+    imm_float                loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p_c);
     cass_close(loglik, -6.0198640216);
     cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_seq_destroy(seq);
@@ -78,10 +77,10 @@ void test_hmm_io_two_states(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_states.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create(abc);
-    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm, dp));
-    cass_equal(nmm_output_write(output, m), 0);
-    nmm_model_destroy(m);
+    struct nmm_profile* p = nmm_profile_create(abc);
+    nmm_profile_append_model(p, imm_model_create(hmm, dp));
+    cass_equal(nmm_output_write(output, p), 0);
+    nmm_profile_destroy(p);
     cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
@@ -97,18 +96,18 @@ void test_hmm_io_two_states(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/two_states.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    struct nmm_model const* model = nmm_input_read(input);
+    struct nmm_profile const* prof = nmm_input_read(input);
     cass_cond(!nmm_input_eof(input));
-    cass_cond(model != NULL);
+    cass_cond(prof != NULL);
     nmm_input_destroy(input);
 
-    struct imm_hmm_block* block = nmm_model_get_hmm_block(model, 0);
+    struct imm_model* block = nmm_profile_get_model(prof, 0);
 
-    cass_equal(imm_hmm_block_nstates(block), 2);
+    cass_equal(imm_model_nstates(block), 2);
 
-    abc = nmm_model_abc(model);
-    hmm = imm_hmm_block_hmm(block);
-    dp = imm_hmm_block_dp(block);
+    abc = nmm_profile_abc(prof);
+    hmm = imm_model_hmm(block);
+    dp = imm_model_dp(block);
 
     seq = imm_seq_create("A", abc);
     task = imm_dp_task_create(dp);
@@ -118,29 +117,29 @@ void test_hmm_io_two_states(void)
     cass_cond(imm_results_size(results) == 1);
     r = imm_results_get(results, 0);
     subseq = imm_result_subseq(r);
-    p = imm_result_path(r);
-    loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p);
+    p_c = imm_result_path(r);
+    loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), p_c);
     cass_close(loglik, -6.0198640216);
     cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
-    for (uint16_t i = 0; i < imm_hmm_block_nstates(block); ++i)
-        imm_state_destroy(imm_hmm_block_state(block, i));
+    for (uint16_t i = 0; i < imm_model_nstates(block); ++i)
+        imm_state_destroy(imm_model_state(block, i));
 
-    for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
-        nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
+    for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
+        nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
 
-    for (uint16_t i = 0; i < nmm_model_ncodon_margs(model); ++i)
-        nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
+    for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
+        nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
 
-    for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
-        nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
+    for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
+        nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
 
     imm_seq_destroy(seq);
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
-    nmm_model_destroy(model);
+    nmm_profile_destroy(prof);
     imm_dp_task_destroy(task);
 }
 
@@ -235,11 +234,11 @@ void test_hmm_io_two_hmm_blocks(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/two_hmms.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create(abc);
-    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm0, dp0));
-    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm1, dp1));
+    struct nmm_profile* m = nmm_profile_create(abc);
+    nmm_profile_append_model(m, imm_model_create(hmm0, dp0));
+    nmm_profile_append_model(m, imm_model_create(hmm1, dp1));
     cass_equal(nmm_output_write(output, m), 0);
-    nmm_model_destroy(m);
+    nmm_profile_destroy(m);
     cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
@@ -257,23 +256,23 @@ void test_hmm_io_two_hmm_blocks(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/two_hmms.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    struct nmm_model const* model = nmm_input_read(input);
+    struct nmm_profile const* prof = nmm_input_read(input);
     cass_cond(!nmm_input_eof(input));
-    cass_cond(model != NULL);
+    cass_cond(prof != NULL);
     nmm_input_destroy(input);
 
-    cass_equal(nmm_model_nhmm_blocks(model), 2);
-    struct imm_hmm_block* block0 = nmm_model_get_hmm_block(model, 0);
-    struct imm_hmm_block* block1 = nmm_model_get_hmm_block(model, 1);
+    cass_equal(nmm_profile_nhmm_blocks(prof), 2);
+    struct imm_model* block0 = nmm_profile_get_model(prof, 0);
+    struct imm_model* block1 = nmm_profile_get_model(prof, 1);
 
-    cass_equal(imm_hmm_block_nstates(block0), 2);
-    cass_equal(imm_hmm_block_nstates(block1), 2);
+    cass_equal(imm_model_nstates(block0), 2);
+    cass_equal(imm_model_nstates(block1), 2);
 
-    abc = nmm_model_abc(model);
-    hmm0 = imm_hmm_block_hmm(block0);
-    dp0 = imm_hmm_block_dp(block0);
-    hmm1 = imm_hmm_block_hmm(block1);
-    dp1 = imm_hmm_block_dp(block1);
+    abc = nmm_profile_abc(prof);
+    hmm0 = imm_model_hmm(block0);
+    dp0 = imm_model_dp(block0);
+    hmm1 = imm_model_hmm(block1);
+    dp1 = imm_model_dp(block1);
 
     seq = imm_seq_create("A", abc);
     task0 = imm_dp_task_create(dp0);
@@ -304,23 +303,23 @@ void test_hmm_io_two_hmm_blocks(void)
     cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112648);
     imm_results_destroy(results);
 
-    for (uint16_t i = 0; i < imm_hmm_block_nstates(block0); ++i)
-        imm_state_destroy(imm_hmm_block_state(block0, i));
+    for (uint16_t i = 0; i < imm_model_nstates(block0); ++i)
+        imm_state_destroy(imm_model_state(block0, i));
 
-    for (uint16_t i = 0; i < imm_hmm_block_nstates(block1); ++i)
-        imm_state_destroy(imm_hmm_block_state(block1, i));
+    for (uint16_t i = 0; i < imm_model_nstates(block1); ++i)
+        imm_state_destroy(imm_model_state(block1, i));
 
-    cass_equal(nmm_model_nbase_lprobs(model), 1);
-    for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
-        nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
+    cass_equal(nmm_profile_nbase_lprobs(prof), 1);
+    for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
+        nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
 
-    cass_equal(nmm_model_ncodon_margs(model), 1);
-    for (uint16_t i = 0; i < nmm_model_ncodon_margs(model); ++i)
-        nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
+    cass_equal(nmm_profile_ncodon_margs(prof), 1);
+    for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
+        nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
 
-    cass_equal(nmm_model_ncodon_lprobs(model), 1);
-    for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
-        nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
+    cass_equal(nmm_profile_ncodon_lprobs(prof), 1);
+    for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
+        nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
 
     imm_seq_destroy(seq);
     imm_abc_destroy(abc);
@@ -328,7 +327,7 @@ void test_hmm_io_two_hmm_blocks(void)
     imm_dp_destroy(dp0);
     imm_hmm_destroy(hmm1);
     imm_dp_destroy(dp1);
-    nmm_model_destroy(model);
+    nmm_profile_destroy(prof);
     imm_dp_task_destroy(task0);
     imm_dp_task_destroy(task1);
 }

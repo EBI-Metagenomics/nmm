@@ -1,10 +1,6 @@
 #include "codon_lprob.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "nmm/array3d.h"
-#include "nmm/base_abc.h"
-#include "nmm/codon.h"
-#include "nmm/codon_lprob.h"
+#include "nmm/nmm.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -24,14 +20,10 @@ struct nmm_codon_lprob
     struct nmm_array3d lprobs;
 };
 
-static inline bool triplet_has(struct nmm_triplet const triplet, char const symbol);
-static inline struct nmm_array3d_idx triplet_index(struct imm_abc const*    abc,
-                                                   struct nmm_triplet const triplet);
+static inline bool                   triplet_has(struct nmm_triplet const triplet, char const symbol);
+static inline struct nmm_array3d_idx triplet_index(struct imm_abc const* abc, struct nmm_triplet const triplet);
 
-struct nmm_base_abc const* nmm_codon_lprob_abc(struct nmm_codon_lprob const* codonp)
-{
-    return codonp->base_abc;
-}
+struct nmm_base_abc const* nmm_codon_lprob_abc(struct nmm_codon_lprob const* codonp) { return codonp->base_abc; }
 
 struct nmm_codon_lprob* nmm_codon_lprob_create(struct nmm_base_abc const* abc)
 {
@@ -69,13 +61,9 @@ imm_float nmm_codon_lprob_get(struct nmm_codon_lprob const* codonp, struct nmm_c
     return nmm_array3d_get(&codonp->lprobs, idx);
 }
 
-int nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp)
-{
-    return nmm_array3d_normalize(&codonp->lprobs);
-}
+int nmm_codon_lprob_normalize(struct nmm_codon_lprob* codonp) { return nmm_array3d_normalize(&codonp->lprobs); }
 
-int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon,
-                        imm_float const lprob)
+int nmm_codon_lprob_set(struct nmm_codon_lprob* codonp, struct nmm_codon const* codon, imm_float const lprob)
 {
     if (codonp->base_abc != nmm_codon_abc(codon)) {
         imm_error("bases must be the same");
@@ -125,10 +113,8 @@ static inline bool triplet_has(struct nmm_triplet const triplet, char const symb
     return symbol == triplet.a || symbol == triplet.b || symbol == triplet.c;
 }
 
-static inline struct nmm_array3d_idx triplet_index(struct imm_abc const*    abc,
-                                                   struct nmm_triplet const triplet)
+static inline struct nmm_array3d_idx triplet_index(struct imm_abc const* abc, struct nmm_triplet const triplet)
 {
-    return (struct nmm_array3d_idx){imm_abc_symbol_idx(abc, triplet.a),
-                                    imm_abc_symbol_idx(abc, triplet.b),
+    return (struct nmm_array3d_idx){imm_abc_symbol_idx(abc, triplet.a), imm_abc_symbol_idx(abc, triplet.b),
                                     imm_abc_symbol_idx(abc, triplet.c)};
 }

@@ -4,7 +4,6 @@
 #include "imm/imm.h"
 #include "nmm/base_abc.h"
 #include "nmm/export.h"
-#include <stdio.h>
 
 /** @file base_lprob.h
  * Base probability module.
@@ -22,11 +21,10 @@ struct nmm_base_lprob
 };
 
 static inline struct nmm_base_abc const* nmm_base_lprob_abc(struct nmm_base_lprob const* basep);
-NMM_API struct nmm_base_lprob const*     nmm_base_lprob_create(struct nmm_base_abc const* abc,
-                                                               imm_float a, imm_float b, imm_float c,
-                                                               imm_float d);
+NMM_API struct nmm_base_lprob const*     nmm_base_lprob_create(struct nmm_base_abc const* abc, imm_float a, imm_float b,
+                                                               imm_float c, imm_float d);
 NMM_API void                             nmm_base_lprob_destroy(struct nmm_base_lprob const* basep);
-static inline imm_float nmm_base_lprob_get(struct nmm_base_lprob const* basep, char const base);
+static inline imm_float                  nmm_base_lprob_get(struct nmm_base_lprob const* basep, char const base);
 
 static inline struct nmm_base_abc const* nmm_base_lprob_abc(struct nmm_base_lprob const* basep)
 {

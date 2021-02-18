@@ -1,8 +1,6 @@
 #include "base_abc.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "nmm/abc_types.h"
-#include "nmm/base_abc.h"
+#include "nmm/nmm.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,10 +34,7 @@ struct nmm_base_abc const* nmm_base_abc_derived(struct imm_abc const* abc)
     return __imm_abc_derived(abc);
 }
 
-void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc)
-{
-    base_abc->super->vtable.destroy(base_abc->super);
-}
+void nmm_base_abc_destroy(struct nmm_base_abc const* base_abc) { base_abc->super->vtable.destroy(base_abc->super); }
 
 struct imm_abc const* base_abc_read(FILE* stream)
 {

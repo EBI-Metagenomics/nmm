@@ -1,6 +1,5 @@
 #include "cass/cass.h"
 #include "helper.h"
-#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 #ifndef TMPDIR
@@ -180,10 +179,10 @@ void test_perf_viterbi(void)
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
     cass_cond(output != NULL);
-    struct nmm_model* m = nmm_model_create(abc);
-    nmm_model_append_hmm_block(m, imm_hmm_block_create(hmm, dp));
+    struct nmm_profile* m = nmm_profile_create(abc);
+    nmm_profile_append_model(m, imm_model_create(hmm, dp));
     cass_equal(nmm_output_write(output, m), 0);
-    nmm_model_destroy(m);
+    nmm_profile_destroy(m);
     cass_equal(nmm_output_destroy(output), 0);
 
     imm_hmm_destroy(hmm);
@@ -212,18 +211,18 @@ void test_perf_viterbi(void)
     struct nmm_input* input = nmm_input_create(TMPDIR "/perf.nmm");
     cass_cond(input != NULL);
     cass_cond(!nmm_input_eof(input));
-    struct nmm_model const* model = nmm_input_read(input);
+    struct nmm_profile const* prof = nmm_input_read(input);
     cass_cond(!nmm_input_eof(input));
-    cass_cond(model != NULL);
+    cass_cond(prof != NULL);
     nmm_input_destroy(input);
 
-    struct imm_hmm_block* block = nmm_model_get_hmm_block(model, 0);
+    struct imm_model* model = nmm_profile_get_model(prof, 0);
 
-    cass_equal(imm_hmm_block_nstates(block), 3 * ncore_nodes + 5);
+    cass_equal(imm_model_nstates(model), 3 * ncore_nodes + 5);
 
-    abc = nmm_model_abc(model);
-    hmm = imm_hmm_block_hmm(block);
-    dp = imm_hmm_block_dp(block);
+    abc = nmm_profile_abc(prof);
+    hmm = imm_model_hmm(model);
+    dp = imm_model_dp(model);
 
     seq = imm_seq_create(__seq, abc);
     task = imm_dp_task_create(dp);
@@ -241,22 +240,22 @@ void test_perf_viterbi(void)
     imm_results_destroy(results);
     imm_seq_destroy(seq);
 
-    for (uint16_t i = 0; i < imm_hmm_block_nstates(block); ++i)
-        imm_state_destroy(imm_hmm_block_state(block, i));
+    for (uint16_t i = 0; i < imm_model_nstates(model); ++i)
+        imm_state_destroy(imm_model_state(model, i));
 
-    for (uint16_t i = 0; i < nmm_model_nbase_lprobs(model); ++i)
-        nmm_base_lprob_destroy(nmm_model_base_lprob(model, i));
+    for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
+        nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
 
-    for (uint16_t i = 0; i < nmm_model_ncodon_margs(model); ++i)
-        nmm_codon_marg_destroy(nmm_model_codon_marg(model, i));
+    for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
+        nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
 
-    for (uint16_t i = 0; i < nmm_model_ncodon_lprobs(model); ++i)
-        nmm_codon_lprob_destroy(nmm_model_codon_lprob(model, i));
+    for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
+        nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
 
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
-    nmm_model_destroy(model);
+    nmm_profile_destroy(prof);
 }
 
 static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)

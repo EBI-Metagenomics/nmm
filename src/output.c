@@ -1,10 +1,7 @@
-#include "nmm/output.h"
 #include "fio.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "model.h"
-#include "nmm/io.h"
-#include "nmm/model.h"
+#include "nmm/nmm.h"
+#include "profile.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +81,7 @@ int nmm_output_destroy(struct nmm_output* output)
 
 int64_t nmm_output_ftell(struct nmm_output* output) { return nmm_ftell(output->stream); }
 
-int nmm_output_write(struct nmm_output* output, struct nmm_model const* model)
+int nmm_output_write(struct nmm_output* output, struct nmm_profile const* prof)
 {
     uint8_t block_type = NMM_IO_BLOCK_MODEL;
 
@@ -104,8 +101,8 @@ int nmm_output_write(struct nmm_output* output, struct nmm_model const* model)
         return 1;
     }
 
-    if (nmm_model_write(model, output->stream)) {
-        imm_error("could not write nmm model");
+    if (nmm_profile_write(prof, output->stream)) {
+        imm_error("could not write nmm profile");
         return 1;
     }
     return 0;

@@ -1,13 +1,6 @@
-#include "nmm/frame_state.h"
 #include "free.h"
-#include "imm/float.h"
-#include "model.h"
-#include "nmm/base_abc.h"
-#include "nmm/base_lprob.h"
-#include "nmm/codon.h"
-#include "nmm/codon_marg.h"
-#include "nmm/model.h"
-#include "nmm/state_types.h"
+#include "nmm/nmm.h"
+#include "profile.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -149,9 +142,9 @@ imm_float nmm_frame_state_lposterior(struct nmm_frame_state const* state, struct
 
 struct imm_state const* nmm_frame_state_super(struct nmm_frame_state const* state) { return state->super; }
 
-struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model const* model)
+struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_profile const* prof)
 {
-    struct imm_abc const* abc = nmm_model_abc(model);
+    struct imm_abc const* abc = nmm_profile_abc(prof);
     struct imm_state*     state = __imm_state_read(stream, abc);
     if (!state) {
         imm_error("could not state_read");
@@ -170,7 +163,7 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
         goto err;
     }
 
-    struct nmm_base_lprob const* basep = nmm_model_base_lprob(model, index);
+    struct nmm_base_lprob const* basep = nmm_profile_base_lprob(prof, index);
     if (!basep) {
         imm_error("could not get basep");
         goto err;
@@ -183,7 +176,7 @@ struct imm_state const* nmm_frame_state_read(FILE* stream, struct nmm_model cons
         goto err;
     }
 
-    struct nmm_codon_marg const* codonm = nmm_model_codon_marg(model, index);
+    struct nmm_codon_marg const* codonm = nmm_profile_codon_marg(prof, index);
     if (!codonm) {
         imm_error("could not get codonm");
         goto err;
@@ -537,11 +530,11 @@ static uint8_t min_seq(struct imm_state const* state) { return 1; }
 
 static uint8_t type_id(struct imm_state const* state) { return NMM_FRAME_STATE_TYPE_ID; }
 
-int nmm_frame_state_write(struct imm_state const* state, struct nmm_model const* model, FILE* stream)
+int nmm_frame_state_write(struct imm_state const* state, struct nmm_profile const* prof, FILE* stream)
 {
     struct nmm_frame_state const* s = nmm_frame_state_derived(state);
-    uint16_t                      basep_idx = model_base_lprob_index(model, s->basep);
-    uint16_t                      codonm_idx = model_codon_marg_index(model, s->codonm);
+    uint16_t                      basep_idx = profile_base_lprob_index(prof, s->basep);
+    uint16_t                      codonm_idx = profile_codon_marg_index(prof, s->codonm);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");

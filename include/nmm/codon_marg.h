@@ -36,8 +36,9 @@ NMM_API struct nmm_codon_marg const*     nmm_codon_marg_create(struct nmm_codon_
 NMM_API void                             nmm_codon_marg_destroy(struct nmm_codon_marg const* codont);
 static inline imm_float nmm_codon_marg_lprob(struct nmm_codon_marg const* codont, struct nmm_codon const* codon);
 
-static inline struct nmm_array3d_idx     __nmm_codon_marg_array_idx(struct nmm_codon_marg const* tbl,
-                                                                    struct nmm_codon const*      codon);
+static inline struct nmm_array3d_idx __nmm_codon_marg_array_idx(struct nmm_codon_marg const* tbl,
+                                                                struct nmm_codon const*      codon);
+
 static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_marg const* codont)
 {
     return codont->base_abc;

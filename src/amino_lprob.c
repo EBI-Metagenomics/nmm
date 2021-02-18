@@ -1,5 +1,5 @@
-#include "nmm/amino_lprob.h"
 #include "free.h"
+#include "nmm/nmm.h"
 #include <stdlib.h>
 #include <string.h>
 

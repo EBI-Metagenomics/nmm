@@ -36,8 +36,8 @@ add_library(nmm
     src/fio.c
     src/frame_state.c
     src/input.c
-    src/model.c
     src/output.c
+    src/profile.c
 )
 add_library(NMM::nmm ALIAS nmm)
 

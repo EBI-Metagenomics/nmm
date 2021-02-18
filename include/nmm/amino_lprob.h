@@ -13,10 +13,10 @@ struct nmm_amino_lprob
     imm_float                   lprobs[NMM_AMINO_ABC_SIZE];
 };
 
+static inline struct nmm_amino_abc const* nmm_amino_lprob_abc(struct nmm_amino_lprob const* aminop);
 NMM_API struct nmm_amino_lprob const*     nmm_amino_lprob_create(struct nmm_amino_abc const* abc,
                                                                  imm_float const lprobs[static NMM_AMINO_ABC_SIZE]);
 NMM_API void                              nmm_amino_lprob_destroy(struct nmm_amino_lprob const* aminop);
-static inline struct nmm_amino_abc const* nmm_amino_lprob_abc(struct nmm_amino_lprob const* aminop);
 static inline imm_float                   nmm_amino_lprob_get(struct nmm_amino_lprob const* aminop, char const amino);
 
 static inline struct nmm_amino_abc const* nmm_amino_lprob_abc(struct nmm_amino_lprob const* aminop)

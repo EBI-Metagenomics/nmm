@@ -6,6 +6,7 @@ extern "C"
 {
 #endif
 
+#include "imm/imm.h"
 #include "nmm/abc_types.h"
 #include "nmm/amino_abc.h"
 #include "nmm/amino_lprob.h"
@@ -18,8 +19,8 @@ extern "C"
 #include "nmm/frame_state.h"
 #include "nmm/input.h"
 #include "nmm/io.h"
-#include "nmm/model.h"
 #include "nmm/output.h"
+#include "nmm/profile.h"
 #include "nmm/state_types.h"
 
 #ifdef __cplusplus

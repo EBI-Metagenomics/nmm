@@ -1,7 +1,5 @@
-#include "nmm/codon.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "nmm/base_abc.h"
+#include "nmm/nmm.h"
 #include <stdbool.h>
 #include <stdlib.h>
 

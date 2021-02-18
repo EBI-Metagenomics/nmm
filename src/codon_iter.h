@@ -1,9 +1,7 @@
 #ifndef CODON_ITER_H
 #define CODON_ITER_H
 
-#include "imm/imm.h"
-#include "nmm/base_abc.h"
-#include "nmm/codon.h"
+#include "nmm/nmm.h"
 #include <stdbool.h>
 
 struct codon_iter

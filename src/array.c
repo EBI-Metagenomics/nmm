@@ -1,5 +1,5 @@
-#include "nmm/array3d.h"
 #include "free.h"
+#include "nmm/nmm.h"
 #include <inttypes.h>
 #include <limits.h>
 
@@ -27,14 +27,12 @@ int nmm_array3d_read(struct nmm_array3d* arr, FILE* stream)
 
 int nmm_array3d_write(struct nmm_array3d const* arr, FILE* stream)
 {
-    if (arr->strides[0] > UINT16_MAX || arr->strides[1] > UINT16_MAX ||
-        arr->strides[2] > UINT16_MAX) {
+    if (arr->strides[0] > UINT16_MAX || arr->strides[1] > UINT16_MAX || arr->strides[2] > UINT16_MAX) {
         imm_error("strides not within the uint16_t range");
         return 1;
     }
 
-    uint16_t const strides[3] = {(uint16_t)arr->strides[0], (uint16_t)arr->strides[1],
-                                 (uint16_t)arr->strides[2]};
+    uint16_t const strides[3] = {(uint16_t)arr->strides[0], (uint16_t)arr->strides[1], (uint16_t)arr->strides[2]};
 
     if (fwrite(strides, sizeof(*strides), 3, stream) < 3) {
         imm_error("could not write array strides");

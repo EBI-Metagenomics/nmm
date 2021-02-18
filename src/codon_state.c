@@ -1,13 +1,6 @@
-#include "codon_state.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "model.h"
-#include "nmm/base_abc.h"
-#include "nmm/codon.h"
-#include "nmm/codon_lprob.h"
-#include "nmm/codon_state.h"
-#include "nmm/model.h"
-#include "nmm/state_types.h"
+#include "nmm/nmm.h"
+#include "profile.h"
 #include <stdlib.h>
 
 struct nmm_codon_state
@@ -25,13 +18,9 @@ static uint8_t   type_id(struct imm_state const* state);
 
 static struct imm_state_vtable const __vtable = {destroy, lprob, max_seq, min_seq, type_id};
 
-struct nmm_codon_lprob const* nmm_codon_state_codon_lprob(struct nmm_codon_state const* state)
-{
-    return state->codonp;
-}
+struct nmm_codon_lprob const* nmm_codon_state_codon_lprob(struct nmm_codon_state const* state) { return state->codonp; }
 
-struct nmm_codon_state const* nmm_codon_state_create(char const*                   name,
-                                                     struct nmm_codon_lprob const* codonp)
+struct nmm_codon_state const* nmm_codon_state_create(char const* name, struct nmm_codon_lprob const* codonp)
 {
     struct nmm_codon_state* state = malloc(sizeof(*state));
 
@@ -52,24 +41,13 @@ struct nmm_codon_state const* nmm_codon_state_derived(struct imm_state const* st
     return __imm_state_derived(state);
 }
 
-void nmm_codon_state_destroy(struct nmm_codon_state const* state)
-{
-    state->super->vtable.destroy(state->super);
-}
+void nmm_codon_state_destroy(struct nmm_codon_state const* state) { state->super->vtable.destroy(state->super); }
 
-struct imm_state const* nmm_codon_state_super(struct nmm_codon_state const* state)
-{
-    return state->super;
-}
+struct imm_state const* nmm_codon_state_super(struct nmm_codon_state const* state) { return state->super; }
 
-struct nmm_codon_lprob const* codon_state_codonp(struct nmm_codon_state const* state)
+struct imm_state const* nmm_codon_state_read(FILE* stream, struct nmm_profile const* prof)
 {
-    return state->codonp;
-}
-
-struct imm_state const* nmm_codon_state_read(FILE* stream, struct nmm_model const* model)
-{
-    struct imm_abc const* abc = nmm_model_abc(model);
+    struct imm_abc const* abc = nmm_profile_abc(prof);
     struct imm_state*     state = __imm_state_read(stream, abc);
     if (!state) {
         imm_error("could not state_read");
@@ -92,7 +70,7 @@ struct imm_state const* nmm_codon_state_read(FILE* stream, struct nmm_model cons
         goto err;
     }
 
-    struct nmm_codon_lprob const* codonp = nmm_model_codon_lprob(model, index);
+    struct nmm_codon_lprob const* codonp = nmm_profile_codon_lprob(prof, index);
     if (!codonp) {
         imm_error("could not get codonp");
         goto err;
@@ -137,11 +115,10 @@ static uint8_t min_seq(struct imm_state const* state) { return 3; }
 
 static uint8_t type_id(struct imm_state const* state) { return NMM_CODON_STATE_TYPE_ID; }
 
-int nmm_codon_state_write(struct imm_state const* state, struct nmm_model const* model,
-                          FILE* stream)
+int nmm_codon_state_write(struct imm_state const* state, struct nmm_profile const* prof, FILE* stream)
 {
     struct nmm_codon_state const* s = nmm_codon_state_derived(state);
-    uint16_t                      index = model_codon_lprob_index(model, s->codonp);
+    uint16_t                      index = profile_codon_lprob_index(prof, s->codonp);
 
     if (__imm_state_write(state, stream)) {
         imm_error("could not write super state");

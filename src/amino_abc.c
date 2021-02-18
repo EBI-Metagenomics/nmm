@@ -1,14 +1,12 @@
-#include "nmm/amino_abc.h"
 #include "amino_abc.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "nmm/abc_types.h"
+#include "nmm/nmm.h"
 #include <stdlib.h>
 #include <string.h>
 
 static struct imm_abc const* clone(struct imm_abc const* abc);
 static void                  destroy(struct imm_abc const* abc);
-static uint8_t               type_id(struct imm_abc const* abc);
+static uint8_t               type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }
 
 static struct imm_abc_vtable const __vtable = {type_id, __imm_abc_write, destroy, clone};
 
@@ -72,5 +70,3 @@ static void destroy(struct imm_abc const* abc)
     __imm_abc_destroy(abc);
     free_c(amino_abc);
 }
-
-static uint8_t type_id(struct imm_abc const* abc) { return NMM_AMINO_ABC_TYPE_ID; }

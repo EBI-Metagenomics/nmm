@@ -1,10 +1,7 @@
-#include "nmm/input.h"
 #include "fio.h"
 #include "free.h"
-#include "imm/imm.h"
-#include "model.h"
-#include "nmm/io.h"
-#include "nmm/model.h"
+#include "nmm/nmm.h"
+#include "profile.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,7 +14,7 @@ struct nmm_input
     bool closed;
 };
 
-static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type);
+static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t block_type);
 
 int nmm_input_close(struct nmm_input* input)
 {
@@ -66,7 +63,7 @@ int nmm_input_fseek(struct nmm_input* input, int64_t offset) { return nmm_fseek(
 
 int64_t nmm_input_ftell(struct nmm_input* input) { return ftell(input->stream); }
 
-struct nmm_model const* nmm_input_read(struct nmm_input* input)
+struct nmm_profile const* nmm_input_read(struct nmm_input* input)
 {
     uint8_t block_type = 0x00;
 
@@ -78,7 +75,7 @@ struct nmm_model const* nmm_input_read(struct nmm_input* input)
     return read_block(input, block_type);
 }
 
-static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block_type)
+static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t block_type)
 {
     if (block_type == IMM_IO_BLOCK_EOF) {
         input->eof = true;
@@ -90,10 +87,10 @@ static struct nmm_model const* read_block(struct nmm_input* input, uint8_t block
         return NULL;
     }
 
-    struct nmm_model const* model = NULL;
-    if (!(model = nmm_model_read(input->stream))) {
+    struct nmm_profile const* prof = NULL;
+    if (!(prof = nmm_profile_read(input->stream))) {
         imm_error("failed to read file %s", input->filepath);
         return NULL;
     }
-    return model;
+    return prof;
 }
