@@ -261,7 +261,7 @@ void test_hmm_io_two_hmm_blocks(void)
     cass_cond(prof != NULL);
     nmm_input_destroy(input);
 
-    cass_equal(nmm_profile_nhmm_blocks(prof), 2);
+    cass_equal(nmm_profile_nmodels(prof), 2);
     struct imm_model* block0 = nmm_profile_get_model(prof, 0);
     struct imm_model* block1 = nmm_profile_get_model(prof, 1);
 

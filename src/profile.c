@@ -235,7 +235,7 @@ struct imm_model* nmm_profile_get_model(struct nmm_profile const* prof, uint8_t 
     return imm_profile_get_model(prof->super, i);
 }
 
-uint8_t nmm_profile_nhmm_blocks(struct nmm_profile const* prof) { return imm_profile_nmodels(prof->super); }
+uint8_t nmm_profile_nmodels(struct nmm_profile const* prof) { return imm_profile_nmodels(prof->super); }
 
 struct nmm_profile const* nmm_profile_read(FILE* stream)
 {
