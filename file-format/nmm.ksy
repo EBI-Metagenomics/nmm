@@ -15,8 +15,8 @@ enums:
     0x10: codon
     0x11: frame
   block_type:
-    0x00: imm_model
-    0x10: nmm_model
+    0x00: imm_profile
+    0x10: nmm_profile
     0xff: end_of_file
 types:
   block:
@@ -28,19 +28,19 @@ types:
         type:
           switch-on: block_type
           cases:
-            'block_type::imm_model': imm_model
-            'block_type::nmm_model': nmm_model
-  imm_model:
+            'block_type::imm_profile': imm_profile
+            'block_type::nmm_profile': nmm_profile
+  imm_profile:
     seq:
       - id: abc
         type: abc
-      - id: nhmm_blocks
+      - id: nmodels
         type: u1
-      - id: hmm_block
-        type: hmm_block
+      - id: model
+        type: model
         repeat: expr
-        repeat-expr: nhmm_blocks
-  nmm_model:
+        repeat-expr: nmodels
+  nmm_profile:
     seq:
       - id: abc
         type: abc
@@ -62,13 +62,13 @@ types:
         type: codonm
         repeat: expr
         repeat-expr: ncodonm
-      - id: nhmm_blocks
+      - id: nmodels
         type: u1
-      - id: hmm_block
-        type: hmm_block
+      - id: model
+        type: model
         repeat: expr
-        repeat-expr: nhmm_blocks
-  hmm_block:
+        repeat-expr: nmodels
+  model:
     seq:
       - id: hmm
         type: hmm

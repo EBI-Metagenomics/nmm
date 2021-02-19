@@ -20,10 +20,10 @@ The file is a sequence of blocks:
     |             | |                                   |
     |-------------|-|-----------------------------------|
 
-A block has a type defined by the block_type field: imm_model (0x00), nmm_model (0x10), or
+A block has a type defined by the block_type field: imm_profile (0x00), nmm_profile (0x10), or
 end_of_file (0xff). The only block to have type end_of_file is the Block n-1 to the stream of bytes.
 
-The body of a nmm_model block contains the following chunk:
+The body of a nmm_profile block contains the following chunk:
 
      model_block                              abc
     |--------------------------------------| |---------------------------|
@@ -40,8 +40,8 @@ The body of a nmm_model block contains the following chunk:
     | ncodont: uint16_t                    |
     | codont: codont[ncodont]              |
     |--------------------------------------|
-    | nhmm_blocks: uint8_t                 |
-    | hmm_block: hmm_block[nhmm_blocks]    |
+    | nmodels: uint8_t                     |
+    | model: model[nmodels]                |
     |--------------------------------------|
 
 Base and codon chunks:
