@@ -1,4 +1,3 @@
-#include "fio.h"
 #include "free.h"
 #include "nmm/nmm.h"
 #include "profile.h"
@@ -79,13 +78,13 @@ int nmm_output_destroy(struct nmm_output* output)
     return errno;
 }
 
-int64_t nmm_output_ftell(struct nmm_output* output) { return nmm_ftell(output->stream); }
+int64_t nmm_output_ftell(struct nmm_output* output) { return imm_file_tell(output->stream); }
 
 int nmm_output_write(struct nmm_output* output, struct nmm_profile const* prof)
 {
     uint8_t block_type = NMM_IO_BLOCK_MODEL;
 
-    long offset = ftell(output->stream);
+    long offset = imm_file_tell(output->stream);
     if (offset < -1) {
         imm_error("could not ftell");
         return 1;

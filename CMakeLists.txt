@@ -33,7 +33,6 @@ add_library(nmm
     src/codon_lprob.c
     src/codon_marg.c
     src/codon_state.c
-    src/fio.c
     src/frame_state.c
     src/input.c
     src/output.c
