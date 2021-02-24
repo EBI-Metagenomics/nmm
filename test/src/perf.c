@@ -182,7 +182,7 @@ void test_perf_viterbi(void)
     struct nmm_profile* m = nmm_profile_create(abc);
     nmm_profile_append_model(m, imm_model_create(hmm, dp));
     cass_equal(nmm_output_write(output, m), 0);
-    nmm_profile_destroy(m);
+    nmm_profile_destroy(m, false);
     cass_equal(nmm_output_destroy(output), 0);
 
     imm_hmm_destroy(hmm);
@@ -255,7 +255,7 @@ void test_perf_viterbi(void)
     imm_abc_destroy(abc);
     imm_hmm_destroy(hmm);
     imm_dp_destroy(dp);
-    nmm_profile_destroy(prof);
+    nmm_profile_destroy(prof, false);
 }
 
 static struct nmm_codon_lprob* create_codonp(struct nmm_base_abc const* base)

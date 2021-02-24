@@ -80,22 +80,21 @@ struct nmm_profile* nmm_profile_create(struct imm_abc const* abc)
     return prof;
 }
 
-void nmm_profile_destroy(struct nmm_profile const* prof)
+void nmm_profile_destroy(struct nmm_profile const* prof, bool deep)
 {
-    imm_profile_destroy(prof->super);
-    destroy_base_lprob_map(prof->base_lprob_map);
-    destroy_codon_lprob_map(prof->codon_lprob_map);
-    destroy_codon_marg_map(prof->codon_marg_map);
+    imm_profile_destroy(prof->super, deep);
 
-    kh_destroy(base_lprob_idx, prof->base_lprob_idx);
-    kh_destroy(codon_lprob_idx, prof->codon_lprob_idx);
-    kh_destroy(codon_marg_idx, prof->codon_marg_idx);
-    free_c(prof);
-}
+    if (deep) {
+        for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
+            nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
 
-void nmm_profile_free(struct nmm_profile const* prof)
-{
-    imm_profile_free(prof->super);
+        for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
+            nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
+
+        for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
+            nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
+    }
+
     destroy_base_lprob_map(prof->base_lprob_map);
     destroy_codon_lprob_map(prof->codon_lprob_map);
     destroy_codon_marg_map(prof->codon_marg_map);

@@ -80,7 +80,7 @@ void test_hmm_io_two_states(void)
     struct nmm_profile* p = nmm_profile_create(abc);
     nmm_profile_append_model(p, imm_model_create(hmm, dp));
     cass_equal(nmm_output_write(output, p), 0);
-    nmm_profile_destroy(p);
+    nmm_profile_destroy(p, false);
     cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
@@ -123,24 +123,9 @@ void test_hmm_io_two_states(void)
     cass_close(imm_hmm_loglikelihood(hmm, seq, imm_result_path(r)), -6.0198640216);
     imm_results_destroy(results);
 
-    for (uint16_t i = 0; i < imm_model_nstates(model); ++i)
-        imm_state_destroy(imm_model_state(model, i));
-
-    for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
-        nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
-
-    for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
-        nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
-
-    for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
-        nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
-
     imm_seq_destroy(seq);
-    imm_abc_destroy(abc);
-    imm_hmm_destroy(hmm);
-    imm_dp_destroy(dp);
-    nmm_profile_destroy(prof);
     imm_dp_task_destroy(task);
+    nmm_profile_destroy(prof, true);
 }
 
 void test_hmm_io_two_hmm_models(void)
@@ -238,7 +223,7 @@ void test_hmm_io_two_hmm_models(void)
     nmm_profile_append_model(m, imm_model_create(hmm0, dp0));
     nmm_profile_append_model(m, imm_model_create(hmm1, dp1));
     cass_equal(nmm_output_write(output, m), 0);
-    nmm_profile_destroy(m);
+    nmm_profile_destroy(m, false);
     cass_equal(nmm_output_destroy(output), 0);
 
     nmm_base_abc_destroy(base);
@@ -303,31 +288,8 @@ void test_hmm_io_two_hmm_models(void)
     cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112648);
     imm_results_destroy(results);
 
-    for (uint16_t i = 0; i < imm_model_nstates(model0); ++i)
-        imm_state_destroy(imm_model_state(model0, i));
-
-    for (uint16_t i = 0; i < imm_model_nstates(model1); ++i)
-        imm_state_destroy(imm_model_state(model1, i));
-
-    cass_equal(nmm_profile_nbase_lprobs(prof), 1);
-    for (uint16_t i = 0; i < nmm_profile_nbase_lprobs(prof); ++i)
-        nmm_base_lprob_destroy(nmm_profile_base_lprob(prof, i));
-
-    cass_equal(nmm_profile_ncodon_margs(prof), 1);
-    for (uint16_t i = 0; i < nmm_profile_ncodon_margs(prof); ++i)
-        nmm_codon_marg_destroy(nmm_profile_codon_marg(prof, i));
-
-    cass_equal(nmm_profile_ncodon_lprobs(prof), 1);
-    for (uint16_t i = 0; i < nmm_profile_ncodon_lprobs(prof); ++i)
-        nmm_codon_lprob_destroy(nmm_profile_codon_lprob(prof, i));
-
     imm_seq_destroy(seq);
-    imm_abc_destroy(abc);
-    imm_hmm_destroy(hmm0);
-    imm_dp_destroy(dp0);
-    imm_hmm_destroy(hmm1);
-    imm_dp_destroy(dp1);
-    nmm_profile_destroy(prof);
     imm_dp_task_destroy(task0);
     imm_dp_task_destroy(task1);
+    nmm_profile_destroy(prof, true);
 }
