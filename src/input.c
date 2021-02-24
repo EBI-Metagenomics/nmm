@@ -7,28 +7,27 @@
 struct nmm_input
 {
     FILE*       stream;
+    bool        own_stream;
     char const* filepath;
-
-    bool eof;
-    bool closed;
+    bool        eof;
 };
 
+static struct nmm_input*         input_screate(char const* filepath, FILE* restrict stream, bool own_stream);
 static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t block_type);
 
 int nmm_input_close(struct nmm_input* input)
 {
-    if (input->closed)
+    if (!input->stream)
         return 0;
-
-    int errno = 0;
 
     if (fclose(input->stream)) {
         imm_error("failed to close file %s", input->filepath);
-        errno = 1;
+        input->stream = NULL;
+        return 1;
     }
 
-    input->closed = true;
-    return errno;
+    input->stream = NULL;
+    return 0;
 }
 
 struct nmm_input* nmm_input_create(char const* filepath)
@@ -38,19 +37,14 @@ struct nmm_input* nmm_input_create(char const* filepath)
         imm_error("could not open file %s for reading", filepath);
         return NULL;
     }
-
-    struct nmm_input* input = malloc(sizeof(*input));
-    input->stream = stream;
-    input->filepath = strdup(filepath);
-    input->eof = false;
-    input->closed = false;
-
-    return input;
+    return input_screate(filepath, stream, true);
 }
 
 int nmm_input_destroy(struct nmm_input* input)
 {
-    int errno = nmm_input_close(input);
+    int errno = 0;
+    if (input->own_stream)
+        errno = nmm_input_close(input);
     free_c(input->filepath);
     free_c(input);
     return errno;
@@ -92,4 +86,19 @@ static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t blo
         return NULL;
     }
     return prof;
+}
+
+struct nmm_input* nmm_input_screate(char const* filepath, FILE* restrict stream)
+{
+    return input_screate(filepath, stream, false);
+}
+
+static struct nmm_input* input_screate(char const* filepath, FILE* restrict stream, bool own_stream)
+{
+    struct nmm_input* input = malloc(sizeof(*input));
+    input->stream = stream;
+    input->own_stream = own_stream;
+    input->filepath = strdup(filepath);
+    input->eof = false;
+    return input;
 }
