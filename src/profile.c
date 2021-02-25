@@ -2,6 +2,7 @@
 #include "amino_abc.h"
 #include "base_abc.h"
 #include "base_lprob.h"
+#include "bug.h"
 #include "codon_lprob.h"
 #include "codon_marg.h"
 #include "free.h"
@@ -115,7 +116,7 @@ uint16_t nmm_profile_ncodon_margs(struct nmm_profile const* prof) { return (uint
     uint16_t profile_##MOD##_index(struct nmm_profile const* prof, struct nmm_##MOD const* MOD)                        \
     {                                                                                                                  \
         khiter_t i = kh_get(MOD, prof->MOD##_map, MOD);                                                                \
-        IMM_BUG(i == kh_end(prof->MOD##_map));                                                                         \
+        BUG(i == kh_end(prof->MOD##_map));                                                                             \
                                                                                                                        \
         struct MOD##_node* node = kh_val(prof->MOD##_map, i);                                                          \
                                                                                                                        \
@@ -164,12 +165,12 @@ CREATE_MODEL_GET_FUNC(codon_marg)
             node->MOD = MOD;                                                                                           \
             int      ret = 0;                                                                                          \
             khiter_t iter = kh_put(MOD, map, node->MOD, &ret);                                                         \
-            IMM_BUG(ret == -1 || ret == 0);                                                                            \
+            BUG(ret == -1 || ret == 0);                                                                                \
             kh_key(map, iter) = node->MOD;                                                                             \
             kh_val(map, iter) = node;                                                                                  \
                                                                                                                        \
             iter = kh_put(MOD##_idx, prof->MOD##_idx, node->index, &ret);                                              \
-            IMM_BUG(ret == -1 || ret == 0);                                                                            \
+            BUG(ret == -1 || ret == 0);                                                                                \
             kh_key(idx, iter) = node->index;                                                                           \
             kh_val(idx, iter) = node;                                                                                  \
         }                                                                                                              \
@@ -322,12 +323,12 @@ static struct imm_abc const* read_abc(FILE* stream, uint8_t type_id)
                                                                                                                        \
             int      ret = 0;                                                                                          \
             khiter_t iter = kh_put(MOD, prof->MOD##_map, node->MOD, &ret);                                             \
-            IMM_BUG(ret == -1 || ret == 0);                                                                            \
+            BUG(ret == -1 || ret == 0);                                                                                \
             kh_key(prof->MOD##_map, iter) = node->MOD;                                                                 \
             kh_val(prof->MOD##_map, iter) = node;                                                                      \
                                                                                                                        \
             iter = kh_put(MOD##_idx, prof->MOD##_idx, node->index, &ret);                                              \
-            IMM_BUG(ret == -1 || ret == 0);                                                                            \
+            BUG(ret == -1 || ret == 0);                                                                                \
             kh_key(prof->MOD##_idx, iter) = node->index;                                                               \
             kh_val(prof->MOD##_idx, iter) = node;                                                                      \
         }                                                                                                              \
@@ -425,7 +426,7 @@ static int write_abc(struct nmm_profile const* prof, FILE* stream)
     static int write_##MOD(struct nmm_profile const* prof, FILE* stream)                                               \
     {                                                                                                                  \
         khash_t(MOD##_idx)* idx = prof->MOD##_idx;                                                                     \
-        IMM_BUG(kh_size(idx) > UINT16_MAX);                                                                            \
+        BUG(kh_size(idx) > UINT16_MAX);                                                                                \
                                                                                                                        \
         uint16_t n = (uint16_t)kh_size(idx);                                                                           \
                                                                                                                        \
@@ -436,7 +437,7 @@ static int write_abc(struct nmm_profile const* prof, FILE* stream)
                                                                                                                        \
         for (uint16_t i = 0; i < n; ++i) {                                                                             \
             khiter_t iter = kh_get(MOD##_idx, idx, i);                                                                 \
-            IMM_BUG(iter == kh_end(idx));                                                                              \
+            BUG(iter == kh_end(idx));                                                                                  \
                                                                                                                        \
             struct MOD##_node const* node = kh_val(idx, iter);                                                         \
                                                                                                                        \

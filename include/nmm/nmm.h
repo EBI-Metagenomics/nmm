@@ -6,7 +6,6 @@ extern "C"
 {
 #endif
 
-#include "imm/imm.h"
 #include "nmm/abc_types.h"
 #include "nmm/amino_abc.h"
 #include "nmm/amino_lprob.h"

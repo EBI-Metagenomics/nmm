@@ -31,7 +31,6 @@ NMM_API int                      nmm_array3d_write(struct nmm_array3d const* arr
 
 static inline struct nmm_array3d nmm_array3d_create(uint16_t dim0, uint16_t dim1, uint16_t dim2)
 {
-    IMM_BUG((unsigned)(dim0 * dim1 * dim2) > UINT16_MAX);
     uint16_t           len = dim0 * dim1 * dim2;
     struct nmm_array3d arr = {{dim1 * dim2, dim2, 1}, malloc(sizeof(*arr.values) * len)};
     return arr;

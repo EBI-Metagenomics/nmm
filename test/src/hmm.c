@@ -1,4 +1,5 @@
 #include "cass/cass.h"
+#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 void test_hmm_frame_state_0eps(void);
@@ -393,20 +394,18 @@ imm_float single_viterbi(struct imm_hmm const* hmm, struct imm_seq const* seq, s
 {
     struct imm_dp const* dp = imm_hmm_create_dp(hmm, end_state);
     struct imm_dp_task*  task = imm_dp_task_create(dp);
-    imm_dp_task_setup(task, seq, 0);
-    struct imm_results const* results = imm_dp_viterbi(dp, task);
+    imm_dp_task_setup(task, seq);
+    struct imm_result const* r = imm_dp_viterbi(dp, task);
     imm_dp_task_destroy(task);
-    if (results == NULL)
+    if (r == NULL)
         return imm_lprob_invalid();
-    struct imm_result const* r = imm_results_get(results, 0);
 
     struct imm_path const* src = imm_result_path(r);
     for (struct imm_step const* step = imm_path_first(src); step; step = imm_path_next(src, step))
         imm_path_append(path, imm_step_create(imm_step_state(step), imm_step_seq_len(step)));
 
-    struct imm_subseq subseq = imm_result_subseq(r);
-    imm_float         loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), path);
-    imm_results_destroy(results);
+    imm_float loglik = imm_hmm_loglikelihood(hmm, seq, path);
+    imm_result_destroy(r);
     imm_dp_destroy(dp);
 
     return loglik;

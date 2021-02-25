@@ -1,5 +1,6 @@
 #include "cass/cass.h"
 #include "helper.h"
+#include "imm/imm.h"
 #include "nmm/nmm.h"
 
 #ifndef TMPDIR
@@ -162,19 +163,16 @@ void test_perf_viterbi(void)
     struct imm_dp const* dp = imm_hmm_create_dp(hmm, mute_super(end));
 
     struct imm_dp_task* task = imm_dp_task_create(dp);
-    imm_dp_task_setup(task, seq, 0);
-    struct imm_results const* results = imm_dp_viterbi(dp, task);
+    imm_dp_task_setup(task, seq);
+    struct imm_result const* r = imm_dp_viterbi(dp, task);
     imm_dp_task_destroy(task);
 
-    cass_cond(imm_results_size(results) == 1);
-    struct imm_result const* r = imm_results_get(results, 0);
-    struct imm_subseq        subseq = imm_result_subseq(r);
-    struct imm_path const*   path = imm_result_path(r);
-    imm_float                loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), path);
+    struct imm_path const* path = imm_result_path(r);
+    imm_float              loglik = imm_hmm_loglikelihood(hmm, seq, path);
     cass_cond(imm_lprob_is_valid(loglik));
     cass_cond(!imm_lprob_is_zero(loglik));
     cass_close(loglik, -1641.970511421383435);
-    imm_results_destroy(results);
+    imm_result_destroy(r);
     imm_seq_destroy(seq);
 
     struct nmm_output* output = nmm_output_create(TMPDIR "/perf.nmm");
@@ -226,18 +224,15 @@ void test_perf_viterbi(void)
 
     seq = imm_seq_create(__seq, abc);
     task = imm_dp_task_create(dp);
-    imm_dp_task_setup(task, seq, 0);
-    results = imm_dp_viterbi(dp, task);
+    imm_dp_task_setup(task, seq);
+    r = imm_dp_viterbi(dp, task);
     imm_dp_task_destroy(task);
-    cass_cond(imm_results_size(results) == 1);
-    r = imm_results_get(results, 0);
-    subseq = imm_result_subseq(r);
     path = imm_result_path(r);
-    loglik = imm_hmm_loglikelihood(hmm, imm_subseq_cast(&subseq), path);
+    loglik = imm_hmm_loglikelihood(hmm, seq, path);
     cass_cond(imm_lprob_is_valid(loglik));
     cass_cond(!imm_lprob_is_zero(loglik));
     cass_close(loglik, -1641.970511421383435);
-    imm_results_destroy(results);
+    imm_result_destroy(r);
     imm_seq_destroy(seq);
 
     for (uint16_t i = 0; i < imm_model_nstates(model); ++i)
