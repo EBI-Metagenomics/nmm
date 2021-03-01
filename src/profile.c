@@ -106,6 +106,12 @@ void nmm_profile_destroy(struct nmm_profile const* prof, bool deep)
     free_c(prof);
 }
 
+void nmm_profile_free(struct nmm_profile const* prof)
+{
+    imm_profile_free(prof->super);
+    free_c(prof);
+}
+
 uint16_t nmm_profile_nbase_lprobs(struct nmm_profile const* prof) { return (uint16_t)kh_size(prof->base_lprob_map); }
 
 uint16_t nmm_profile_ncodon_lprobs(struct nmm_profile const* prof) { return (uint16_t)kh_size(prof->codon_lprob_map); }

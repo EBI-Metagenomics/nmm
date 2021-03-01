@@ -10,69 +10,69 @@
  */
 #define NSYMBOLS (NMM_BASE_ABC_SIZE + 1)
 
-static imm_float              marginalization(struct nmm_codon_marg const* codont, char const* symbols,
+static imm_float              marginalization(struct nmm_codon_marg const* codonm, char const* symbols,
                                               struct nmm_codon const* codon);
 static struct nmm_codon_marg* new_codon_marg(struct nmm_base_abc const* base_abc);
 static inline int             not_marginal(struct nmm_codon const* codon, char const any_symbol);
-static inline void set_marginal_lprob(struct nmm_codon_marg* codont, struct nmm_codon const* codon, imm_float lprob);
-static void        set_marginal_lprobs(struct nmm_codon_marg* codont, struct nmm_base_abc const* base_abc);
-static int         set_nonmarginal_lprobs(struct nmm_codon_marg* codont, struct nmm_codon_lprob const* codonp);
-static void        set_symbol_index(struct nmm_codon_marg* codont);
+static inline void set_marginal_lprob(struct nmm_codon_marg* codonm, struct nmm_codon const* codon, imm_float lprob);
+static void        set_marginal_lprobs(struct nmm_codon_marg* codonm, struct nmm_base_abc const* base_abc);
+static int         set_nonmarginal_lprobs(struct nmm_codon_marg* codonm, struct nmm_codon_lprob const* codonp);
+static void        set_symbol_index(struct nmm_codon_marg* codonm);
 
 struct nmm_codon_marg const* nmm_codon_marg_create(struct nmm_codon_lprob const* codonp)
 {
-    struct nmm_codon_marg* codont = new_codon_marg(nmm_codon_lprob_abc(codonp));
+    struct nmm_codon_marg* codonm = new_codon_marg(nmm_codon_lprob_abc(codonp));
 
-    set_symbol_index(codont);
+    set_symbol_index(codonm);
 
-    codont->lprobs = nmm_array3d_create(NSYMBOLS, NSYMBOLS, NSYMBOLS);
+    codonm->lprobs = nmm_array3d_create(NSYMBOLS, NSYMBOLS, NSYMBOLS);
 
-    if (set_nonmarginal_lprobs(codont, codonp)) {
-        nmm_array3d_destroy(codont->lprobs);
-        free_c(codont);
+    if (set_nonmarginal_lprobs(codonm, codonp)) {
+        nmm_array3d_destroy(codonm->lprobs);
+        free_c(codonm);
         return NULL;
     }
 
-    set_marginal_lprobs(codont, codont->base_abc);
+    set_marginal_lprobs(codonm, codonm->base_abc);
 
-    return codont;
+    return codonm;
 }
 
-void nmm_codon_marg_destroy(struct nmm_codon_marg const* codont)
+void nmm_codon_marg_destroy(struct nmm_codon_marg const* codonm)
 {
-    nmm_array3d_destroy(codont->lprobs);
-    free_c(codont);
+    nmm_array3d_destroy(codonm->lprobs);
+    free_c(codonm);
 }
 
 struct nmm_codon_marg const* codon_marg_read(FILE* stream, struct nmm_base_abc const* base_abc)
 {
-    struct nmm_codon_marg* codont = new_codon_marg(base_abc);
+    struct nmm_codon_marg* codonm = new_codon_marg(base_abc);
 
-    if (fread(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
+    if (fread(codonm->symbol_idx, sizeof(*codonm->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
         NMM_ASCII_LAST_STD + 1) {
         imm_error("could not read symbol_idx");
-        free_c(codont);
+        free_c(codonm);
         return NULL;
     }
 
-    if (nmm_array3d_read(&codont->lprobs, stream)) {
+    if (nmm_array3d_read(&codonm->lprobs, stream)) {
         imm_error("could not read lprobs");
-        free_c(codont);
+        free_c(codonm);
         return NULL;
     }
 
-    return codont;
+    return codonm;
 }
 
-int codon_marg_write(struct nmm_codon_marg const* codont, FILE* stream)
+int codon_marg_write(struct nmm_codon_marg const* codonm, FILE* stream)
 {
-    if (fwrite(codont->symbol_idx, sizeof(*codont->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
+    if (fwrite(codonm->symbol_idx, sizeof(*codonm->symbol_idx), NMM_ASCII_LAST_STD + 1, stream) <
         NMM_ASCII_LAST_STD + 1) {
         imm_error("could not write symbol_idx");
         return 1;
     }
 
-    if (nmm_array3d_write(&codont->lprobs, stream)) {
+    if (nmm_array3d_write(&codonm->lprobs, stream)) {
         imm_error("could not write lprobs");
         return 1;
     }
@@ -80,7 +80,7 @@ int codon_marg_write(struct nmm_codon_marg const* codont, FILE* stream)
     return 0;
 }
 
-static imm_float marginalization(struct nmm_codon_marg const* codont, char const* symbols,
+static imm_float marginalization(struct nmm_codon_marg const* codonm, char const* symbols,
                                  struct nmm_codon const* codon)
 {
     char const any_symbol = symbols[NSYMBOLS - 1];
@@ -110,7 +110,7 @@ static imm_float marginalization(struct nmm_codon_marg const* codont, char const
                 t.b = arr[1][b];
                 t.c = arr[2][c];
                 nmm_codon_set_triplet(tmp, t);
-                lprob = imm_lprob_add(lprob, nmm_codon_marg_lprob(codont, tmp));
+                lprob = imm_lprob_add(lprob, nmm_codon_marg_lprob(codonm, tmp));
             }
         }
     }
@@ -121,10 +121,10 @@ static imm_float marginalization(struct nmm_codon_marg const* codont, char const
 
 static struct nmm_codon_marg* new_codon_marg(struct nmm_base_abc const* base_abc)
 {
-    struct nmm_codon_marg* codont = malloc(sizeof(*codont));
-    codont->base_abc = base_abc;
-    memset(codont->symbol_idx, 0, NMM_ASCII_LAST_STD + 1);
-    return codont;
+    struct nmm_codon_marg* codonm = malloc(sizeof(*codonm));
+    codonm->base_abc = base_abc;
+    memset(codonm->symbol_idx, 0, NMM_ASCII_LAST_STD + 1);
+    return codonm;
 }
 
 static inline int not_marginal(struct nmm_codon const* codon, char const any_symbol)
@@ -133,12 +133,12 @@ static inline int not_marginal(struct nmm_codon const* codon, char const any_sym
     return t.a != any_symbol && t.b != any_symbol && t.c != any_symbol;
 }
 
-static inline void set_marginal_lprob(struct nmm_codon_marg* codont, struct nmm_codon const* codon, imm_float lprob)
+static inline void set_marginal_lprob(struct nmm_codon_marg* codonm, struct nmm_codon const* codon, imm_float lprob)
 {
-    nmm_array3d_set(&codont->lprobs, __nmm_codon_marg_array_idx(codont, codon), lprob);
+    nmm_array3d_set(&codonm->lprobs, __nmm_codon_marg_array_idx(codonm, codon), lprob);
 }
 
-static void set_marginal_lprobs(struct nmm_codon_marg* codont, struct nmm_base_abc const* base_abc)
+static void set_marginal_lprobs(struct nmm_codon_marg* codonm, struct nmm_base_abc const* base_abc)
 {
     struct imm_abc const* abc = nmm_base_abc_super(base_abc);
     char const            any_symbol = imm_abc_any_symbol(abc);
@@ -157,7 +157,7 @@ static void set_marginal_lprobs(struct nmm_codon_marg* codont, struct nmm_base_a
                 if (not_marginal(codon, any_symbol))
                     continue;
 
-                set_marginal_lprob(codont, codon, marginalization(codont, symbols, codon));
+                set_marginal_lprob(codonm, codon, marginalization(codonm, symbols, codon));
             }
         }
     }
@@ -165,26 +165,26 @@ static void set_marginal_lprobs(struct nmm_codon_marg* codont, struct nmm_base_a
     nmm_codon_destroy(codon);
 }
 
-static int set_nonmarginal_lprobs(struct nmm_codon_marg* codont, struct nmm_codon_lprob const* codonp)
+static int set_nonmarginal_lprobs(struct nmm_codon_marg* codonm, struct nmm_codon_lprob const* codonp)
 {
-    struct codon_iter iter = codon_iter_begin(codont->base_abc);
+    struct codon_iter iter = codon_iter_begin(codonm->base_abc);
     while (!codon_iter_end(iter)) {
         struct nmm_codon const codon = codon_iter_next(&iter);
-        set_marginal_lprob(codont, &codon, nmm_codon_lprob_get(codonp, &codon));
+        set_marginal_lprob(codonm, &codon, nmm_codon_lprob_get(codonp, &codon));
     }
     return 0;
 }
 
-static void set_symbol_index(struct nmm_codon_marg* codont)
+static void set_symbol_index(struct nmm_codon_marg* codonm)
 {
-    struct imm_abc const* abc = nmm_base_abc_super(codont->base_abc);
+    struct imm_abc const* abc = nmm_base_abc_super(codonm->base_abc);
 
     char const* symbols = imm_abc_symbols(abc);
 
     for (unsigned i = 0; i < NMM_BASE_ABC_SIZE; ++i) {
         size_t j = (size_t)symbols[i];
-        codont->symbol_idx[j] = imm_abc_symbol_idx(abc, symbols[i]);
+        codonm->symbol_idx[j] = imm_abc_symbol_idx(abc, symbols[i]);
     }
 
-    codont->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_ABC_SIZE;
+    codonm->symbol_idx[(size_t)imm_abc_any_symbol(abc)] = NMM_BASE_ABC_SIZE;
 }

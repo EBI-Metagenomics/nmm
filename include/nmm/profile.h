@@ -21,6 +21,7 @@ NMM_API void                          nmm_profile_append_model(struct nmm_profil
 NMM_API struct imm_model*             nmm_profile_get_model(struct nmm_profile const* prof, uint8_t i);
 NMM_API uint8_t                       nmm_profile_nmodels(struct nmm_profile const* prof);
 NMM_API void                          nmm_profile_destroy(struct nmm_profile const* prof, bool deep);
+NMM_API void                          nmm_profile_free(struct nmm_profile const* prof);
 NMM_API uint16_t                      nmm_profile_nbase_lprobs(struct nmm_profile const* prof);
 NMM_API uint16_t                      nmm_profile_ncodon_lprobs(struct nmm_profile const* prof);
 NMM_API uint16_t                      nmm_profile_ncodon_margs(struct nmm_profile const* prof);

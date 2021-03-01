@@ -31,17 +31,17 @@ struct nmm_codon_marg
     struct nmm_array3d lprobs;
 };
 
-static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_marg const* codont);
-NMM_API struct nmm_codon_marg const*     nmm_codon_marg_create(struct nmm_codon_lprob const* prob);
-NMM_API void                             nmm_codon_marg_destroy(struct nmm_codon_marg const* codont);
-static inline imm_float nmm_codon_marg_lprob(struct nmm_codon_marg const* codont, struct nmm_codon const* codon);
+static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_marg const* codonm);
+NMM_API struct nmm_codon_marg const*     nmm_codon_marg_create(struct nmm_codon_lprob const* codonp);
+NMM_API void                             nmm_codon_marg_destroy(struct nmm_codon_marg const* codonm);
+static inline imm_float nmm_codon_marg_lprob(struct nmm_codon_marg const* codonm, struct nmm_codon const* codon);
 
 static inline struct nmm_array3d_idx __nmm_codon_marg_array_idx(struct nmm_codon_marg const* tbl,
                                                                 struct nmm_codon const*      codon);
 
-static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_marg const* codont)
+static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_marg const* codonm)
 {
-    return codont->base_abc;
+    return codonm->base_abc;
 }
 
 /**
@@ -53,13 +53,13 @@ static inline struct nmm_base_abc const* nmm_codon_marg_abc(struct nmm_codon_mar
  * be the any-symbol of the given alphabet. The code
  *
  *     nmm_codon_set_triplet(codon, NMM_TRIPLET('A', 'X', 'G'));
- *     nmm_codon_marg_lprob(codont, codon);
+ *     nmm_codon_marg_lprob(codonm, codon);
  *
  * will evaluate the probability p(𝑋₁=𝙰,𝑋₃=𝙶).
  */
-static inline imm_float nmm_codon_marg_lprob(struct nmm_codon_marg const* codont, struct nmm_codon const* codon)
+static inline imm_float nmm_codon_marg_lprob(struct nmm_codon_marg const* codonm, struct nmm_codon const* codon)
 {
-    return nmm_array3d_get(&codont->lprobs, __nmm_codon_marg_array_idx(codont, codon));
+    return nmm_array3d_get(&codonm->lprobs, __nmm_codon_marg_array_idx(codonm, codon));
 }
 
 static inline struct nmm_array3d_idx __nmm_codon_marg_array_idx(struct nmm_codon_marg const* tbl,
