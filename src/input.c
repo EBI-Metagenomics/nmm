@@ -12,8 +12,8 @@ struct nmm_input
     bool        eof;
 };
 
-static struct nmm_input*         input_screate(char const* filepath, FILE* restrict stream, bool own_stream);
-static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t block_type);
+static struct nmm_input*   input_screate(char const* filepath, FILE* restrict stream, bool own_stream);
+static struct nmm_profile* read_block(struct nmm_input* input, uint8_t block_type);
 
 int nmm_input_close(struct nmm_input* input)
 {
@@ -56,7 +56,7 @@ int nmm_input_fseek(struct nmm_input* input, int64_t offset) { return imm_file_s
 
 int64_t nmm_input_ftell(struct nmm_input* input) { return imm_file_tell(input->stream); }
 
-struct nmm_profile const* nmm_input_read(struct nmm_input* input)
+struct nmm_profile* nmm_input_read(struct nmm_input* input)
 {
     uint8_t block_type = 0x00;
 
@@ -68,7 +68,7 @@ struct nmm_profile const* nmm_input_read(struct nmm_input* input)
     return read_block(input, block_type);
 }
 
-static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t block_type)
+static struct nmm_profile* read_block(struct nmm_input* input, uint8_t block_type)
 {
     if (block_type == IMM_IO_BLOCK_EOF) {
         input->eof = true;
@@ -80,7 +80,7 @@ static struct nmm_profile const* read_block(struct nmm_input* input, uint8_t blo
         return NULL;
     }
 
-    struct nmm_profile const* prof = NULL;
+    struct nmm_profile* prof = NULL;
     if (!(prof = nmm_profile_read(input->stream))) {
         imm_error("failed to read file %s", input->filepath);
         return NULL;

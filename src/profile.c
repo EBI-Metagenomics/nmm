@@ -243,7 +243,7 @@ struct imm_model* nmm_profile_get_model(struct nmm_profile const* prof, uint8_t 
 
 uint8_t nmm_profile_nmodels(struct nmm_profile const* prof) { return imm_profile_nmodels(prof->super); }
 
-struct nmm_profile const* nmm_profile_read(FILE* stream)
+struct nmm_profile* nmm_profile_read(FILE* stream)
 {
     uint8_t abc_type_id = 0;
     if (fread(&abc_type_id, sizeof(abc_type_id), 1, stream) < 1) {

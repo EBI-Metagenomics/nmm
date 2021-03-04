@@ -9,13 +9,13 @@
 struct nmm_input;
 struct nmm_profile;
 
-NMM_API int                       nmm_input_close(struct nmm_input* input);
-NMM_API struct nmm_input*         nmm_input_create(char const* filepath);
-NMM_API int                       nmm_input_destroy(struct nmm_input* input);
-NMM_API bool                      nmm_input_eof(struct nmm_input const* input);
-NMM_API int                       nmm_input_fseek(struct nmm_input* input, int64_t offset);
-NMM_API int64_t                   nmm_input_ftell(struct nmm_input* input);
-NMM_API struct nmm_profile const* nmm_input_read(struct nmm_input* input);
-NMM_API struct nmm_input*         nmm_input_screate(char const* filepath, FILE* restrict stream);
+NMM_API int                 nmm_input_close(struct nmm_input* input);
+NMM_API struct nmm_input*   nmm_input_create(char const* filepath);
+NMM_API int                 nmm_input_destroy(struct nmm_input* input);
+NMM_API bool                nmm_input_eof(struct nmm_input const* input);
+NMM_API int                 nmm_input_fseek(struct nmm_input* input, int64_t offset);
+NMM_API int64_t             nmm_input_ftell(struct nmm_input* input);
+NMM_API struct nmm_profile* nmm_input_read(struct nmm_input* input);
+NMM_API struct nmm_input*   nmm_input_screate(char const* filepath, FILE* restrict stream);
 
 #endif
