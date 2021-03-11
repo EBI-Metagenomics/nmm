@@ -164,7 +164,7 @@ void test_hmm_io_two_hmm_models(void)
     path = imm_path_create();
     imm_path_append(path, imm_step_create(nmm_frame_state_super(state1), 1));
     seq = imm_seq_create("A", abc);
-    cass_close(imm_hmm_loglikelihood(hmm1, seq, path), -6.7130112648);
+    cass_close(imm_hmm_loglikelihood(hmm1, seq, path), -6.7130112022);
     imm_seq_destroy(seq);
     imm_path_destroy(path);
 
@@ -201,8 +201,8 @@ void test_hmm_io_two_hmm_models(void)
     cass_cond(r != NULL);
     p = imm_result_path(r);
     loglik = imm_hmm_loglikelihood(hmm1, seq, p);
-    cass_close(loglik, -6.7130112648);
-    cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112648);
+    cass_close(loglik, -6.7130112022);
+    cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112022);
     imm_seq_destroy(seq);
     imm_result_destroy(r);
 
@@ -267,8 +267,8 @@ void test_hmm_io_two_hmm_models(void)
     cass_cond(r != NULL);
     p = imm_result_path(r);
     loglik = imm_hmm_loglikelihood(hmm1, seq, p);
-    cass_close(loglik, -6.7130112648);
-    cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112648);
+    cass_close(loglik, -6.7130112022);
+    cass_close(imm_hmm_loglikelihood(hmm1, seq, imm_result_path(r)), -6.7130112022);
     imm_result_destroy(r);
 
     imm_seq_destroy(seq);
